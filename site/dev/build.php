@@ -2,14 +2,14 @@
 
 namespace Builder;
 
+require_once 'config.php';
+require_once 'logging.php';
+
 spl_autoload_register( function ($class) {
 	if( $class === "JShrink\Minifier" ) {
 		require_once 'libs/JShrink/Minifier.php';
 	}
 });
-
-require_once 'config.php';
-require_once 'logging.php';
 
 //-----------------------------------------------------------------------------
 function GetNewestFileTime( $list ) { 
@@ -28,11 +28,11 @@ function Build() {
 		mkdir( "logs", 0700 );
 	}
 	
-	//-----------------------------------------------------------------------------
 	if( !file_exists( "min" ) ) {
 		mkdir( "min", 0755 );
 	}
 	
+	//----------------------------------------------------------
 	$css_target = 'min/style.min.css';
 	$newtime = GetNewestFileTime( glob( 'css/*.scss', GLOB_NOSORT ) );
 	$gentime = file_exists( $css_target ) ? filemtime( $css_target ) : 0;
@@ -50,6 +50,7 @@ function Build() {
 		}
 	}
 	
+	//---------------------------------------------------------
 	$js_target = 'min/scripts.min.js';
 	$js = glob( "js/*.js", GLOB_NOSORT );
 	$newtime = GetNewestFileTime( $js );
@@ -68,8 +69,6 @@ function Build() {
 			file_put_contents( $js_target, $code );
 			
 		} else {
-			
-			
 			$code = \JShrink\Minifier::Minify( $code );	
 			file_put_contents( $js_target, $code );
 		}
