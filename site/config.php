@@ -3,8 +3,9 @@
 class Config {
 	public static $DEBUG = 0;
 	public static $ERRLOG = 0;
+	public static $INFOLOG =0 ;
 	public static $ABSPATH;
-	
+	 
 	public function AbsPath() {
 		return self::$ABSPATH;
 	}
@@ -16,6 +17,10 @@ class Config {
 	public function ErrorLogging() {
 		return self::$ERRLOG;
 	}
+	
+	public function InfoLogging() {
+		return self::$INFOLOG;
+	}
 }
 
 // absolute path to site directory
@@ -24,6 +29,7 @@ Config::$ABSPATH = rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/';
 
 Config::$ERRLOG = TRUE; // log exceptions to err.log
 Config::$DEBUG = TRUE;
+Config::$INFOLOG = TRUE;
 
 if( $_SERVER['HTTP_HOST'] != 'localhost' ) {
 	// hack to disable debug in production

@@ -1,1 +1,4 @@
 design/
+site/.sass-cache
+site/min
+site/logs
