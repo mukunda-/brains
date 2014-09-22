@@ -16,8 +16,8 @@ if( $droptables ) {
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
-		account INT AUTO_INCREMENT PRIMARY KEY, 
-		email_hash INT NOT NULL COMMENT 'Hash of email, used to group emails for fast queries.',
+		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+		email_hash UNSIGNED INT NOT NULL COMMENT 'crc32b hash of email, used to group emails for fast queries.',
 		email VARCHAR(255) NOT NULL, 
 		confirmed BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Set when they confirm their email.',
 		password VARCHAR(127) NOT NULL,
@@ -25,9 +25,9 @@ $sql->safequery( "
 		name VARCHAR(64) NOT NULL,
 		website VARCHAR(128),
 		bio VARCHAR(32000),
-		linksmade    INT NOT NULL DEFAULT 0 COMMENT 'Normal links made.',
-		stronglinks  INT NOT NULL DEFAULT 0 COMMENT 'Strong links made.',
-		perfectlinks INT NOT NULL DEFAULT 0 COMMENT 'Perfect links made.',
+		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Normal links made.',
+		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Strong links made.',
+		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Perfect links made.',
 		INDEX USING HASH(email_hash) )
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
@@ -35,9 +35,9 @@ $sql->safequery( "
 	
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS SavedLogin (
-		account INT NOT NULL PRIMARY KEY, 
-		secret INT COMMENT 'Secret code that is stored in a client cookie.',              
-		expires INT COMMENT 'Unixtime of expiry.'
+		account INT UNSIGNED NOT NULL PRIMARY KEY, 
+		secret  INT          COMMENT '31-bit Secret code that is stored in a client cookie.',              
+		expires INT UNSIGNED COMMENT 'Unixtime of expiry.'
 		) 
 	ENGINE = InnoDB
 	COMMENT = 'Saved user logins.'
@@ -45,9 +45,9 @@ $sql->safequery( "
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Thoughts (
-		id INT AUTO_INCREMENT PRIMARY KEY,
-		creator INT COMMENT 'Account of creator.',
-		time INT COMMENT 'Unixtime of creation.',
+		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		creator INT UNSIGNED COMMENT 'Account of creator.',
+		time    INT UNSIGNED COMMENT 'Unixtime of creation.',
 		content VARCHAR(31) UNIQUE
 		) 
 	ENGINE = InnoDB
@@ -56,13 +56,13 @@ $sql->safequery( "
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Links (
-		id1 INT NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
-		id2 INT NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
-		goods INT NOT NULL DEFAULT 0 COMMENT 'Number of upvotes.',
-		bads INT NOT NULL DEFAULT 0 COMMENT 'Number of downvotes.',
-		time INT NOT NULL COMMENT 'Unixtime of creation.',
-		creator INT NOT NULL DEFAULT 0 COMMENT 'Account of the creator, 0 = nobody/admin',
-		PRIMARY KEY (id1, id2)
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
+		goods    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of upvotes.',
+		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
+		creator  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Account of the creator, 0 = nobody/admin',
+		PRIMARY KEY ( thought1, thought2 )
 		)
 	ENGINE = InnoDB
 	COMMENT = 'Describes all links between thoughts.'
@@ -70,10 +70,12 @@ $sql->safequery( "
 	
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Votes (
-		id1 INT NOT NULL COMMENT 'Lesser thought ID in link.',
-		id2 INT NOT NULL COMMENT 'Greater thought ID in link.',
-		account INT NOT NULL,
-		vote BOOL
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		account  INT NOT NULL,
+		time     INT UNSIGNED NOT NULL COMMENT 'Unix timestamp of creation/update.',
+		vote     BOOL,
+		PRIMARY KEY( thought1, thought2, account )
 		)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
