@@ -3,7 +3,7 @@ date_default_timezone_set( 'America/Chicago' );
 
 require_once 'config.php';
 
-if( Config::$DEBUG ) {
+if( $config->DebugMode() ) {
 	require_once 'dev/build.php';
 }
  
@@ -21,10 +21,7 @@ if( Config::$DEBUG ) {
 		<title>brains</title>
 	</head>
 	<body>
-		<div class="topbar">
-			<div class="query">
-				<input type="text" value="tets">
-			</div>
-		</div>
+		<div class="test">aaa</div><div class="test">bbb</div>
+		<input type="text" placeholder="start...">
 	</body>
 </html>
