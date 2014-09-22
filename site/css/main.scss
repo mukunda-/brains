@@ -40,10 +40,11 @@ body {
 				weight: 300;
 			}
 			width: 300-32px;
-			border-radius: 5px;
+			border-radius: 9px;
 			border: none;
 			padding: 7px 16px;
-			background-color: lighten( $cl_topbar, 90%);
+			background-color: lighten( $cl_topbar, 75%);
+			outline: none;
 			&:focus {
 				
 				box-shadow: 0px 0px 16px lighten($cl_topbar, 20%);

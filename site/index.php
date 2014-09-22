@@ -3,7 +3,7 @@ date_default_timezone_set( 'America/Chicago' );
 
 require_once 'config.php';
 
-if( $config->DebugMode() ) {
+if( Config::$DEBUG ) {
 	require_once 'dev/build.php';
 }
  

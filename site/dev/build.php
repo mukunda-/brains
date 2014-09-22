@@ -2,8 +2,15 @@
 
 namespace Builder;
 
+if( substr(getcwd(),-3) == 'dev' ) {	
+	// running from dev folder, change to main
+	chdir( '..' );
+}
+
 require_once 'config.php';
 require_once 'logging.php';
+
+require_once 'htaccess.php';
 
 spl_autoload_register( function ($class) {
 	if( $class === "JShrink\Minifier" ) {

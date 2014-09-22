@@ -25,7 +25,7 @@ class Config {
 
 // absolute path to site directory
 // ie /brain/site/
-Config::$ABSPATH = rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/';
+Config::$ABSPATH = str_replace( "\\", "/", substr( rtrim(dirname(__FILE__), '/\\'), strlen($_SERVER["DOCUMENT_ROOT"]) ) ).'/';
 
 Config::$ERRLOG = TRUE; // log exceptions to err.log
 Config::$DEBUG = TRUE;
