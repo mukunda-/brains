@@ -7,17 +7,17 @@ $sql = GetSQL();
 $droptables = 1;
 
 if( $droptables ) {
-	$sql->safequery( 'DROP TABLE IF EXISTS Accounts' );
-	$sql->safequery( 'DROP TABLE IF EXISTS Login' );
-	$sql->safequery( 'DROP TABLE IF EXISTS Thoughts' );
-	$sql->safequery( 'DROP TABLE IF EXISTS Links' );
-	$sql->safequery( 'DROP TABLE IF EXISTS Votes' );
+	$sql->safequery( '
+		DROP TABLE IF EXISTS 
+		Login, Links, Votes, Thoughts, Accounts'
+		);
+	
 }
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
 		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-		email_hash UNSIGNED INT NOT NULL COMMENT 'crc32b hash of email, used to group emails for fast queries.',
+		email_hash INT UNSIGNED NOT NULL COMMENT 'crc32b hash of email, used to group emails for fast queries.',
 		email VARCHAR(255) NOT NULL, 
 		confirmed BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Set when they confirm their email.',
 		password VARCHAR(127) NOT NULL,
@@ -28,6 +28,9 @@ $sql->safequery( "
 		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Normal links made.',
 		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Strong links made.',
 		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Perfect links made.',
+		banned BOOLEAN NOT NULL DEFAULT 0,
+		bantime INT NOT NULL DEFAULT 0,
+		banreason VARCHAR(512),
 		INDEX USING HASH(email_hash) )
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
@@ -35,10 +38,15 @@ $sql->safequery( "
 	
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Login (
-		account INT UNSIGNED NOT NULL PRIMARY KEY, 
-		secret  INT          COMMENT '31-bit Secret code that is stored in a client cookie.',              
-		expires INT UNSIGNED COMMENT 'Unixtime of expiry.'
-		) 
+		account INT UNSIGNED NOT NULL, 
+		secret  INT     COMMENT '31-bit secret code that is stored in a client cookie.',
+		expires INT UNSIGNED COMMENT 'Unixtime of expiry.',
+		PRIMARY KEY ( account ),
+		" // FOREIGN KEY ( account ) REFERENCES Accounts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
+		// leave out foreign key, this is referenced by account, it doens't backreference the
+		// account.
+		// if expires is soon, its extended when the entry is used.
+."		) 
 	ENGINE = InnoDB
 	COMMENT = 'Active user logins.'
 	" );
@@ -48,8 +56,11 @@ $sql->safequery( "
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		creator INT UNSIGNED COMMENT 'Account of creator.',
 		time    INT UNSIGNED COMMENT 'Unixtime of creation.',
-		content VARCHAR(31) UNIQUE
-		) 
+		content VARCHAR(31) UNIQUE,
+		" //FOREIGN KEY ( creator ) REFERENCES Accounts ( id ) ON DELETE SET NULL ON UPDATE CASCADE
+		// no account foreign id, accounts ids are not removed or changed.
+		// if an account id is invalid, that gets handled.
+."		) 
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of thoughts and their IDs.'
 	" );
@@ -62,7 +73,9 @@ $sql->safequery( "
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		creator  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Account of the creator, 0 = nobody/admin',
-		PRIMARY KEY ( thought1, thought2 )
+		PRIMARY KEY ( thought1, thought2 ),
+		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
 		)
 	ENGINE = InnoDB
 	COMMENT = 'Describes all links between thoughts.'
@@ -72,11 +85,15 @@ $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Votes (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
-		account  INT NOT NULL,
+		account  INT UNSIGNED NOT NULL,
 		time     INT UNSIGNED NOT NULL COMMENT 'Unix timestamp of creation/update.',
 		vote     BOOL,
-		PRIMARY KEY( thought1, thought2, account )
-		)
+		PRIMARY KEY( thought1, thought2, account ),
+		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE"
+		//FOREIGN KEY ( account ) REFERENCES Accounts ( id ) ON DELETE CASCADE ON UPDATE CASCADE*/
+		// leave out account foreign key, waste of resources.
+."		)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
 	" );

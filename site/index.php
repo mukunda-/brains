@@ -21,6 +21,7 @@ if( $config->DebugMode() ) {
 		<title>brains</title>
 	</head>
 	<body>
+		
 		<div class="test">aaa</div><div class="test">bbb</div>
 		<input type="text" placeholder="start...">
 	</body>
