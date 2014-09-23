@@ -8,7 +8,7 @@ if( !file_exists( '.htaccess' ) ) {
 "
 Options +FollowSymLinks
 RewriteEngine On
-RewriteRule ^([0-9a-z]+)$ $apath [L,QSA] 
+RewriteRule ^([a-z\-]+)$ $apath [L,QSA] 
 "
 
 	);

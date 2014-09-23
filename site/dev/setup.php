@@ -8,7 +8,7 @@ $droptables = 1;
 
 if( $droptables ) {
 	$sql->safequery( 'DROP TABLE IF EXISTS Accounts' );
-	$sql->safequery( 'DROP TABLE IF EXISTS SavedLogin' );
+	$sql->safequery( 'DROP TABLE IF EXISTS Login' );
 	$sql->safequery( 'DROP TABLE IF EXISTS Thoughts' );
 	$sql->safequery( 'DROP TABLE IF EXISTS Links' );
 	$sql->safequery( 'DROP TABLE IF EXISTS Votes' );
@@ -34,13 +34,13 @@ $sql->safequery( "
 	" );
 	
 $sql->safequery( "
-	CREATE TABLE IF NOT EXISTS SavedLogin (
+	CREATE TABLE IF NOT EXISTS Login (
 		account INT UNSIGNED NOT NULL PRIMARY KEY, 
 		secret  INT          COMMENT '31-bit Secret code that is stored in a client cookie.',              
 		expires INT UNSIGNED COMMENT 'Unixtime of expiry.'
 		) 
 	ENGINE = InnoDB
-	COMMENT = 'Saved user logins.'
+	COMMENT = 'Active user logins.'
 	" );
 
 $sql->safequery( "

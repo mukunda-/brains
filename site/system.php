@@ -34,7 +34,7 @@ function GetAccountIDFromEmail( $email ) {
 	return 0; // unrecognized email.
 }
 
-/**
+/** ---------------------------------------------------------------------------
  * Do an account database query.
  *
  * @param $id ID of account to read
