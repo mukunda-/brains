@@ -26,21 +26,28 @@ if( $droptables ) {
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
-		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-		email_hash INT UNSIGNED NOT NULL COMMENT 'crc32b hash of email, used to group emails for fast queries.',
-		email VARCHAR(255) NOT NULL, 
-		confirmed BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Set when they confirm their email.',
-		password VARCHAR(255) NOT NULL,
-		nickname VARCHAR(64) NOT NULL COMMENT 'Nicknames do not have to be unique, only their e-mail.',
-		name VARCHAR(64) NOT NULL,
-		website VARCHAR(128),
-		bio VARCHAR(32000),
-		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Normal links made.',
-		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Strong links made.',
-		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Perfect links made.',
-		banned BOOLEAN NOT NULL DEFAULT 0,
-		bantime INT NOT NULL DEFAULT 0,
-		banreason VARCHAR(512),
+		id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+		email_hash   INT UNSIGNED NOT NULL 
+		             COMMENT 'crc32b hash of email, used to group emails for fast queries.',
+		email        VARCHAR(255) NOT NULL, 
+		confirmed    BOOLEAN NOT NULL DEFAULT 0 
+		             COMMENT 'Set when they confirm their email.',
+		password     VARCHAR(255) NOT NULL,
+		nickname     VARCHAR(64) NOT NULL 
+		             COMMENT 'Nicknames do not have to be unique, only their e-mail.',
+		name         VARCHAR(64) NOT NULL,
+		website      VARCHAR(128),
+		bio          VARCHAR(32000),
+		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 
+		             COMMENT 'Normal links made.',
+		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 
+		             COMMENT 'Strong links made.',
+		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 
+		             COMMENT 'Perfect links made.',
+		banned       BOOLEAN NOT NULL DEFAULT 0,
+		bantime      INT NOT NULL DEFAULT 0,
+		banreason    VARCHAR(512),
+		
 		INDEX USING HASH(email_hash) )
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
@@ -63,10 +70,7 @@ $sql->safequery( "
 		creator INT UNSIGNED          COMMENT 'Account of creator.',
 		time    INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		phrase  VARCHAR(31) NOT NULL UNIQUE
-		" //FOREIGN KEY ( creator ) REFERENCES Accounts ( id ) ON DELETE SET NULL ON UPDATE CASCADE
-		// no account foreign id, accounts ids are not removed or changed.
-		// if an account id is invalid, that gets handled.
-."		) 
+		) 
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of thoughts and their IDs.'
 	" );
@@ -91,15 +95,13 @@ $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Votes (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
-		account  INT UNSIGNED NOT NULL,
+		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unix timestamp of creation/update.',
 		vote     BOOL,
 		PRIMARY KEY( thought1, thought2, account ),
 		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE"
-		//FOREIGN KEY ( account ) REFERENCES Accounts ( id ) ON DELETE CASCADE ON UPDATE CASCADE*/
-		// leave out account foreign key, waste of resources.
-."		)
+		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
+		)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
 	" );

@@ -95,6 +95,15 @@ final class Thought {
 	}
 	
 	/** ---------------------------------------------------------------------------
+	 * Scrub and Get a thought.
+	 */
+	public static function ScrubGet( $phrase ) {
+		$phrase = Scrub( $phrase );
+		if( $phrase === FALSE ) return FALSE;
+		return Get( $phrase, false );
+	}
+	
+	/** ---------------------------------------------------------------------------
 	 * Swap two thoughts if the ID of $a is greater than $b's
 	 *
 	 */
