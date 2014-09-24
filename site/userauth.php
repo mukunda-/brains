@@ -9,7 +9,16 @@ public class InvalidAccountException extends Exception { }
 
 private static $logged_in = FALSE;
 private static $account_id = 0;
-private static $secret_charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+private static $secret_charset = 
+	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+public static function LoggedIn() {
+	return $logged_in;
+}
+
+public static function AccountID() {
+	return $account_id;
+}
 
 /** ---------------------------------------------------------------------------
  * Generate a random secret string.
@@ -197,7 +206,10 @@ private static function CreateLoginToken( $long ) {
 		"INSERT INTO LoginTokens (account, secret, expires)
 		VALUES ( $id, '$secrethash', $expires )" ); 
 	
-	setcookie( "login", self::$account_id . '/' . $secret, 
+	$result = $sql->safequery( "SELECT LAST_INSERT_ID()" );
+	$row = $result->fetch_row();
+	
+	setcookie( "login", $row[0] . '/' . $secret, 
 		$expires, $config->AbsPath(), $config->SecureMode() );
 	
 }

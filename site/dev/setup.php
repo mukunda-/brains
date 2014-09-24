@@ -40,7 +40,7 @@ $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS LoginTokens (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
-		secret  BINARY(16) NOT NULL   COMMENT 'hashed secret code',
+		secret  BINARY(16) NOT NULL   COMMENT 'Hashed secret code.',
 		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.',
 		) 
 	ENGINE = InnoDB
@@ -50,9 +50,9 @@ $sql->safequery( "
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Thoughts (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-		creator INT UNSIGNED COMMENT 'Account of creator.',
-		time    INT UNSIGNED COMMENT 'Unixtime of creation.',
-		content VARCHAR(31) UNIQUE
+		creator INT UNSIGNED          COMMENT 'Account of creator.',
+		time    INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
+		phrase  VARCHAR(31) NOT NULL UNIQUE
 		" //FOREIGN KEY ( creator ) REFERENCES Accounts ( id ) ON DELETE SET NULL ON UPDATE CASCADE
 		// no account foreign id, accounts ids are not removed or changed.
 		// if an account id is invalid, that gets handled.
@@ -68,7 +68,7 @@ $sql->safequery( "
 		goods    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of upvotes.',
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
-		creator  INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Account of the creator, 0 = nobody/admin',
+		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = nobody/admin',
 		PRIMARY KEY ( thought1, thought2 ),
 		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
