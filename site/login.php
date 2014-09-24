@@ -9,6 +9,5 @@ function LogIn() {
 	
 }
 
-$
 
 ?>
