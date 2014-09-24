@@ -1,15 +1,11 @@
 <?php
-
-namespace {
-
+ 
 require_once 'lib/password.php';
 
-public class InvalidAccountException extends Exception { }
+//-----------------------------------------------------------------------------
+final class UserAuth {
 
-/** ---------------------------------------------------------------------------
- * System variables.
- */
-class System {
+public class InvalidAccountException extends Exception { }
 
 private static $logged_in = FALSE;
 private static $account_id = 0;
@@ -76,7 +72,7 @@ public static function ReadAccount( $id, $fields ) {
 	$sql = GetSQL();
 	$result = $sql->safequery( 	
 		"SELECT $fields
-		FROM Accounts 
+		FROM Accounts  
 		WHERE id = $id" );
 	
 	$row = $result->fetch_assoc();
@@ -113,8 +109,8 @@ public static function ParseLoginToken( &$id, &$secret ) {
  *                   and do not have a valid login token.
  */
 public static function LoggedIn() {
-	if( System::$logged_in ) {
-		return System::$account_id;
+	if( self::$logged_in ) {
+		return sefl::$account_id;
 	}
 	
 	$id     = 0;
@@ -147,18 +143,22 @@ public static function LoggedIn() {
 			$expires, $config->AbsPath() );
 	}
 	
-	System::$logged_in = true;
-	System::$account_id = $row['account'];
+	self::$logged_in = true;
+	self::$account_id = $row['account'];
 	
-	return System::$account_id;
+	return self::$account_id;
 }
 
 /** ---------------------------------------------------------------------------
  * Log in a user using their email and password
  *
+ * @param string $email Email address.
+ * @param string $password Password.
+ * @param string $remember TRUE to create a long lasting login token. FALSE
+ *                         to expire after a short while.
  * @return int|false Account ID or FALSE if the authentication is invalid.
  */
-function LogIn( $email, $password ) {
+public static function LogIn( $email, $password, $remember ) {
 	$sql = GetSQL();
 	
 	$email_hash = HashEmail( $email );
@@ -175,29 +175,33 @@ function LogIn( $email, $password ) {
 		return FALSE;
 	}
 	
-	System::$logged_in = true;
-	System::$account_id = $row['account']; 
-	CreateLoginToken();
+	self::$logged_in = true;
+	self::$account_id = $row['account']; 
+	CreateLoginToken( $remember );
 	
 }
 
-function CreateLoginToken() {
+/** ---------------------------------------------------------------------------
+ * Create a login token for a user to login easily for their next request.
+ *
+ * @param bool $long Create a long lasting token.
+ */
+private static function CreateLoginToken( $long ) {
 	
 	$secret = GenerateSecret();
-	$id = System::$account_id;
+	$id = self::$account_id;
 	
-	$expires = time() + \Config::$AUTHTOKEN_EXTEND_DURATION
+	$secrethash = md5($secret);
+	$expires = time() + ($long ? \Config::$AUTHTOKEN_LONG_DURATION : \Config::$AUTHTOKEN_EXTEND_DURATION );
 	$sql->safequery( 
 		"INSERT INTO LoginTokens (account, secret, expires)
-		VALUES ( $id, '$secret', $expires )" ); 
+		VALUES ( $id, '$secrethash', $expires )" ); 
 	
-	setcookie( "login", System::$account_id . '/' . $secret, 
-		time() + 60*60*24*30, $config->AbsPath() );
+	setcookie( "login", self::$account_id . '/' . $secret, 
+		$expires, $config->AbsPath(), $config->SecureMode() );
 	
 }
 	
-} // class System
-
-} // namespace
+} // class UserAuth
 
 ?>
