@@ -41,24 +41,5 @@ function CheckArgsGET() {
 	return TRUE;
 }
 
-/** ---------------------------------------------------------------------------
- * Set the possible response strings when a script Quits.
- *
- * @param ... vararg array of responses.
- */
-function DefineResponses() {
-	$GLOBALS[ 'r_' + ] = func_get_args();
-}
-
-/** ---------------------------------------------------------------------------
- * Exit the script, $response must match something set by SetQuitResponses.
- *
- */
-function Quit( $response ) {
-	if( !in_array( $GLOBALS['quit_responses'] ) ) {
-		throw new Exception( "Undefined quit response: $response" );
-	}
-	exit( $response );
-}
 
 ?>
