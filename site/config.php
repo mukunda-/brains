@@ -1,10 +1,23 @@
 <?php
 
 class Config {
-	public static $DEBUG = 0;
-	public static $ERRLOG = 0;
-	public static $INFOLOG =0 ;
+	public static $DEBUG = TRUE;
+	public static $ERRLOG = TRUE;
+	public static $INFOLOG = TRUE;
+	public static $AUTHTOKEN_EXTEND_MIN = 20*60;
+	public static $AUTHTOKEN_EXTEND_DURATION = 30*60;
 	public static $ABSPATH;
+	
+	public function __construct() {
+		// absolute path to site directory
+		// ie /brains/site/
+		self::$ABSPATH = str_replace( "\\", "/", substr( rtrim(dirname(__FILE__), '/\\'), strlen($_SERVER["DOCUMENT_ROOT"]) ) ).'/';
+
+		if( $_SERVER['HTTP_HOST'] != 'localhost' ) {
+			// hack to disable debug in production
+			Config::$DEBUG = FALSE;
+		}
+	}
 	 
 	public function AbsPath() {
 		return self::$ABSPATH;
@@ -21,19 +34,6 @@ class Config {
 	public function InfoLogging() {
 		return self::$INFOLOG;
 	}
-}
-
-// absolute path to site directory
-// ie /brain/site/
-Config::$ABSPATH = str_replace( "\\", "/", substr( rtrim(dirname(__FILE__), '/\\'), strlen($_SERVER["DOCUMENT_ROOT"]) ) ).'/';
-
-Config::$ERRLOG = TRUE; // log exceptions to err.log
-Config::$DEBUG = TRUE;
-Config::$INFOLOG = TRUE;
-
-if( $_SERVER['HTTP_HOST'] != 'localhost' ) {
-	// hack to disable debug in production
-	Config::$DEBUG = FALSE;
 }
 
 $config = new Config();

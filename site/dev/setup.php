@@ -9,7 +9,7 @@ $droptables = 1;
 if( $droptables ) {
 	$sql->safequery( '
 		DROP TABLE IF EXISTS 
-		Login, Links, Votes, Thoughts, Accounts'
+		LoginTokens, Links, Votes, Thoughts, Accounts'
 		);
 	
 }
@@ -20,7 +20,7 @@ $sql->safequery( "
 		email_hash INT UNSIGNED NOT NULL COMMENT 'crc32b hash of email, used to group emails for fast queries.',
 		email VARCHAR(255) NOT NULL, 
 		confirmed BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Set when they confirm their email.',
-		password VARCHAR(127) NOT NULL,
+		password VARCHAR(255) NOT NULL,
 		nickname VARCHAR(64) NOT NULL COMMENT 'Nicknames do not have to be unique, only their e-mail.',
 		name VARCHAR(64) NOT NULL,
 		website VARCHAR(128),
@@ -37,16 +37,12 @@ $sql->safequery( "
 	" );
 	
 $sql->safequery( "
-	CREATE TABLE IF NOT EXISTS Login (
-		account INT UNSIGNED NOT NULL, 
-		secret  INT     COMMENT '31-bit secret code that is stored in a client cookie.',
-		expires INT UNSIGNED COMMENT 'Unixtime of expiry.',
-		PRIMARY KEY ( account ),
-		" // FOREIGN KEY ( account ) REFERENCES Accounts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
-		// leave out foreign key, this is referenced by account, it doens't backreference the
-		// account.
-		// if expires is soon, its extended when the entry is used.
-."		) 
+	CREATE TABLE IF NOT EXISTS LoginTokens (
+		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
+		secret  BINARY(16) NOT NULL   COMMENT 'hashed secret code',
+		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.',
+		) 
 	ENGINE = InnoDB
 	COMMENT = 'Active user logins.'
 	" );
@@ -56,7 +52,7 @@ $sql->safequery( "
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		creator INT UNSIGNED COMMENT 'Account of creator.',
 		time    INT UNSIGNED COMMENT 'Unixtime of creation.',
-		content VARCHAR(31) UNIQUE,
+		content VARCHAR(31) UNIQUE
 		" //FOREIGN KEY ( creator ) REFERENCES Accounts ( id ) ON DELETE SET NULL ON UPDATE CASCADE
 		// no account foreign id, accounts ids are not removed or changed.
 		// if an account id is invalid, that gets handled.
@@ -97,6 +93,5 @@ $sql->safequery( "
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
 	" );
-		
-		
+	
 ?>
