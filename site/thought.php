@@ -105,9 +105,17 @@ final class Thought {
 	/** ---------------------------------------------------------------------------
 	 * Return TRUE if a Link exists between two thoughts.
 	 *
+	 * thoughts must be Ordered()
 	 */
 	public static function LinkExists( $a, $b ) {
-		
+		$result = $sql->safequery( 
+		"SELECT 1 FROM Links 
+		WHERE thought1=$a->id AND thought2=$b->id" );
+	
+		if( $result->num_rows != 0 ) {
+			return TRUE;
+		}
+		return FALSE;
 	}
 }
 

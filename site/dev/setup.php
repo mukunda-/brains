@@ -1,18 +1,28 @@
 <?php
 
+require_once '../config.php';
 require_once '../sql.php';
+
+if( !$config->DebugMode() ) die('aaaa');
 
 $sql = GetSQL();
 
 $droptables = 1;
 
+function DropTable( $name ) {
+	global $sql;
+	$sql->safequery( "DROP TABLE IF EXISTS $name" );
+}
+
 if( $droptables ) {
-	$sql->safequery( '
-		DROP TABLE IF EXISTS 
-		LoginTokens, Links, Votes, Thoughts, Accounts'
-		);
+	DropTable( 'LoginTokens' );
+	DropTable( 'Votes' );
+	DropTable( 'Links' );
+	DropTable( 'Thoughts' );
+	DropTable( 'Accounts' );
 	
 }
+
 
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
@@ -41,7 +51,7 @@ $sql->safequery( "
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
 		secret  BINARY(16) NOT NULL   COMMENT 'Hashed secret code.',
-		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.',
+		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.'
 		) 
 	ENGINE = InnoDB
 	COMMENT = 'Active user logins.'

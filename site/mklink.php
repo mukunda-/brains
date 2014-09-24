@@ -9,46 +9,40 @@
   )
 */ 
 
-function CheckExists( $a, $b ) {
-	$result = $sql->safequery( 
-		"SELECT 1 FROM Links 
-		WHERE thought1=$a->id AND thought2=$b->id" );
-	
-	if( $result->num_rows != 0 ) {
-		exit( 'exists.' );
-	}
-}
+require_once 'config.php';
+require_once 'sql.php';
+require_once 'common.php'
+require_once 'userauth.php';
 
-require_once "userauth.php";
+$r_error  = 'error.';  // an error occurred.
+$r_login  = 'login.';  // user is not logged in.
+$r_exists = 'exists.'; // the link already exists.
+$r_okay   = 'okay.';   // the link was created.
 
 try {
-
-	if( !UserAuth::LoggedIn() ) exit( 'login.' );
-
-	if( !isset( $_POST['a'] ) || !isset( $_POST['b'] ) {
-		exit( 'error.' );
-	}
+	if( !CheckArgs( 'a', 'b' ) ) exit( $r_error );
+	
+	if( !UserAuth::LoggedIn() ) exit( $r_login );
 	
 	$thought1 = Thought::Scrub( $_POST['a'] );
-	if( $thought1 === FALSE ) exit( 'error.' );
+	if( $thought1 === FALSE ) exit( $r_error );
 	$thought2 = Thought::Scrub( $_POST['b'] );
-	if( $thought2 === FALSE ) exit( 'error.' );
-	
+	if( $thought2 === FALSE ) exit( $r_error );
 	
 	$sql = GetSQL();
 	
 	$thought1 = Thoughts::Get( $thought1 );
 	if( $thought1 === FALSE ) {
-		exit( 'error.' );
+		exit( $r_error );
 	}
 	
 	$thought2 = Thoughts::Get( $thought2, true );
 	
-	if( $thought1->id == $thought2->id ) exit( 'error' );
+	if( $thought1->id == $thought2->id ) exit( $r_error );
 	
 	Thought::Order( $thought1, $thought2 );
 	
-	CheckExists( $thought1, $thought2 );
+	if( Thought::LinkExists( $thought1, thought2 ) ) exit( $r_exists );
 	
 	$time = time();
 	$creator = UserAuth::AccountID();
@@ -58,15 +52,19 @@ try {
 		VALUES ( $thought1->id, $thought2->id, $time, $creator )" );
 	
 	if( $sql->affected_rows == 0 ) {
-		CheckExists( $thought1, $thought2 );
+		// error, the link may have been created by another thread.
+		if( Thought::LinkExists( $thought1, $thought2 ) ) Quit( 'exists.' );
+		
+		// otherwise something went wrong.
+		exit( $r_error );
 	}
 	
-	exit( 'okay.' ); 
+	exit( $r_okay );
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );
 }
 
-exit( 'error.' );
+exit( $r_error );
 
 ?>
