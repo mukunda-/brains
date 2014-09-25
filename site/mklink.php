@@ -14,35 +14,36 @@ require_once 'sql.php';
 require_once 'common.php'
 require_once 'userauth.php';
 
-$r_error  = 'error.';  // an error occurred.
-$r_login  = 'login.';  // user is not logged in.
-$r_exists = 'exists.'; // the link already exists.
-$r_okay   = 'okay.';   // the link was created.
+define( 'R_ERROR' ,'error.'   ); // an error occurred.
+define( 'R_LOGIN' , 'login.'  ); // user is not logged in.
+define( 'R_EXISTS', 'exists.' ); // the link already exists.
+define( 'R_OKAY'  , 'okay.'   ); // the link was created.
+
 
 try {
-	if( !CheckArgs( 'a', 'b' ) ) exit( $r_error );
+	if( !CheckArgs( 'a', 'b' ) ) exit( R_ERROR );
 	
-	if( !UserAuth::LoggedIn() ) exit( $r_login );
+	if( !UserAuth::LoggedIn() ) exit( R_LOGIN );
 	
 	$thought1 = Thought::Scrub( $_POST['a'] );
-	if( $thought1 === FALSE ) exit( $r_error );
+	if( $thought1 === FALSE ) exit( R_ERROR );
 	$thought2 = Thought::Scrub( $_POST['b'] );
-	if( $thought2 === FALSE ) exit( $r_error );
+	if( $thought2 === FALSE ) exit( R_ERROR );
 	
 	$sql = GetSQL();
 	
 	$thought1 = Thoughts::Get( $thought1 );
 	if( $thought1 === FALSE ) {
-		exit( $r_error );
+		exit( R_ERROR );
 	}
 	
 	$thought2 = Thoughts::Get( $thought2, true );
 	
-	if( $thought1->id == $thought2->id ) exit( $r_error );
+	if( $thought1->id == $thought2->id ) exit( R_ERROR );
 	
 	Thought::Order( $thought1, $thought2 );
 	
-	if( Thought::LinkExists( $thought1, thought2 ) ) exit( $r_exists );
+	if( Thought::LinkExists( $thought1, thought2 ) ) exit( R_EXISTS );
 	
 	$time = time();
 	$creator = UserAuth::AccountID();
@@ -56,15 +57,15 @@ try {
 		if( Thought::LinkExists( $thought1, $thought2 ) ) Quit( 'exists.' );
 		
 		// otherwise something went wrong.
-		exit( $r_error );
+		exit( R_ERROR );
 	}
 	
-	exit( $r_okay );
+	exit( R_OKAY );
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );
 }
 
-exit( $r_error );
+exit( R_ERROR );
 
 ?>

@@ -96,9 +96,9 @@ $sql->safequery( "
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.',
-		time     INT UNSIGNED NOT NULL COMMENT 'Unix timestamp of creation/update.',
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		vote     BOOL,
-		PRIMARY KEY( thought1, thought2, account ),
+		PRIMARY KEY ( thought1, thought2, account ),
 		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
 		)

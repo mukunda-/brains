@@ -10,30 +10,66 @@ require_once "sql_login.php";
 
 $g_sqldb = null;
 
-//-----------------------------------------------------------------------------------
-class sql_wrapper extends mysqli {
-	public function safequery( $query ) {
+/** ---------------------------------------------------------------------------
+ * Exception thrown from ExQuery
+ */
+class SQLException extends Exception {
+	public $code; // mysqli errno
+	
+	public function __construct( $errno, $error ) {	
+		$code = $errno;
+		parent::__construct( $error );
+	}
+}
+
+//-----------------------------------------------------------------------------
+class MySQLWrapper extends mysqli {
+	public function ExQuery( $query ) {
 		$result = $this->query( $query );
-		if( !$result ) throw new Exception( "SQL Error: ". $this->error );
+		if( !$result ) {
+			throw new SQLException( 
+				$this->errno, "SQL Error: ". $this->error );
+		}
 		return $result;
 	}
 	
+	/** -----------------------------------------------------------------------
+	 * Try executing a function and retrying it if any "normal" errors occur.
+	 *
+	 * @param function($sql) $function Function to execute.
+	 * @param int      $tries Max number of failures to allow.
+	 */
+	public function DoTransaction( $function, $tries = 5 ) {
+	
+		for( ; $tries; $tries-- ) {
+			try {
+				
+				$function( $this );
+				break;
+
+			} catch( SQLException $e ) {
+				if( $e->code == ERR_DEADLOCK ) {
+					// try again
+					continue;
+				}
+				
+				throw $e;
+			}
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------
 function GetSQL() {
 	global $g_sqldb;
 	if( !$g_sqldb ) {
-		$g_sqldb = new sql_wrapper( $GLOBALS["sql_addr"], $GLOBALS["sql_user"],$GLOBALS["sql_password"],$GLOBALS["sql_database"] );
+		$g_sqldb = new MySQLWrapper( $GLOBALS["sql_addr"], $GLOBALS["sql_user"],$GLOBALS["sql_password"],$GLOBALS["sql_database"] );
 		if( $g_sqldb->connect_errno ) {
 			$g_sqldb = null;
-			throw new Exception( "SQL Connection Error: ". (int)$g_sqldb->connect_error );
+			throw new SQLException( (int)$g_sqldb->connect_errno, "SQL Connection Error: ". (int)$g_sqldb->connect_error );
 		}
-		$g_sqldb->reconnect = 1;
-	} else {
-		//if( !$g_sqldb->ping() ) {
-		//	throw new Exception( "SQL Connection Error: ". $g_sqldb->error );
-		//}
+		//$g_sqldb->reconnect = 1;
+
 	}
 	return $g_sqldb;
 }
