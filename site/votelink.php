@@ -18,9 +18,7 @@ define( 'R_ERROR', 'error.' );
 define( 'R_NOTFOUND', 'notfound.' );
 define( 'R_LOGIN', 'login.' );
 define( 'R_OKAY', 'okay.' );
-
-define( 'ERR_DEADLOCK', 1205 );
-
+ 
 try {
 	if( !CheckArgs( 'a', 'b', 'vote' ) ) exit( R_ERROR );
 	
@@ -49,7 +47,7 @@ try {
 	$transaction = function ( $sql ) 
 			use ( $thought1, $thought2, 
 				  $accountid, $votevalue ) {
-	
+		
 		$time = time();	
 		$sql->safequery( "START TRANSACTION" );
 		

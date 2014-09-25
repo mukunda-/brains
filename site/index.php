@@ -23,6 +23,22 @@ if( $config->DebugMode() ) {
 	<body>
 		
 		<div class="test">aaa</div><div class="test">bbb</div>
+		<div class="thought">lorem</div><div class="thought">ipsum</div><div class="thought">itosa</div>
+		
+		<div class="thought">varry quad</div>
+		<div class="thought">arctosa</div>
+		<div class="thought">mega trizoid</div>
+		
+		<div class="thought">latin</div>
+		<div class="thought">smilies</div>
+		<div class="thought">emoticon</div>
+		<div class="thought">mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm</div>
+		<div class="thought">internet</div>
+		<div class="thought">dial up</div>
+		<div class="thought">phone</div>
+		<div class="thought">operator</div>
+		<div class="thought">plugs</div>
+		<div class="thought">controllers</div>
 		<input type="text" placeholder="start...">
 	</body>
 </html>

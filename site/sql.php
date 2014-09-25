@@ -10,6 +10,8 @@ require_once "sql_login.php";
 
 $g_sqldb = null;
 
+define( 'SQLERR_DEADLOCK', 1205 );
+
 /** ---------------------------------------------------------------------------
  * Exception thrown from ExQuery
  */
@@ -48,7 +50,7 @@ class MySQLWrapper extends mysqli {
 				break;
 
 			} catch( SQLException $e ) {
-				if( $e->code == ERR_DEADLOCK ) {
+				if( $e->code == SQLERR_DEADLOCK ) {
 					// try again
 					continue;
 				}
