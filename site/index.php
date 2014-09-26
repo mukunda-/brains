@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 date_default_timezone_set( 'America/Chicago' );
 
 require_once 'config.php';
@@ -19,6 +19,7 @@ if( $config->DebugMode() ) {
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="min/style.min.css" type="text/css">
+		<script src="min/scripts.min.js"></script>
 		<title>brains</title>
 	</head>
 	<body>
@@ -30,9 +31,9 @@ if( $config->DebugMode() ) {
 		echo '<div class="trail"></div>';
 		echo '<div class="navigator">';
 			
-			echo '<div class="box last"><div class="phrase">aaaaaa</div></div>';
-			echo '<div class="box current"><div class="phrase">aaaaaaaaaaaaeeeeee</div></div>';
-			echo '<div class="box next"><div class="phrase">aaaaaa</div></div>';
+			echo '<div class="box last"><div class="wrap"><div class="phrase">aaaaaa</div></div></div>';
+			echo '<div class="box current"><div class="wrap"><div class="phrase">testingtestingtestingtestes</div></div></div>';
+			echo '<div class="box next"><div class="wrap"><div class="phrase">aaaaaa</div></div></div>';
 		
 		echo '</div>';
 		
@@ -41,9 +42,9 @@ if( $config->DebugMode() ) {
 		function TestThought( $text, $score ) {
 			echo '<div class="thought">';
 				echo "<div class='score'>$score</div>";
-				echo '<div class="vote up"></div>';
-				echo '<div class="vote down"></div>';
-				echo $text;
+				echo '<div class="vote up"><div class="image"></div></div>';
+				echo '<div class="vote down"><div class="image"></div></div>';
+				echo "<span>$text</span>";
 			echo '</div>';
 		}
 		
@@ -54,7 +55,7 @@ if( $config->DebugMode() ) {
 		TestThought( 'mega trizoid', 15 );
 		TestThought( 'latin', 15 );
 		TestThought( 'smilies', 15 );
-		TestThought( 'mmmmmmmmmmmmmmmmmmmmmmm', 15 );
+		TestThought( 'mmmmmmmmmmmmm<br>mmmmmmmmmm', 15 );
 		TestThought( 'dial up', 15 );
 		TestThought( 'phone', 15 );
 		TestThought( 'operator', 15 );
