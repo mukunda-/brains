@@ -15,30 +15,54 @@ if( $config->DebugMode() ) {
 		<link rel="shortcut icon" href="/favicon.png">
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<!--<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>-->
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
-		
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="min/style.min.css" type="text/css">
 		<title>brains</title>
 	</head>
 	<body>
+	
+		<?php
 		
-		<div class="test">aaa</div><div class="test">bbb</div>
-		<div class="thought">lorem</div><div class="thought">ipsum</div><div class="thought">itosa</div>
+		echo '<div class="top">aaa</div>';
+		echo '<div class="margintop"></div>';
+		echo '<div class="trail"></div>';
+		echo '<div class="navigator">';
+			
+			echo '<div class="box last"><div class="phrase">aaaaaa</div></div>';
+			echo '<div class="box current"><div class="phrase">aaaaaaaaaaaaeeeeee</div></div>';
+			echo '<div class="box next"><div class="phrase">aaaaaa</div></div>';
 		
-		<div class="thought">varry quad</div>
-		<div class="thought">arctosa</div>
-		<div class="thought">mega trizoid</div>
+		echo '</div>';
 		
-		<div class="thought">latin</div>
-		<div class="thought">smilies</div>
-		<div class="thought">emoticon</div>
-		<div class="thought">mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm</div>
-		<div class="thought">internet</div>
-		<div class="thought">dial up</div>
-		<div class="thought">phone</div>
-		<div class="thought">operator</div>
-		<div class="thought">plugs</div>
-		<div class="thought">controllers</div>
+		echo '<div class="links">';
+		
+		function TestThought( $text, $score ) {
+			echo '<div class="thought">';
+				echo "<div class='score'>$score</div>";
+				echo '<div class="vote up"></div>';
+				echo '<div class="vote down"></div>';
+				echo $text;
+			echo '</div>';
+		}
+		
+		TestThought( 'lorem', 56 );
+		TestThought( 'ipsum', 98 );
+		TestThought( 'arctosa', 15 );
+		TestThought( 'varry quad', 15 );
+		TestThought( 'mega trizoid', 15 );
+		TestThought( 'latin', 15 );
+		TestThought( 'smilies', 15 );
+		TestThought( 'mmmmmmmmmmmmmmmmmmmmmmm', 15 );
+		TestThought( 'dial up', 15 );
+		TestThought( 'phone', 15 );
+		TestThought( 'operator', 15 );
+		TestThought( 'plugs', 15 );
+		TestThought( 'controllers', 15 );
+		
+		?>
+		
 		<input type="text" placeholder="start...">
 	</body>
 </html>
