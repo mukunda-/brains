@@ -37,6 +37,11 @@ body {
 	}
 }
 
+.magic {
+	display: none;
+	font-size: 32px;
+}
+
 .margintop {
 	height: 100px;
 }
@@ -65,10 +70,11 @@ body {
 	}
 	&.held {
 		transition: background-color 0s;
-		background-color: darken( $cl_white, 5% );
+		//background-color: darken( $cl_white, 5% );
 		@include light-box-shadow;
-		
+		box-shadow: inset 0px 1px 1px rgba( #000, 0.2 );
 	}
+	
 	&.held span {
 		position: relative;
 		top: 1px;
@@ -140,7 +146,12 @@ body {
 	
 	&:hover .vote.selected {
 		opacity: 1.0;
+		
+	}
+	
+	.vote.selected .image {
 		background-position: -9px 0px;
+		
 	}
 	
 	
@@ -157,31 +168,44 @@ input {
 	margin-top: 24px;
 	.box {
 		display: inline-block;
-		width: 200px;
-		padding: 10px 50px;
-		height: 100px;
+		width: 240px; 
+		padding: 10px 30px;
+		height: 80px;
 		background-color: $cl_white;
 		border-radius: 16px;
 		@include light-box-shadow;
+		position: relative;
 		
 		margin-left: 8px;
 		
-		.wrap {
-			display:table;
-			width: 200px;
-			height: 100%;
-			table-layout:fixed;
+		
+		//.wrap {
+		//	display:table;
+		//	width: 200px;
+		//	height: 100%;
+		//	table-layout:fixed;
 				
 			.phrase {
-				display: table-cell;
+				//display: table-cell;
 				//height: 100%;
 				//width: 50px;
-				vertical-align: middle;
-				word-wrap: break-word;
+				//vertical-align: middle;
+				//word-wrap: break-word;
+				line-height: 0px;
+				position: absolute;
+				width: 100%;
+				top: 0px;
+				left:0px;
+				
 			}
-		}
+		//}
 		&:first-child {
 			margin-left: 0px;
+		}
+		&.vertical {
+			display: block;
+			margin: auto;
+			margin-top: 8px;
 		}
 	}
 	

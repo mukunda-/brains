@@ -26,14 +26,15 @@ if( $config->DebugMode() ) {
 	
 		<?php
 		
+		echo '<div class="magic" id="magicbox"></div>';
 		echo '<div class="top">aaa</div>';
 		echo '<div class="margintop"></div>';
 		echo '<div class="trail"></div>';
 		echo '<div class="navigator">';
 			
-			echo '<div class="box last"><div class="wrap"><div class="phrase">aaaaaa</div></div></div>';
-			echo '<div class="box current"><div class="wrap"><div class="phrase">testingtestingtestingtestes</div></div></div>';
-			echo '<div class="box next"><div class="wrap"><div class="phrase">aaaaaa</div></div></div>';
+			echo '<div class="box last" id="navlast"><div class="phrase">some really small pooping text</div></div>';
+			echo '<div class="box current" id="navcur"><div class="phrase">disecta</div></div>';
+			echo '<div class="box next" id="navnext"><div class="phrase">aaaaaa</div></div>';
 		
 		echo '</div>';
 		
@@ -42,8 +43,8 @@ if( $config->DebugMode() ) {
 		function TestThought( $text, $score ) {
 			echo '<div class="thought">';
 				echo "<div class='score'>$score</div>";
-				echo '<div class="vote up"><div class="image"></div></div>';
-				echo '<div class="vote down"><div class="image"></div></div>';
+				echo '<div class="vote up "><div class="image"></div></div>';
+				echo '<div class="vote down selected"><div class="image"></div></div>';
 				echo "<span>$text</span>";
 			echo '</div>';
 		}

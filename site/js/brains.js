@@ -8,7 +8,91 @@ console.log( 'hi' );
 
 var current_button = null;
 
+var m_stacked_nav;
+
+var s_navboxes;
+var s_navphrases;
+
+/** ---------------------------------------------------------------------------
+ * Adjust the font size of a phrase element to fit inside the box.
+ *
+ * @param e The element to be modified.
+ * @param size The size scale of the box.
+ */
+function AdjustPhraseSize( e, size ) {
+	//var length = e.text().length;
+	$("#magicbox").text( e.text() );
+	var length = $("#magicbox").width();
+	
+	
+	size = 32 * size; // base px size * scale
+	
+	if( length < 240 ) {
+		// normal size.
+		
+	} else {// if( length < 200 ) {
+		size = Math.floor( size * (240 / length) );
+		// small size
+//		size = size * 0.75;
+//	} else {
+	//	size = size * 0.5;
+	}
+	e.css( "font-size", size + "px" );
+}
+
+/** ---------------------------------------------------------------------------
+ * Adjust the size of the navboxes according to the window size.
+ *
+ */
+function ResizeNavBoxes() {
+	
+	var ww = $(window).width();
+	var size = 0.5;
+
+	if( ww < 600 ) {
+		// stacked.
+		size = 0.8;
+		s_navboxes.addClass( "vertical" );
+	} else {
+		s_navboxes.removeClass( "vertical" );
+		if( ww < 770 ) {
+			size = 0.6;
+		} else if( ww < 970 ) {
+			size = 0.8;
+		} else {
+			size = 1.0;
+		}
+	}
+	
+	
+	var width = 240 * size;
+	var height = 80 * size;
+	var padding_h = 30 * size;
+	var padding_v = 10 * size;
+	//var fontsize = 32 * size;
+	
+	s_navboxes.width( width )
+		.height( height )
+		//.css( "font-size", fontsize + "px" )
+		.css( "padding", padding_v + "px " + padding_h + "px" );
+	
+	
+	s_navphrases.css( "top", ((height+padding_v*2)/2) + "px" );
+	
+	s_navphrases.each( function() {
+		AdjustPhraseSize( $(this), size );
+	} );
+	
+}
+
+$(window).resize( function() {
+	ResizeNavBoxes();
+});
+
 $( function() {
+	s_navboxes = $(".navigator .box");
+	s_navphrases = s_navboxes.children( ".phrase" );
+	ResizeNavBoxes( );
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
 		$(this).addClass( "held" );
