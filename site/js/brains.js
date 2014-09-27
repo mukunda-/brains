@@ -8,10 +8,12 @@ console.log( 'hi' );
 
 var current_button = null;
 
-var m_stacked_nav;
+var m_vertical;
 
+var s_nav;
 var s_navboxes;
 var s_navphrases;
+var s_navarrows;
 
 /** ---------------------------------------------------------------------------
  * Adjust the font size of a phrase element to fit inside the box.
@@ -52,9 +54,10 @@ function ResizeNavBoxes() {
 	if( ww < 600 ) {
 		// stacked.
 		size = 0.8;
-		s_navboxes.addClass( "vertical" );
+		s_nav.addClass( "vertical" );
+		m_vertical = true;
 	} else {
-		s_navboxes.removeClass( "vertical" );
+		s_nav.removeClass( "vertical" );
 		if( ww < 770 ) {
 			size = 0.6;
 		} else if( ww < 970 ) {
@@ -62,6 +65,7 @@ function ResizeNavBoxes() {
 		} else {
 			size = 1.0;
 		}
+		m_vertical = false;
 	}
 	
 	
@@ -76,6 +80,11 @@ function ResizeNavBoxes() {
 		//.css( "font-size", fontsize + "px" )
 		.css( "padding", padding_v + "px " + padding_h + "px" );
 	
+	if( m_vertical ) {
+		s_navarrows.css( "top", "0px" );
+	} else {
+		s_navarrows.css( "top", (((height+padding_v*2)/2)-8) + "px" );
+	}
 	
 	s_navphrases.css( "top", ((height+padding_v*2)/2) + "px" );
 	
@@ -90,8 +99,11 @@ $(window).resize( function() {
 });
 
 $( function() {
-	s_navboxes = $(".navigator .box");
+	s_nav = $(".navigator");
+	s_navboxes = s_nav.children( ".box" );
 	s_navphrases = s_navboxes.children( ".phrase" );
+	s_navarrows = s_nav.children( ".arrow" );
+	
 	ResizeNavBoxes( );
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);

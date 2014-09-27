@@ -38,8 +38,13 @@ body {
 }
 
 .magic {
+	// hue hue hue hue
+	position: fixed;
+	left: 0px;
+	top: 0px;
 	display: none;
 	font-size: 32px;
+	white-space: nowrap;
 }
 
 .margintop {
@@ -163,8 +168,9 @@ input {
 
 .navigator {
 	text-align: center;
-	display:block;
+	
 	font-size: 32px;
+	line-height: 0px;
 	margin-top: 24px;
 	.box {
 		display: inline-block;
@@ -176,7 +182,7 @@ input {
 		@include light-box-shadow;
 		position: relative;
 		
-		margin-left: 8px;
+		//margin-left: 8px;
 		
 		
 		//.wrap {
@@ -199,16 +205,29 @@ input {
 				
 			}
 		//}
-		&:first-child {
-			margin-left: 0px;
-		}
-		&.vertical {
-			display: block;
-			margin: auto;
-			margin-top: 8px;
-		}
+		//&:first-child {
+		//	margin-left: 0px;
+		//}
 	}
 	
+	&.vertical .box {
+		display: block;
+		margin: auto;
+	//	margin-top: 8px;
+	}
+	
+	.arrow {
+		width: 16px;
+		height: 16px;
+		display:inline-block;
+		background: transparent url('../img/arrow.png');
+		vertical-align:top;
+		position: relative;
+	}
+	
+	&.vertical .arrow {
+		background-position: -16px 0px;
+	}
 }
 
 .test {
@@ -223,40 +242,28 @@ input {
 }
 
 .top {
-	background-color: $cl_topbar;
+	background-color: $cl_white;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	width: 100%;
-	min-height: 64px;
+	min-height: 32px;
+	padding: 8px;
+	@include light-box-shadow;
 	//box-shadow: 0px 0px 8px rgba(0,0,0,0.2);
+	
+	.logo {
+		width: 200px;
+		height: 48px;
+		background: transparent
+					url( '../img/LOGO1.png' )
+					no-repeat
+					center
+					center;
+		
+	}
 
 	.query {
-		display: table-cell;
-		
-		margin: 0px auto;
-		width: 300px;
-		height: 100%;
-		padding: 16px;
-		text-align:center;
-		
-		input {
-			font: {
-				family: 'Open Sans';
-				size: 22px;
-				weight: 300;
-			}
-			width: 300-32px;
-			border-radius: 9px;
-			border: none;
-			padding: 7px 16px;
-			background-color: lighten( $cl_topbar, 75%);
-			outline: none;
-			&:focus {
-				
-				box-shadow: 0px 0px 16px lighten($cl_topbar, 20%);
-			}
-		}
 		
 	}
 	

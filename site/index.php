@@ -27,15 +27,16 @@ if( $config->DebugMode() ) {
 		<?php
 		
 		echo '<div class="magic" id="magicbox"></div>';
-		echo '<div class="top">aaa</div>';
 		echo '<div class="margintop"></div>';
 		echo '<div class="trail"></div>';
 		echo '<div class="navigator">';
 			
 			echo '<div class="box last" id="navlast"><div class="phrase">some really small pooping text</div></div>';
+			echo '<div class="arrow"></div>';
 			echo '<div class="box current" id="navcur"><div class="phrase">disecta</div></div>';
-			echo '<div class="box next" id="navnext"><div class="phrase">aaaaaa</div></div>';
-		
+			echo '<div class="arrow"></div>';
+			echo '<div class="box next" id="navnext"><div class="phrase">really small pooping text</div></div>';
+			
 		echo '</div>';
 		
 		echo '<div class="links">';
@@ -63,6 +64,7 @@ if( $config->DebugMode() ) {
 		TestThought( 'plugs', 15 );
 		TestThought( 'controllers', 15 );
 		
+		echo '<div class="top"><div class="logo"></div></div>';
 		?>
 		
 		<input type="text" placeholder="start...">
