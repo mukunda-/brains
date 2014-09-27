@@ -26,7 +26,6 @@ function AdjustPhraseSize( e, size ) {
 	$("#magicbox").text( e.text() );
 	var length = $("#magicbox").width();
 	
-	
 	size = 32 * size; // base px size * scale
 	
 	if( length < 240 ) {
@@ -40,6 +39,19 @@ function AdjustPhraseSize( e, size ) {
 	//	size = size * 0.5;
 	}
 	e.css( "font-size", size + "px" );
+}
+
+function AdjustThoughtSize() {
+	var e = $(this);
+	var length = $("#magicbox2").text( e.text() ).width();
+
+	if( length < 240 ) {
+			
+	} else {
+		var size = Math.floor(24 * (240/length));
+		e.css( "font-size", size + "px" );
+	}
+	
 }
 
 /** ---------------------------------------------------------------------------
@@ -104,7 +116,10 @@ $( function() {
 	s_navphrases = s_navboxes.children( ".phrase" );
 	s_navarrows = s_nav.children( ".arrow" );
 	
-	ResizeNavBoxes( );
+	ResizeNavBoxes();
+	
+	//$(".thought span").each( AdjustThoughtSize );
+	
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
 		$(this).addClass( "held" );

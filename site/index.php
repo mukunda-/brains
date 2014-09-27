@@ -27,6 +27,7 @@ if( $config->DebugMode() ) {
 		<?php
 		
 		echo '<div class="magic" id="magicbox"></div>';
+		echo '<span class="magic2" id="magicbox2"></span>';
 		echo '<div class="margintop"></div>';
 		echo '<div class="trail"></div>';
 		echo '<div class="navigator">';
@@ -35,7 +36,7 @@ if( $config->DebugMode() ) {
 			echo '<div class="arrow"></div>';
 			echo '<div class="box current" id="navcur"><div class="phrase">disecta</div></div>';
 			echo '<div class="arrow"></div>';
-			echo '<div class="box next" id="navnext"><div class="phrase">really small pooping text</div></div>';
+			echo '<div class="box next" id="navnext"><div class="phrase placeholder">33</div><input class="phraseinput"></div>';
 			
 		echo '</div>';
 		
@@ -57,14 +58,18 @@ if( $config->DebugMode() ) {
 		TestThought( 'mega trizoid', 15 );
 		TestThought( 'latin', 15 );
 		TestThought( 'smilies', 15 );
-		TestThought( 'mmmmmmmmmmmmm<br>mmmmmmmmmm', 15 );
+		TestThought( 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 15 );
+		TestThought( 'aetakryh aworrj tkretvjrkle awejke', 15 );
 		TestThought( 'dial up', 15 );
 		TestThought( 'phone', 15 );
 		TestThought( 'operator', 15 );
 		TestThought( 'plugs', 15 );
 		TestThought( 'controllers', 15 );
 		
-		echo '<div class="top"><div class="logo"></div></div>';
+		echo '<div class="top">';
+		echo '<div class="logo"></div>';
+		echo '<input class="query" >';
+		echo '</div>';
 		?>
 		
 		<input type="text" placeholder="start...">

@@ -37,14 +37,32 @@ body {
 	}
 }
 
+input { 
+	font: {
+		family: 'Open Sans Condensed';
+		size: 18px;
+		weight: 300;
+	}
+}
+
 .magic {
-	// hue hue hue hue
+	// for nav text
 	position: fixed;
 	left: 0px;
 	top: 0px;
 	display: none;
 	font-size: 32px;
 	white-space: nowrap;
+}
+.magic2 {
+	// for thought text
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	display: none;
+	font-size: 24px;
+	white-space: nowrap;
+	
 }
 
 .margintop {
@@ -64,7 +82,15 @@ body {
 	@include light-box-shadow;
 	cursor: pointer;
 	@include no-select;
-	font-size: 22px;
+	
+	line-height: 30px;
+	max-width: 80%;
+	
+	span {
+		font-size: 24px;
+		vertical-align:top;
+		word-wrap: break-word;
+	}
 	
 	&:hover {
 		color: complement($cl_bg);//5B99A7;
@@ -181,7 +207,7 @@ input {
 		border-radius: 16px;
 		@include light-box-shadow;
 		position: relative;
-		
+		text-align:center;
 		//margin-left: 8px;
 		
 		
@@ -201,8 +227,25 @@ input {
 				position: absolute;
 				width: 100%;
 				top: 0px;
-				left:0px;
+				left: 0px;
 				
+				&.placeholder {
+					left: auto;
+					width: 80%;
+					border-bottom: 1px dotted #000;
+				}
+			}
+			
+			.phraseinput {
+				text-align:center;
+				font-size: 32px;
+				position: absolute;
+				width: 80%;
+				top: 0px;
+				left:0px;
+				background-color: transparent;
+				border: none;
+				border-bottom: 1px dotted #000;
 			}
 		//}
 		//&:first-child {
@@ -247,12 +290,14 @@ input {
 	top: 0px;
 	left: 0px;
 	width: 100%;
-	min-height: 32px;
+	min-height: 48px;
 	padding: 8px;
 	@include light-box-shadow;
 	//box-shadow: 0px 0px 8px rgba(0,0,0,0.2);
-	
+	text-align:center;
 	.logo {
+	
+		
 		width: 200px;
 		height: 48px;
 		background: transparent
@@ -260,11 +305,33 @@ input {
 					no-repeat
 					center
 					center;
+		position: absolute;
+		left: 0px;
+		top:7px;
 		
+		
+		@media (max-width:500px) {
+			display:none;
+			
+		}
 	}
 
 	.query {
-		
+		font: {
+			family: 'Open Sans Condensed';
+			size: 24px;
+			weight: 700;
+		}
+		background: none;
+		border: none;
+		position:relative;
+		top: 5px;
+		display: inline-block;
+		width: 150px;
+		text-align:center;
+		min-height: 34px;
+		border-bottom: 1px dotted #000;
+		outline: none;
 	}
 	
 }
