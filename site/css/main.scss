@@ -8,6 +8,8 @@ $cl_topbar: #93406D; // A Flower's Secrets
 $cl_white: #f7f7f7;
 $cl_black: #171711;
 
+$topbar_height: 48px;
+
 @mixin light-box-shadow {
 	box-shadow: 2px 2px 6px rgba( #000, 0.06 );
 }
@@ -29,13 +31,28 @@ $cl_black: #171711;
 body {
 	background-color: $cl_bg;
 	color: $cl_black;
+	text-align: center;
 	
 	font: {
 		family: 'Open Sans Condensed';
 		size: 18px;
 		weight: 300;
 	}
+	
+	margin: 6px;
+	overflow:hidden;
 }
+
+/*
+#view {
+	position: fixed;
+	top: $topbar_height;
+	
+	padding: 6px;
+//	height: 100%;
+width: 100%;
+	overflow: scroll;
+}*/
 
 input { 
 	font: {
@@ -53,6 +70,7 @@ input {
 	display: none;
 	font-size: 32px;
 	white-space: nowrap;
+    visibility: hidden;
 }
 .magic2 {
 	// for thought text
@@ -62,18 +80,198 @@ input {
 	display: none;
 	font-size: 24px;
 	white-space: nowrap;
+    visibility: hidden;
 	
+}
+.magic3 {
+	// for compose text
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	display: none;
+	font-size: 28px;
+	white-space: nowrap;
+    visibility: hidden;
+}
+
+.content {
+	max-width: 800px;
+	margin: auto;
 }
 
 .margintop {
-	height: 100px;
+	height: $topbar_height + 16 + 64;
+}
+
+h2 {
+	margin-top: 27px;
+	font-size: 20px;
+	@include no-select;
+	cursor: default;
+}
+
+.discovery {
+	position: relative;
+	background-color: $cl_white;
+	border-radius: 16px;
+	@include light-box-shadow;
+	padding: 0px 64px 5px;
+	//width: 400px;
+	display: inline-block;
+	
+	/* FUCK. THE. WEB.
+	.scorebox {
+		position: absolute;
+		width: 64px;
+		height: 100%;
+		left: 0px;
+		top: 0px;
+		display: table; */
+	.score {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		display: block;
+		font-size: 24px;
+		font-weight: bold;
+		vertical-align: middle;
+		width: 64px;
+		text-align: center;
+	}
+//	}
+	
+	.link {
+		
+		font-size: 28px;
+		
+		@media (max-width:500px) {
+			font-size: 20px;
+			
+		}
+		
+		.arrow {
+			width: 8px;
+			height: 8px;
+			background: transparent url('../img/arrowsm.png') no-repeat left top;
+			display: inline-block;
+			vertical-align: middle;
+		}
+	}
+	.creator {
+		font-size: 16px;
+	}
+}
+
+.newlink {
+	
+	background-color: $cl_white;
+	border-radius: 16px;
+	@include light-box-shadow;
+	padding: 14px 40px 16px;
+	width: auto;
+	margin:auto;
+	display: inline-block;
+	
+	input {	
+		text-align: center;
+		font-size: 28px;
+		min-width: 150px;
+		max-width: 200px;
+		width: 100px;
+		background: none;
+		border: none;
+		border-bottom: 1px dotted rgba($cl_black,0.25);
+		outline: none;
+	}
+}
+
+
+.navigator {
+	text-align: center;
+	
+	font-size: 32px;
+	line-height: 0px;
+	margin-top: 24px;
+	.box {
+		display: inline-block;
+		width: 240px; 
+		padding: 10px 30px;
+		height: 80px;
+		background-color: $cl_white;
+		border-radius: 16px;
+		@include light-box-shadow;
+		position: relative;
+		text-align:center;
+		//margin-left: 8px;
+		
+		
+		//.wrap {
+		//	display:table;
+		//	width: 200px;
+		//	height: 100%;
+		//	table-layout:fixed;
+				
+			.phrase {
+				//display: table-cell;
+				//height: 100%;
+				//width: 50px;
+				//vertical-align: middle;
+				//word-wrap: break-word;
+				line-height: 0px;
+				position: absolute;
+				width: 100%;
+				top: 0px;
+				left: 0px;
+				
+				&.placeholder {
+					left: auto;
+					width: 80%;
+					border-bottom: 1px dotted $cl_black;
+				}
+			}
+			
+			.phraseinput {
+				text-align:center;
+				font-size: 32px;
+				position: absolute;
+				width: 80%;
+				top: 0px;
+				left:0px;
+				background-color: transparent;
+				border: none;
+				border-bottom: 1px dotted $cl_black;
+			}
+		//}
+		//&:first-child {
+		//	margin-left: 0px;
+		//}
+	}
+	
+	&.vertical .box {
+		display: block;
+		margin: auto;
+	//	margin-top: 8px;
+	}
+	
+	.arrow {
+		width: 16px;
+		height: 16px;
+		display:inline-block;
+		background: transparent url('../img/arrow.png');
+		vertical-align:top;
+		position: relative;
+	}
+	
+	&.vertical .arrow {
+		background-position: -16px 0px;
+	}
 }
 
 .thought {
 	position: relative;
 	background-color: $cl_white;
 	border-radius: 7px;
-	border-radius-top-left: 1px;
+	
 	padding: 7px 16px 8px;
 	padding-left: 32px;
 	margin-right: 6px;
@@ -125,6 +323,13 @@ input {
 		padding: 0px;
 	}
 	
+	&.held .score {
+		top: 1px;
+	}
+	
+	$voteuptop: $scoretop - 4 - 8;
+	$votedowntop: $scoretop +21 - 8;
+	
 	.vote { 
 		position: absolute;
 		left: 10px - 10;
@@ -143,9 +348,9 @@ input {
 		
 		&.up {
 			opacity: 0;
-			top: $scoretop - 4 - 8;
+			top: $voteuptop;//$scoretop - 4 - 8;
 			@-moz-document url-prefix() {
-				top: $scoretop - 4 - 7;
+				top: $voteuptop -1;//$scoretop - 4 - 7;
 			}
 			
 			
@@ -157,7 +362,7 @@ input {
 		
 		&.down {
 			opacity: 0;
-			top: $scoretop + 21 - 8;
+			top: $votedowntop;//$scoretop + 21 - 8;
 			
 			.image {
 				background: transparent url( '../img/down.png' ) no-repeat top left;
@@ -166,6 +371,16 @@ input {
 		}
 		
 		
+	}
+	
+	&.held .vote.up {
+		top: $voteuptop+1;//$scoretop - 4 - 7;
+		@-moz-document url-prefix() {
+			top: $voteuptop -1+1;// $scoretop - 4 - 6;
+		}
+	}
+	&.held .vote.down {
+		top: $votedowntop +1;//$scoretop + 21 - 8;
 	}
 	
 	&:hover .vote {
@@ -188,91 +403,6 @@ input {
 	
 }
 
-input {
-	width: auto;
-}
-
-.navigator {
-	text-align: center;
-	
-	font-size: 32px;
-	line-height: 0px;
-	margin-top: 24px;
-	.box {
-		display: inline-block;
-		width: 240px; 
-		padding: 10px 30px;
-		height: 80px;
-		background-color: $cl_white;
-		border-radius: 16px;
-		@include light-box-shadow;
-		position: relative;
-		text-align:center;
-		//margin-left: 8px;
-		
-		
-		//.wrap {
-		//	display:table;
-		//	width: 200px;
-		//	height: 100%;
-		//	table-layout:fixed;
-				
-			.phrase {
-				//display: table-cell;
-				//height: 100%;
-				//width: 50px;
-				//vertical-align: middle;
-				//word-wrap: break-word;
-				line-height: 0px;
-				position: absolute;
-				width: 100%;
-				top: 0px;
-				left: 0px;
-				
-				&.placeholder {
-					left: auto;
-					width: 80%;
-					border-bottom: 1px dotted #000;
-				}
-			}
-			
-			.phraseinput {
-				text-align:center;
-				font-size: 32px;
-				position: absolute;
-				width: 80%;
-				top: 0px;
-				left:0px;
-				background-color: transparent;
-				border: none;
-				border-bottom: 1px dotted #000;
-			}
-		//}
-		//&:first-child {
-		//	margin-left: 0px;
-		//}
-	}
-	
-	&.vertical .box {
-		display: block;
-		margin: auto;
-	//	margin-top: 8px;
-	}
-	
-	.arrow {
-		width: 16px;
-		height: 16px;
-		display:inline-block;
-		background: transparent url('../img/arrow.png');
-		vertical-align:top;
-		position: relative;
-	}
-	
-	&.vertical .arrow {
-		background-position: -16px 0px;
-	}
-}
-
 .test {
 	font-size: 32px;
 	display:inline-block;
@@ -280,8 +410,8 @@ input {
 }
 
 .links {
-	margin-top: 24px;
 	white-space-collapse: discard;
+	text-align: center;
 }
 
 .top {
@@ -290,8 +420,8 @@ input {
 	top: 0px;
 	left: 0px;
 	width: 100%;
-	min-height: 48px;
-	padding: 8px;
+	height: $topbar_height;
+	padding: 8px 0px;
 	@include light-box-shadow;
 	//box-shadow: 0px 0px 8px rgba(0,0,0,0.2);
 	text-align:center;
@@ -307,11 +437,14 @@ input {
 					center;
 		position: absolute;
 		left: 0px;
+		transition: left 0.5s;
 		top:7px;
 		
 		
-		@media (max-width:500px) {
-			display:none;
+		@media (max-width:600px) {
+			left: -200px;
+			transition: left 0.5s;
+			
 			
 		}
 	}
@@ -330,7 +463,7 @@ input {
 		width: 150px;
 		text-align:center;
 		min-height: 34px;
-		border-bottom: 1px dotted #000;
+		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;
 	}
 	

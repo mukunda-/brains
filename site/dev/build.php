@@ -59,7 +59,9 @@ function Build() {
 	
 	//---------------------------------------------------------
 	$js_target = 'min/scripts.min.js';
-	$js = glob( "js/*.js", GLOB_NOSORT );
+	$js = array_merge( glob( "js/lib/*.js", GLOB_NOSORT ), 
+					   glob( "js/*.js", GLOB_NOSORT ) 
+					 );
 	$newtime = GetNewestFileTime( $js );
 	$gentime = file_exists( $js_target ) ? filemtime( $js_target ) : 0;
 	if( $newtime >= $gentime ) {

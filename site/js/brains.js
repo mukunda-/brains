@@ -27,18 +27,20 @@ function AdjustPhraseSize( e, size ) {
 	var length = $("#magicbox").width();
 	
 	size = 32 * size; // base px size * scale
-	
+	var factor = 1.0;
 	if( length < 240 ) {
 		// normal size.
 		
 	} else {// if( length < 200 ) {
-		size = Math.floor( size * (240 / length) );
+		factor = (240 / length);
+
+		
 		// small size
 //		size = size * 0.75;
 //	} else {
 	//	size = size * 0.5;
 	}
-	e.css( "font-size", size + "px" );
+	e.css( "font-size", Math.floor(size*factor) + "px" );
 }
 
 function AdjustThoughtSize() {
@@ -48,7 +50,9 @@ function AdjustThoughtSize() {
 	if( length < 240 ) {
 			
 	} else {
-		var size = Math.floor(24 * (240/length));
+		var factor = Math.max( (240/length), 0.75 );
+		
+		var size = Math.floor(24 * factor);
 		e.css( "font-size", size + "px" );
 	}
 	
@@ -106,9 +110,32 @@ function ResizeNavBoxes() {
 	
 }
 
-$(window).resize( function() {
+function AdjustSizes() {
 	ResizeNavBoxes();
+	
+	var width = $(window).width();
+	
+	$("#newlink").css( "max-width", (width - 80 - 14) + "px" );
+	$("#discovery").css( "max-width", (width - 128 - 14) + "px" );
+	
+	var disc = $("#discovery");
+	
+	// i cannot believe this isn't feasible with css
+	disc.children(".score").css( "top", ((disc.height() + 5) / 2 - 17) + "px" );
+	//$("#view").height( $(window).height() - 48 + "px" );
+}
+
+$(window).resize( function() {
+	AdjustSizes()
 });
+
+function AdjustNewLinkInputSize() {
+	var newlink = $("#newlink");
+	$("#magicbox3").text( newlink.val() );
+		var width = $("#magicbox3").width();
+	
+		newlink.width( width );
+}
 
 $( function() {
 	s_nav = $(".navigator");
@@ -116,9 +143,11 @@ $( function() {
 	s_navphrases = s_navboxes.children( ".phrase" );
 	s_navarrows = s_nav.children( ".arrow" );
 	
-	ResizeNavBoxes();
-	
-	//$(".thought span").each( AdjustThoughtSize );
+	AdjustSizes();
+	setTimeout(  // hack for google butt
+		AdjustSizes, 100 );
+	AdjustNewLinkInputSize();
+	$(".thought span").each( AdjustThoughtSize );
 	
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
@@ -133,7 +162,7 @@ $( function() {
 	} );
 	$(".thought").click( function( e ) {
 	
-		alert( "poop" );
+		
 	} );
 	
 	$(".thought .vote").mousedown( function(e) {
@@ -141,9 +170,24 @@ $( function() {
 	} );
 	
 	$(".thought .vote").click( function(e) {
-		//alert( "poop1" );
+		
 		e.stopPropagation();
 	} );
+	
+	$("#newlink").keydown( function() {
+		
+		setTimeout( AdjustNewLinkInputSize, 0 );
+	});
 });
+
+/** ---------------------------------------------------------------------------
+ * make the mousewheel scroll the page.
+ */
+$(window).bind("mousewheel",function(ev, delta) {
+	
+	var scrollTop = $(window).scrollTop()-Math.round(delta)*51;
+	
+	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
+}); 
 
 } )();

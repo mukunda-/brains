@@ -28,8 +28,25 @@ if( $config->DebugMode() ) {
 		
 		echo '<div class="magic" id="magicbox"></div>';
 		echo '<span class="magic2" id="magicbox2"></span>';
+		echo '<div class="magic3" id="magicbox3"></div>';
+	
+		echo '<div class="content">';
 		echo '<div class="margintop"></div>';
 		echo '<div class="trail"></div>';
+		
+		
+		echo '<div class="discovery" id="discovery">';
+			echo '<div class="score">48</div>';
+			echo '<div class="link">aqwerqwefafaweaa <div class="arrow"></div> bbawefawefaf</div>';
+			echo '<div class="creator">discovered by <span>nigger</span></div>';
+		echo '</div>';
+		
+		echo '<h2>What does <q>aweofiawoefi</q> make you think of?</h2>';
+		echo '<div class="newlink">';
+			echo '<input type="text" id="newlink">';
+		echo '</div>';
+		
+		/*
 		echo '<div class="navigator">';
 			
 			echo '<div class="box last" id="navlast"><div class="phrase">some really small pooping text</div></div>';
@@ -38,8 +55,10 @@ if( $config->DebugMode() ) {
 			echo '<div class="arrow"></div>';
 			echo '<div class="box next" id="navnext"><div class="phrase placeholder">33</div><input class="phraseinput"></div>';
 			
-		echo '</div>';
+		echo '</div>'; // navigator
+		*/
 		
+		echo '<h2>What other people thought of:</h2>';
 		echo '<div class="links">';
 		
 		function TestThought( $text, $score ) {
@@ -54,24 +73,27 @@ if( $config->DebugMode() ) {
 		TestThought( 'lorem', 56 );
 		TestThought( 'ipsum', 98 );
 		TestThought( 'arctosa', 15 );
-		TestThought( 'varry quad', 15 );
+		TestThought( 'varry quad', 25 );
 		TestThought( 'mega trizoid', 15 );
 		TestThought( 'latin', 15 );
-		TestThought( 'smilies', 15 );
-		TestThought( 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 15 );
+		TestThought( 'smilies', 50 );
+		TestThought( 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm',34 );
 		TestThought( 'aetakryh aworrj tkretvjrkle awejke', 15 );
-		TestThought( 'dial up', 15 );
+		TestThought( 'dial up', 1 );
 		TestThought( 'phone', 15 );
-		TestThought( 'operator', 15 );
+		TestThought( 'operator', 0 );
 		TestThought( 'plugs', 15 );
-		TestThought( 'controllers', 15 );
+		TestThought( 'controllers', 72 );
+	
+		echo '</div>'; // links
+		echo '</div>'; // content
 		
 		echo '<div class="top">';
-		echo '<div class="logo"></div>';
-		echo '<input class="query" >';
+			echo '<div class="logo"></div>';
+			echo '<input class="query" >';
 		echo '</div>';
+		
 		?>
 		
-		<input type="text" placeholder="start...">
 	</body>
 </html>
