@@ -18,12 +18,21 @@ require_once 'sql.php';
 require_once 'common.php';
 require_once 'userauth.php';
 
-if( !CheckArgsGET( 'thought' ) ) exit( 'error' ); // TODO error message
+if( !CheckArgsGET( 'thought' ) ) exit( 'todo: error' ); // TODO error message
 
-$thought =  Thought::Scrub( $_GET['thought'] );
-if( $thought=== FALSE ) {
+$thought = Thought::Scrub( $_GET['thought'] );
+if( $thought === FALSE ) {
+	// TODO
+	exit( 'todo: thought not found' );
 	// thought notfound.
 }
+
+$prev = FALSE;
+if( isset( $_GET['prev'] ) ) {
+	$prev = Thought::Scrub( $_GET['prev'] );
+}
+
+
 
 
 

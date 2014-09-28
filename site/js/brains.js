@@ -45,11 +45,12 @@ function AdjustPhraseSize( e, size ) {
 
 function AdjustThoughtSize() {
 	var e = $(this);
-	var length = $("#magicbox2").text( e.text() ).width();
-
+	var length = $("#magicbox2").text( e.text() ).innerWidth();
+	console.log( "ajs - " + length );
 	if( length < 240 ) {
 			
 	} else {
+		
 		var factor = Math.max( (240/length), 0.75 );
 		
 		var size = Math.floor(24 * factor);
@@ -115,7 +116,7 @@ function AdjustSizes() {
 	ResizeNavBoxes();
 	
 	var width = $(window).width();
-	console.log( width );
+	
 	$("#newlink").css( "max-width", (width - 80 - 14) + "px" );
 	$("#discovery").css( "max-width", (width - 128 - 14) + "px" );
 	
@@ -145,11 +146,20 @@ $( function() {
 	s_navarrows = s_nav.children( ".arrow" );
 	
 	AdjustSizes();
-	setTimeout(  // hack for google butt
-		AdjustSizes, 100 );
+	
 	AdjustNewLinkInputSize();
+	
 	$(".thought span").each( AdjustThoughtSize );
 	
+	setTimeout(  // god i fucking hate the web.
+		function () {
+			
+			AdjustSizes();
+			$(".thought span").each( AdjustThoughtSize );
+		}, 100 );
+	 
+	
+ 
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
 		$(this).addClass( "held" );

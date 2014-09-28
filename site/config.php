@@ -23,7 +23,7 @@ class Config {
 		
 		//self::$AUTHTOKEN_EXTEND_MIN = 20*60;
 		//self::$AUTHTOKEN_EXTEND_DURATION = 30*60;
-		self::$AUTHTOKEN_DURATION = 60*60*24*90;
+		self::$AUTHTOKEN_DURATION = 60*60*24*90; // 90 days
 		
 		session_set_cookie_params( 
 			self::$SESSIONTIME,  // 24 minutes

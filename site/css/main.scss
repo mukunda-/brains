@@ -74,17 +74,19 @@ input {
 	white-space: nowrap;
     visibility: hidden;
 }
+
 .magic2 {
 	// for thought text
 	position: fixed;
 	left: 0px;
-	top: 0px;
+	bottom: 0px;
 	display: none;
 	font-size: 24px;
 	white-space: nowrap;
     visibility: hidden;
 	
 }
+
 .magic3 {
 	// for compose text
 	position: fixed;
@@ -152,9 +154,10 @@ h2 {
 		}
 		
 		.arrow {
-			width: 8px;
-			height: 8px;
-			background: transparent url('../img/arrowsm.png') no-repeat left top;
+			width: 16px;
+			height: 16px;
+			background: transparent url('../img/arrow.svg') no-repeat left top;
+			background-size: cover;
 			display: inline-block;
 			vertical-align: middle;
 		}

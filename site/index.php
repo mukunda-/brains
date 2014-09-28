@@ -2,6 +2,7 @@
 date_default_timezone_set( 'America/Chicago' );
 
 require_once 'config.php';
+require_once 'svg.php';
 
 if( $config->DebugMode() ) {
 	require_once 'dev/build.php';
@@ -90,15 +91,20 @@ if( $config->DebugMode() ) {
 		echo '</div>'; // content
 		
 		echo '<div class="top">';
-			include ('img/logo1.svg');
+			$svg = new SVG( 'img/logo1.svg' );
+			$svg->SetID( 'logo' );
+			$svg->Output();
 			//echo '<div class="logo"></div>';
 			echo '<form onsubmit="alert(\'hi\')">';
 			echo '<input class="query" maxlength="20" >';
 			echo '</form>';
-			echo '<svg class="user" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve">';
-				include( 'img/person.svg' );
-				
-			echo '</svg>';
+			$svg = new SVG( 'img/person.svg' );
+			$svg->SetClass( 'user' );
+			$svg->Output();
+			//echo '<svg class="user" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve">';
+			//	include( 'img/person.svg' );
+			//	
+			//echo '</svg>';
 		echo '</div>';
 		
 		?>
