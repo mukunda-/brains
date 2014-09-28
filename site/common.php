@@ -1,5 +1,7 @@
 <?php
 
+$g_session_open = false;
+
 /** ---------------------------------------------------------------------------
  * Swap two references.
  */
@@ -37,6 +39,35 @@ function CheckArgsGET() {
 		if( !isset( $_GET[$arg] ) ) return FALSE;
 	}
 	return TRUE;
+}
+
+/** ---------------------------------------------------------------------------
+ * Open a session for the user. Does nothing if the session is already open.
+ *
+ * This also handles an extra verification step.
+ */
+function OpenSession() {
+	if( $g_session_open ) return;
+	session_start();
+	
+	// extra verification: match key cookie with session variable.
+	if( !isset( $_SESSION['sessionkey'] ) || 
+		!isset( $_COOKIE['sessionkey'] ) || 
+		$_SESSION['sessionkey'] != $_COOKIE['sessionkey'] ) {
+		
+		// reset session.
+		$_SESSION = array();
+		$key = mt_rand() & 0xFFFFFFF;
+		$_SESSION['sessionkey'] = $key;
+		setcookie( "sessionkey", $key, 
+			time() + \Config::$SESSIONTIME, $config->AbsPath() );
+	} else {
+		
+		// extend time.
+		setcookie( "sessionkey", $_COOKIE['sessionkey'], 
+			time() + \Config::$SESSIONTIME, $config->AbsPath() );
+	}
+	
 }
 
 

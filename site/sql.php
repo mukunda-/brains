@@ -24,9 +24,18 @@ class SQLException extends Exception {
 	}
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * mysqli wrapper class
+ */
 class MySQLWrapper extends mysqli {
-	public function ExQuery( $query ) {
+
+	/** -----------------------------------------------------------------------
+	 * Execute a query and throw an SQLException if it fails.
+	 *
+	 * @param string $query SQL query to execute.
+	 * @return SQL result
+	 */
+	public function RunQuery( $query ) {
 		$result = $this->query( $query );
 		if( !$result ) {
 			throw new SQLException( 
@@ -37,7 +46,7 @@ class MySQLWrapper extends mysqli {
 	
 	/** -----------------------------------------------------------------------
 	 * Try executing a function and retrying it if any "normal" errors occur.
-	 *
+	 * 
 	 * @param function($sql) $function Function to execute.
 	 * @param int      $tries Max number of failures to allow.
 	 */
@@ -61,7 +70,11 @@ class MySQLWrapper extends mysqli {
 	}
 }
 
-//---------------------------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Connect to the database or return an existing connection.
+ *
+ * @return MySQLWrapper instance.
+ */
 function GetSQL() {
 	global $g_sqldb;
 	if( !$g_sqldb ) {
@@ -76,7 +89,11 @@ function GetSQL() {
 	return $g_sqldb;
 }
 
-//---------------------------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Close the current SQL connection.
+ *
+ * Normally this is handled by the script termination.
+ */
 function CloseSQL() {
 	global $g_sqldb;
 	if( $g_sqldb ) {

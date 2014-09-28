@@ -6,9 +6,10 @@ class Config {
 	public static $INFOLOG = TRUE;
 	public static $AUTHTOKEN_EXTEND_MIN;
 	public static $AUTHTOKEN_EXTEND_DURATION;
-	public static $AUTHTOKEN_LONG_DURATION;
+	public static $AUTHTOKEN_DURATION;
 	public static $ABSPATH;
 	public static $SECURE = FALSE;
+	public static $SESSIONTIME = 1440;
 	
 	public function __construct() {
 		// absolute path to site directory
@@ -20,9 +21,13 @@ class Config {
 			Config::$DEBUG = FALSE;
 		}
 		
-		self::$AUTHTOKEN_EXTEND_MIN = 20*60;
-		self::$AUTHTOKEN_EXTEND_DURATION = 30*60;
-		self::$AUTHTOKEN_LONG_DURATION = 60*60*24*90;
+		//self::$AUTHTOKEN_EXTEND_MIN = 20*60;
+		//self::$AUTHTOKEN_EXTEND_DURATION = 30*60;
+		self::$AUTHTOKEN_DURATION = 60*60*24*90;
+		
+		session_set_cookie_params( 
+			self::$SESSIONTIME,  // 24 minutes
+			$this->AbsPath() );
 	}
 	 
 	public function AbsPath() {

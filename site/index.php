@@ -30,10 +30,11 @@ if( $config->DebugMode() ) {
 		echo '<span class="magic2" id="magicbox2"></span>';
 		echo '<div class="magic3" id="magicbox3"></div>';
 	
-		echo '<div class="content">';
+		
 		echo '<div class="margintop"></div>';
 		echo '<div class="trail"></div>';
 		
+		echo '<div id="content">';
 		
 		echo '<div class="discovery" id="discovery">';
 			echo '<div class="score">48</div>';
@@ -91,7 +92,9 @@ if( $config->DebugMode() ) {
 		echo '<div class="top">';
 			include ('img/logo1.svg');
 			//echo '<div class="logo"></div>';
+			echo '<form onsubmit="alert(\'hi\')">';
 			echo '<input class="query" maxlength="20" >';
+			echo '</form>';
 			echo '<svg class="user" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve">';
 				include( 'img/person.svg' );
 				

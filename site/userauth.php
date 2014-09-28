@@ -12,10 +12,20 @@ private static $account_id = 0;
 private static $secret_charset = 
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+/** ---------------------------------------------------------------------------
+ * Check if the user is logged in
+ *
+ * @return bool TRUE if the user is logged in.
+ */
 public static function LoggedIn() {
 	return $logged_in;
 }
 
+/** ---------------------------------------------------------------------------
+ * Get the account id of the user.
+ *
+ * @return int User account id, or 0 if not logged in.
+ */
 public static function AccountID() {
 	return $account_id;
 }
@@ -106,7 +116,7 @@ public static function ParseLoginToken( &$id, &$secret ) {
 	$split = strpos($a,'/');
 	if( $split === FALSE ) return FALSE;
 	$id = intval( substring( $a, 0, $split ) );
-	$secret = md5( substring( $a, $split +1 ) );
+	$secret = substring( $a, $split +1 );
 	if( $id == 0 ) return FALSE;
 	return TRUE;
 }
@@ -119,41 +129,55 @@ public static function ParseLoginToken( &$id, &$secret ) {
  */
 public static function LoggedIn() {
 	if( self::$logged_in ) {
-		return sefl::$account_id;
+		return self::$account_id;
 	}
 	
+	// first check if they are logged in via their session.
+	OpenSession();
+	if( isset($_SESSION['account_id']) ) {
+		self::$logged_in = true;
+		self::$account_id = $_SESSION['account_id'];
+		return $_SESSION['account_id'];
+	}
+	
+	// and then check if they have a saved login
 	$id     = 0;
 	$secret = 0;
 	
 	if( !ParseLoginToken( $id, $secret ) ) return FALSE;
 	
 	$time = time();
-	$sql = GetSQL();
-	$result = $sql->safequery( 
-		"SELECT account, expires FROM LoginTokens
-		WHERE id=$id AND secret=x'$secret' AND $time < expires" );
+	$db = GetSQL();
+	$result = $db->RunQuery( 
+		"SELECT account, secret, expires FROM LoginTokens
+		WHERE id=$id AND $time < expires" );
 	
 	$row = $result->fetch_assoc();
-	if( $row === FALSE ) {
+	if( $row === FALSE 
+		|| !password_verify( $secret, $row['secret'] ) ) {
 		// TODO record login strike
 		// and tempban ip if they accumulate.
+		
+		// clear saved login cookie
+		setcookie( "login", 0, 0, $config->AbsPath() );
 		return FALSE;
 	}
 	
 	// extend remaining time if it's low.
-	$remaining = $row['expires'] - $time;
-	if( $remaining < \Config::$AUTHTOKEN_EXTEND_MIN ) {
-		$expires = $time + \Config::$AUTHTOKEN_EXTEND_DURATION;
-		$sql->safequery( 
-			"UPDATE ACCOUNT SET expires = $expires
-			WHERE id=$token" );
-		
-		setcookie( "login", $_COOKIE['login'], 
-			$expires, $config->AbsPath() );
-	}
+	//$remaining = $row['expires'] - $time;
+	//if( $remaining < \Config::$AUTHTOKEN_EXTEND_MIN ) {
+	//	$expires = $time + \Config::$AUTHTOKEN_EXTEND_DURATION;
+	//	$db->RunQuery( 
+	//		"UPDATE ACCOUNT SET expires = $expires
+	//		WHERE id=$token" );
+	//	
+	//	setcookie( "login", $_COOKIE['login'], 
+	//		$expires, $config->AbsPath() );
+	//}
 	
 	self::$logged_in = true;
 	self::$account_id = $row['account'];
+	$_SESSION['account_id'] = self::$account_id;
 	
 	return self::$account_id;
 }
@@ -168,11 +192,11 @@ public static function LoggedIn() {
  * @return int|false Account ID or FALSE if the authentication is invalid.
  */
 public static function LogIn( $email, $password, $remember ) {
-	$sql = GetSQL();
+	$db = GetSQL();
 	
 	$email_hash = HashEmail( $email );
 	$email_safe = $sql->real_escape_string($email);
-	$result = $sql->safequery( 
+	$result = $db->RunQuery( 
 		"SELECT id, password FROM Accounts
 		WHERE email_hash=x'$email_hash' AND email='$email_safe'" );
 	
@@ -184,29 +208,36 @@ public static function LogIn( $email, $password, $remember ) {
 		return FALSE;
 	}
 	
+	OpenSession();
 	self::$logged_in = true;
-	self::$account_id = $row['account']; 
-	CreateLoginToken( $remember );
+	self::$account_id = (int)$row['account']; 
+	 
+	$_SESSION['account_id'] = self::$account_id;
+	
+	if( $remember ) {
+		CreateLoginToken();
+	}
 	
 }
 
 /** ---------------------------------------------------------------------------
- * Create a login token for a user to login easily for their next request.
+ * Create a "saved login" token for a user. ("remember me")
  *
  * @param bool $long Create a long lasting token.
  */
-private static function CreateLoginToken( $long ) {
+private static function CreateLoginToken() {
 	
+	$db = GetSQL();
 	$secret = GenerateSecret();
 	$id = self::$account_id;
 	
-	$secrethash = md5($secret);
-	$expires = time() + ($long ? \Config::$AUTHTOKEN_LONG_DURATION : \Config::$AUTHTOKEN_EXTEND_DURATION );
-	$sql->safequery( 
+	$secrethash = password_hash($secret);
+	$expires = time() + \Config::$AUTHTOKEN_DURATION;
+	$db->RunQuery( 
 		"INSERT INTO LoginTokens (account, secret, expires)
 		VALUES ( $id, '$secrethash', $expires )" ); 
 	
-	$result = $sql->safequery( "SELECT LAST_INSERT_ID()" );
+	$result = $db->RunQuery( "SELECT LAST_INSERT_ID()" );
 	$row = $result->fetch_row();
 	
 	setcookie( "login", $row[0] . '/' . $secret, 
