@@ -111,10 +111,11 @@ function ResizeNavBoxes() {
 }
 
 function AdjustSizes() {
+	
 	ResizeNavBoxes();
 	
 	var width = $(window).width();
-	
+	console.log( width );
 	$("#newlink").css( "max-width", (width - 80 - 14) + "px" );
 	$("#discovery").css( "max-width", (width - 128 - 14) + "px" );
 	

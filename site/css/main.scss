@@ -3,7 +3,9 @@ $bgcolor: #F8CC8A;
 //$cl_bg: #FCFBE3;     // Vanilla Cream (yellow)
 //$cl_bg: #82BF9A; // teenage robot (green)
 //$cl_bg: #EDAA65;
+//$cl_bg: #115533;
 $cl_bg: #6CD4FB; // blue stone (light blue)
+$cl_hl: complement( $cl_bg );
 $cl_topbar: #93406D; // A Flower's Secrets
 $cl_white: #f7f7f7;
 $cl_black: #171711;
@@ -425,28 +427,37 @@ h2 {
 	@include light-box-shadow;
 	//box-shadow: 0px 0px 8px rgba(0,0,0,0.2);
 	text-align:center;
-	.logo {
-	
+	#logo {
+		// todo: the sliding offscreen borks firefox
+		// when zooming
 		
-		width: 200px;
+		width: 120px;
 		height: 48px;
+		/*
 		background: transparent
 					url( '../img/LOGO1.png' )
 					no-repeat
 					center
-					center;
-		position: absolute;
-		left: 0px;
-		transition: left 0.5s;
+					center;*/
+		fill: #333;
+					
+		position: fixed;
+		left: 5%;
+		transition: left 0.5s,
+					fill 0.25s;
 		top:7px;
+		display: inline-block;
+		cursor: pointer;
 		
 		
-		@media (max-width:600px) {
+		@media (max-width:470px) {
 			left: -200px;
-			transition: left 0.5s;
-			
 			
 		}
+	}
+	
+	#logo:hover {
+		fill: $cl_hl;
 	}
 
 	.query {
@@ -467,4 +478,31 @@ h2 {
 		outline: none;
 	}
 	
+	.user {
+		position: absolute;
+		right: 16px;
+		top: ($topbar_height + 16) / 2 - 16;
+		width: 32px;
+		height: 32px;
+		fill: #333;
+		transition: fill 0.25s, top 0.25s, width 0.25s, height 0.25s;
+		
+		cursor: pointer;
+		
+		@media (max-width:400px) {
+			top: ($topbar_height + 16) / 2 - 8;
+			width: 16px;
+			height: 16px;
+			
+			
+			
+		}
+	}
+	.user:hover {
+		fill: $cl_hl;
+	}
+	.user:active {
+		transition: fill 0s;
+		fill: darken($cl_hl,25%);
+	}
 }

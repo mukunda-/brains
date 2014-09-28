@@ -43,7 +43,7 @@ if( $config->DebugMode() ) {
 		
 		echo '<h2>What does <q>aweofiawoefi</q> make you think of?</h2>';
 		echo '<div class="newlink">';
-			echo '<input type="text" id="newlink">';
+			echo '<input type="text" id="newlink" maxlength="20">';
 		echo '</div>';
 		
 		/*
@@ -89,8 +89,13 @@ if( $config->DebugMode() ) {
 		echo '</div>'; // content
 		
 		echo '<div class="top">';
-			echo '<div class="logo"></div>';
-			echo '<input class="query" >';
+			include ('img/logo1.svg');
+			//echo '<div class="logo"></div>';
+			echo '<input class="query" maxlength="20" >';
+			echo '<svg class="user" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve">';
+				include( 'img/person.svg' );
+				
+			echo '</svg>';
 		echo '</div>';
 		
 		?>
