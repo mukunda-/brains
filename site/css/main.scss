@@ -64,7 +64,7 @@ input {
 	}
 }
 
-.magic {
+#magicbox {
 	// for nav text
 	position: fixed;
 	left: 0px;
@@ -75,7 +75,7 @@ input {
     visibility: hidden;
 }
 
-.magic2 {
+#magicbox2 {
 	// for thought text
 	position: fixed;
 	left: 0px;
@@ -87,7 +87,7 @@ input {
 	
 }
 
-.magic3 {
+#magicbox3 {
 	// for compose text
 	position: fixed;
 	left: 0px;
@@ -98,20 +98,27 @@ input {
     visibility: hidden;
 }
 
-.content {
+#content {
 	max-width: 800px;
 	margin: auto;
+	opacity: 0;
+	opacity: 0.25; // debug
+	transition: opacity 0.5s;
+	
+	h2 {
+		margin-top: 27px;
+		font-size: 20px;
+		@include no-select;
+		cursor: default;
+	}
+	
+	&.visible {
+		opacity: 1;
+	}
 }
 
-.margintop {
+#margintop {
 	height: $topbar_height + 16 + 64;
-}
-
-h2 {
-	margin-top: 27px;
-	font-size: 20px;
-	@include no-select;
-	cursor: default;
 }
 
 .discovery {
@@ -189,8 +196,7 @@ h2 {
 		outline: none;
 	}
 }
-
-
+/*
 .navigator {
 	text-align: center;
 	
@@ -270,7 +276,7 @@ h2 {
 	&.vertical .arrow {
 		background-position: -16px 0px;
 	}
-}
+}*/
 
 .thought {
 	position: relative;
@@ -296,7 +302,7 @@ h2 {
 	}
 	
 	&:hover {
-		color: complement($cl_bg);//5B99A7;
+		color: $cl_hl;
 		transition: background-color 0s;
 		background-color: lighten( $cl_white, 25% );
 		@include light-box-shadow-glow;
@@ -408,18 +414,12 @@ h2 {
 	
 }
 
-.test {
-	font-size: 32px;
-	display:inline-block;
-    transition: all 0.2s ease-out;
-}
-
-.links {
+#links {
 	white-space-collapse: discard;
 	text-align: center;
 }
 
-.top {
+#top {
 	background-color: $cl_white;
 	position: fixed;
 	top: 0px;
@@ -436,12 +436,7 @@ h2 {
 		
 		width: 120px;
 		height: 48px;
-		/*
-		background: transparent
-					url( '../img/LOGO1.png' )
-					no-repeat
-					center
-					center;*/
+	 
 		fill: #333;
 					
 		position: fixed;
@@ -463,7 +458,7 @@ h2 {
 		fill: $cl_hl;
 	}
 
-	.query {
+	#query {
 		font: {
 			family: 'Open Sans Condensed';
 			size: 24px;
@@ -481,7 +476,7 @@ h2 {
 		outline: none;
 	}
 	
-	.user {
+	#user {
 		position: absolute;
 		right: 16px;
 		top: ($topbar_height + 16) / 2 - 16;
@@ -501,11 +496,85 @@ h2 {
 			
 		}
 	}
-	.user:hover {
+	#user:hover {
 		fill: $cl_hl;
 	}
-	.user:active {
+	#user:active {
 		transition: fill 0s;
 		fill: darken($cl_hl,25%);
 	}
+}
+
+#overlay {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	display:none;
+	
+	background-color: rgba( #fff, 0.5 );
+	
+	//display:table;
+	
+//	>div {	
+//		display: table-cell;
+//		vertical-align: middle;
+//	}
+}
+
+#overlay.show {
+	display:block;
+}
+
+
+#dialog_wrapper {
+	position: absolute;
+	top: 128px;
+	width: 100%;
+	text-align: center;
+}
+#dialog {
+	
+	margin-bottom: 32px;
+	padding: 16px;
+	display: inline-block;
+	width: 323px;
+	max-width: 90%;
+	min-height: 16px;
+	background-color: $cl_white;
+	border-radius: 16px;
+	box-shadow: 10px 10px 16px rgba( #000, 0.1 );
+	text-align: left;
+	
+	.title {
+		font-weight: bold;
+		font-size: 24px;
+		cursor: default;
+		text-align: center;
+		margin-bottom: 24px;
+		margin-top: -8px;
+		border-bottom: 1px solid rgba( #000, 0.25 );
+	}
+	
+	.textinput {
+		border: none;
+		outline: none;
+		border-radius: 8px;
+		@include light-box-shadow;
+		padding: 4px 8px;
+			border: 2px solid #ccc;
+		
+		&:focus {
+			border-color: $cl_hl; //2px solid #159;
+		}
+	}
+	
+	.submitinput {
+		margin-top: 12px;
+	}
+}
+#dialogtemplates  {
+	display: none;
 }

@@ -18,20 +18,47 @@ require_once 'sql.php';
 require_once 'common.php';
 require_once 'userauth.php';
 
+/*
+class ContentPage {
+	public $
+}*/
+
+final class Content {
+
+	public static function PrintNewLinkInput( $thought ) {
+		echo "<h2>What does \"$thought\" make you think of?</h2>";
+		echo '<div class="newlink">';
+			echo '<input type="text" id="newlink" maxlength="20">';
+		echo '</div>';
+	}
+}
+/*
+
 if( !CheckArgsGET( 'thought' ) ) exit( 'todo: error' ); // TODO error message
 
-$thought = Thought::Scrub( $_GET['thought'] );
+$thought_string = Thought::Scrub( $_GET['thought'] );
+if( $thought_string === FALSE ) {
+	exit( 'todo: invalid input' );
+}
+
+$thought = Thought::Get( $thought_string );
+
 if( $thought === FALSE ) {
-	// TODO
-	exit( 'todo: thought not found' );
-	// thought notfound.
+	// show an empty thought
+	
+	PrintNewLinkInput( $thought_string );
+	exit();
 }
 
 $prev = FALSE;
 if( isset( $_GET['prev'] ) ) {
-	$prev = Thought::Scrub( $_GET['prev'] );
+	$prev = Thought::ScrubGet( $_GET['prev'] );
 }
 
+if( $prev !== FALSE ) {
+	
+}
+*/
 
 
 

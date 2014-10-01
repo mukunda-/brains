@@ -10,6 +10,7 @@ class Config {
 	public static $ABSPATH;
 	public static $SECURE = FALSE;
 	public static $SESSIONTIME = 1440;
+	public static $SCORERAMPCONST = 50;
 	
 	public function __construct() {
 		// absolute path to site directory

@@ -1,11 +1,12 @@
 <?php
  
-require_once 'lib/password.php';
+require_once 'libs/password.php';
+
+class InvalidAccountException extends Exception { }
 
 //-----------------------------------------------------------------------------
 final class UserAuth {
 
-public class InvalidAccountException extends Exception { }
 
 private static $logged_in = FALSE;
 private static $account_id = 0;
@@ -127,7 +128,7 @@ public static function ParseLoginToken( &$id, &$secret ) {
  * @return int|false Account ID or FALSE if they are not logged in 
  *                   and do not have a valid login token.
  */
-public static function LoggedIn() {
+public static function CheckLogin() {
 	if( self::$logged_in ) {
 		return self::$account_id;
 	}

@@ -2,7 +2,7 @@
  * Copyright 2014 Mukunda Johnson
  */
  
-(function() { 
+(function() { window.brains = window.brains || {};
 
 console.log( 'hi' );
 
@@ -14,6 +14,8 @@ var s_nav;
 var s_navboxes;
 var s_navphrases;
 var s_navarrows;
+
+var m_async = AsyncGroup.Create();
 
 /** ---------------------------------------------------------------------------
  * Adjust the font size of a phrase element to fit inside the box.
@@ -189,10 +191,28 @@ $( function() {
 		
 		setTimeout( AdjustNewLinkInputSize, 0 );
 	});
+	
+	$("#queryform").submit( function() {
+		OnNewQuery();
+		return false;
+	});
+	
+	$("#queryform").keypress( function(e) {
+		if( (e.which >= 65 && e.which <= 90)  // A-Z
+			|| e.which >= 97 && e.which <= 122 // a-z
+			|| e.which <= 32 ) { // space and control characters
+			
+			return true;
+		}
+		
+		return false;
+	});
+	
+	//brains.Dialog.Show( "login" );
 });
 
 /** ---------------------------------------------------------------------------
- * make the mousewheel scroll the page.
+ * Make the mousewheel scroll the page.
  */
 $(window).bind("mousewheel",function(ev, delta) {
 	
@@ -200,5 +220,41 @@ $(window).bind("mousewheel",function(ev, delta) {
 	
 	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
 }); 
+
+/** ---------------------------------------------------------------------------
+ * Handler for the main query box
+ */
+function OnNewQuery() {
+	var thought = $("#query").val().trim();
+	if( thought == "" ) return;
+	thought = thought.toLowerCase();
+	if( !thought.match( /^[a-z ]+$/ ) ) {	
+		alert( "Query must contain letters and spaces only." );
+		return;
+	}
+	$("#query").blur();
+	
+	brains.Loader.Load( "query.php", undefined, { "thought": thought } );
+	/*
+	m_async.AddAjax( $.get( "query.php", { "thought": thought } ) )
+		.done( function(data) {
+			$("#content").html( data );
+		})
+		.fail( function( handle ) {
+			if( handle.ag_cancelled ) return;
+		});*/
+	return;
+}
+
+brains.InitializePreLoad = function() {
+}
+
+brains.InitializePostLoad = function() {
+	$("#newlink").focus();
+}
+
+//-----------------------------------------------------------------------------
+
+brains.OnNewQuery = OnNewQuery;
 
 } )();

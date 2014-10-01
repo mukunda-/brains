@@ -12,10 +12,10 @@ final class Thought {
 	const MAXLEN = 20;
 		
 	public function __construct( $id, $creator, $time, $phrase ) {
-		this->id = $id;
-		this->creator = $creator;
-		this->time = $time;
-		this->phrase = $phrase;
+		$this->id = $id;
+		$this->creator = $creator;
+		$this->time = $time;
+		$this->phrase = $phrase;
 	}
 		
 	/** ---------------------------------------------------------------------------
@@ -31,12 +31,12 @@ final class Thought {
 	 */
 	public static function Scrub( $phrase ) {
 		
-		if( !preg_match( $phrase, '/$[a-z -]+$/' ) ) {
+		if( !preg_match( '/^[a-z -]+$/', $phrase ) ) {
 			return FALSE;
 		}
 		
 		$phrase = str_replace( '-', ' ', $phrase );
-		$phrase = trim(preg_replace( '/[ ]+/', ' ' ));
+		$phrase = trim(preg_replace( '/[ ]+/', ' ', $phrase ));
 		
 		$len = strlen( $phrase );
 		if( $len == 0 || $len > self::MAXLEN ) return FALSE;
@@ -51,11 +51,11 @@ final class Thought {
 	 * otherwise NULL.
 	 *
 	 * @param string $phrase Thought value. Should be Scrubbed.
-	 * @param bool   $create Create the thought if it doens't exist.
+	 * @param bool   [$create] Create the thought if it doens't exist.
 	 * @return Thought|false Thought instance for the phrase given, or FALSE if it
 	 *                       doesn't exist yet and $create is FALSE.
 	 */
-	public static function Get( $phrase, $create ) {
+	public static function Get( $phrase, $create = false ) {
 		$db = GetSQL();
 		// just in case?
 		$phrase_sql = $db->real_escape_string( $phrase );
@@ -77,7 +77,7 @@ final class Thought {
 		
 		$db->RunQuery(
 			"INSERT IGNORE INTO Thoughts ( creator, `time`, phrase )
-			VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')"
+			VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')" );
 		
 		
 		if( $db->affected_rows != 0 ) {

@@ -45,15 +45,6 @@ class SVG {
 		if( !$preserveid ) {
 			$this->SetAttribute( 'id', "" );
 		}
-		
-		/*
-		echo '<pre>';
-		var_dump( $xml );
-		print_r( $xml );
-		print_r( $this->attributes);
-		echo '</pre>';
-		
-		echo htmlspecialchars( $content );*/
 	}
 
 	/** -----------------------------------------------------------------------
