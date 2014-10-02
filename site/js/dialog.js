@@ -6,7 +6,7 @@
 
 brains.Dialog = this;
 
-var dialog_contents = {};
+var m_init_function = null;
 
 /** ---------------------------------------------------------------------------
  * Show the dialog box.
@@ -14,20 +14,52 @@ var dialog_contents = {};
  * @param string name Dialog box name to display.
  */
 this.Show = function( name ) {
-	$("#dialog").html( dialog_contents[name] );
+
+	m_init_function = null;
+	$("#dialog").html( $("#dialog_" + name).html() );
 	$("#overlay").addClass( 'show' );
-	
+	if( m_init_function !== null ) {
+		m_init_function();
+	}
 	
 }
 
 /** ---------------------------------------------------------------------------
- * Register content for a dialog box.
- *
- * @param string name Name of dialog. Used for Show().
- * @param string content HTML contents of dialog box.
+ * Close the dialog box.
  */
-this.RegisterContent = function( name, content ) {
-	dialog_contents[name] = content;
+this.Close = function() {
+	$("#overlay").removeClass( 'show' );
+	$("#dialog").html( "" );
+}
+
+/** ---------------------------------------------------------------------------
+ * Set the function to execute after the dialog contents are loaded.
+ *
+ * This must be done in a script inside the dialog template.
+ */
+this.SetInit = function( f ) {
+	m_init_function = f;
+}
+
+/** ---------------------------------------------------------------------------
+ * Initializer for the Login dialog.
+ */
+this.InitLoginDialog = function() {
+	
+	$("#text_username").focus();
+	$("#button_createaccount").click( function() {
+		brains.Dialog.Show( "createaccount" );
+	});
+}
+
+/** ---------------------------------------------------------------------------
+ * Initializer for the Create Account dialog.
+ */
+this.InitCreateAccountDialog = function() {
+	$("#form_createaccount").submit( function() {
+	
+		return false;
+	});
 }
 
 })();

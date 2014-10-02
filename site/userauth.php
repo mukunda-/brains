@@ -46,42 +46,42 @@ public static function GenerateSecret() {
 }
 
 /** ---------------------------------------------------------------------------
- * Hash an email address and return a 32-bit/8-digit hex code
+ * Hash a username for a database query.
  *
  * @return string 8-digit hex code
  */
-public static function HashEmail( $email ) {
-	return hash( "crc32b", $email );
+public static function HashUsername( $username ) {
+	return hash( "crc32b", $username );
 }
 
 /** ---------------------------------------------------------------------------
- * Get account ID from an email address.
+ * Get account ID from a username.
  *
- * @param  string $email Email address to query.
- * @return int           Account ID matching the email, or 0 if no match.
+ * @param  string $username Username address to query.
+ * @return int              Matching Account ID, or 0 if no match.
  */
-public static function GetAccountIDFromEmail( $email ) {
-	$hash = HashEmail( $email );
+public static function GetAccountIDFromUsername( $username ) {
+	$hash = HashUsername( $username );
 	$sql = GetSQL();
 	$result = $sql->safequery( 
-		"SELECT email, account
-		FROM Accounts WHERE email_hash=0x$hash" );
+		"SELECT username, account
+		FROM Accounts WHERE user_hash=0x$hash" );
 	
-	if( $result->num_rows == 0 ) return 0; // unrecognized email.
+	if( $result->num_rows == 0 ) return 0; // unrecognized username.
 	
 	while( $row = $result->fetch_row( $result ) ) {
-		if( $row[0] === $email ) {
+		if( $row[0] === $username ) {
 			return (int)$row[1];
 		}
 	}
-	return 0; // unrecognized email.
+	return 0; // unrecognized username.
 }
 
 /** ---------------------------------------------------------------------------
  * Do an account database query.
  *
  * @param int    $id     ID of account to read
- * @param string $fields Fields of the account to read, separated by commas.
+ * @param array $fields String array of fields to read. this is not sanitized.
  * @return array         Assoc array containing the account field values.
  * @throws InvalidAccountException If the account doesn't exist.
  * @throws SQL exception on database failure
@@ -91,7 +91,7 @@ public static function ReadAccount( $id, $fields ) {
 	
 	$sql = GetSQL();
 	$result = $sql->safequery( 	
-		"SELECT $fields
+		"SELECT ". implode( ',' , $fields ) . "
 		FROM Accounts  
 		WHERE id = $id" );
 	
@@ -108,7 +108,7 @@ public static function ReadAccount( $id, $fields ) {
  * Read the login cookie and parse it.
  *
  * @param int &$id     (Out) ID of login cookie
- * @param int &$secret (Out) MD5 hex of secret of login cookie
+ * @param int &$secret (Out) secret of login cookie
  * @return bool        FALSE if cookie missing or invalid
  */
 public static function ParseLoginToken( &$id, &$secret ) {
@@ -184,22 +184,22 @@ public static function CheckLogin() {
 }
 
 /** ---------------------------------------------------------------------------
- * Log in a user using their email and password
+ * Log in a user using their username and password
  *
- * @param string $email Email address.
+ * @param string $username Username.
  * @param string $password Password.
  * @param string $remember TRUE to create a long lasting login token. FALSE
  *                         to expire after a short while.
- * @return int|false Account ID or FALSE if the authentication is invalid.
+ * @return int|false Account ID or FALSE if the credentials are invalid.
  */
-public static function LogIn( $email, $password, $remember ) {
+public static function LogIn( $username, $password, $remember ) {
 	$db = GetSQL();
 	
-	$email_hash = HashEmail( $email );
-	$email_safe = $sql->real_escape_string($email);
+	$user_hash = HashUsername( $username );
+	$user_safe = $sql->real_escape_string($username);
 	$result = $db->RunQuery( 
 		"SELECT id, password FROM Accounts
-		WHERE email_hash=x'$email_hash' AND email='$email_safe'" );
+		WHERE user_hash=x'$user_hash' AND username='$user_safe'" );
 	
 	$row = $result->fetch_assoc();
 	if( $row === FALSE ) return FALSE;
@@ -217,8 +217,7 @@ public static function LogIn( $email, $password, $remember ) {
 	
 	if( $remember ) {
 		CreateLoginToken();
-	}
-	
+	} 
 }
 
 /** ---------------------------------------------------------------------------

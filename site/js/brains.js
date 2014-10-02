@@ -17,6 +17,8 @@ var s_navarrows;
 
 var m_async = AsyncGroup.Create();
 
+var m_logged_in;
+
 /** ---------------------------------------------------------------------------
  * Adjust the font size of a phrase element to fit inside the box.
  *
@@ -33,18 +35,17 @@ function AdjustPhraseSize( e, size ) {
 	if( length < 240 ) {
 		// normal size.
 		
-	} else {// if( length < 200 ) {
+	} else {
 		factor = (240 / length);
-
-		
-		// small size
-//		size = size * 0.75;
-//	} else {
-	//	size = size * 0.5;
 	}
 	e.css( "font-size", Math.floor(size*factor) + "px" );
 }
 
+/** ---------------------------------------------------------------------------
+ * Adjust the size of a thought based on its text length.
+ *
+ * (e.g. scale down the text if it is very long.)
+ */
 function AdjustThoughtSize() {
 	var e = $(this);
 	var length = $("#magicbox2").text( e.text() ).innerWidth();
@@ -113,6 +114,10 @@ function ResizeNavBoxes() {
 	
 }
 
+/** ---------------------------------------------------------------------------
+ * Adjust sizes and positioning of elements according to the new
+ * window dimensions.
+ */
 function AdjustSizes() {
 	
 	ResizeNavBoxes();
@@ -129,9 +134,34 @@ function AdjustSizes() {
 	//$("#view").height( $(window).height() - 48 + "px" );
 }
 
+/** ---------------------------------------------------------------------------
+ * Adjust window sizes when the user resizes or zooms his screen.
+ */
 $(window).resize( function() {
 	AdjustSizes()
 });
+
+/** ---------------------------------------------------------------------------
+ * On global key-down.
+ */
+$(window).keydown( function(e) {
+
+	// make escape close the dialog box.
+	if( e.keyCode == 27 ) {
+		brains.Dialog.Close();
+	}
+	return true;
+});
+
+/** ---------------------------------------------------------------------------
+ * Make the mousewheel scroll the page.
+ */
+$(window).bind("mousewheel",function(ev, delta) {
+	
+	var scrollTop = $(window).scrollTop()-Math.round(delta)*51;
+	
+	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
+}); 
 
 function AdjustNewLinkInputSize() {
 	var newlink = $("#newlink");
@@ -187,10 +217,6 @@ $( function() {
 		e.stopPropagation();
 	} );
 	
-	$("#newlink").keydown( function() {
-		
-		setTimeout( AdjustNewLinkInputSize, 0 );
-	});
 	
 	$("#queryform").submit( function() {
 		OnNewQuery();
@@ -208,18 +234,8 @@ $( function() {
 		return false;
 	});
 	
-	//brains.Dialog.Show( "login" );
+	brains.Dialog.Show( "login" );
 });
-
-/** ---------------------------------------------------------------------------
- * Make the mousewheel scroll the page.
- */
-$(window).bind("mousewheel",function(ev, delta) {
-	
-	var scrollTop = $(window).scrollTop()-Math.round(delta)*51;
-	
-	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
-}); 
 
 /** ---------------------------------------------------------------------------
  * Handler for the main query box
@@ -246,11 +262,54 @@ function OnNewQuery() {
 	return;
 }
 
+/** ---------------------------------------------------------------------------
+ * Called when the old content was erased and new content is about to
+ * be loaded.
+ */
 brains.InitializePreLoad = function() {
+	
 }
 
+/** ---------------------------------------------------------------------------
+ * Called after the content is filled with a new page.
+ *
+ */
 brains.InitializePostLoad = function() {
-	$("#newlink").focus();
+	var newlink = $( "#newlink" );
+	if( newlink.length ) {
+		
+		newlink.focus()
+			.keydown( function() {
+				setTimeout( AdjustNewLinkInputSize, 0 );
+			} );
+			
+		$("#newlinkform").submit( function() {
+			if( !m_logged_in ) {
+				brains.Dialog.Show( "login" );
+				return false;
+			}
+			return false;
+		} );
+		
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Set the logged in state.
+ *
+ * @param bool value Value of logged in state.
+ */
+brains.SetLoggedIn = function( value ) {
+	m_logged_in = value;
+}
+
+/** ---------------------------------------------------------------------------
+ * Get the logged in state.
+ *
+ * @return bool TRUE if logged in.
+ */
+brains.LoggedIn = function() {
+	return m_logged_in;
 }
 
 //-----------------------------------------------------------------------------

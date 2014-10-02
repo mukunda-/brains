@@ -28,8 +28,11 @@ final class Content {
 	public static function PrintNewLinkInput( $thought ) {
 		echo "<h2>What does \"$thought\" make you think of?</h2>";
 		echo '<div class="newlink">';
+			echo '<form id="newlinkform">';
 			echo '<input type="text" id="newlink" maxlength="20">';
+			echo '</form>';
 		echo '</div>';
+		
 	}
 }
 /*

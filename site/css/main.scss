@@ -548,6 +548,10 @@ input {
 	box-shadow: 10px 10px 16px rgba( #000, 0.1 );
 	text-align: left;
 	
+	label {
+		@include  no-select;
+	}
+	
 	.title {
 		font-weight: bold;
 		font-size: 24px;
@@ -556,6 +560,16 @@ input {
 		margin-bottom: 24px;
 		margin-top: -8px;
 		border-bottom: 1px solid rgba( #000, 0.25 );
+	}
+	
+	.desc {
+		font-weight: normal;
+		font-size: 18px;
+		cursor: default;
+		text-align: center;
+		margin-bottom: 12px;
+		margin-top: -8px;
+		border-bottom: 1px solid darken( $cl_white, 25% );
 	}
 	
 	.textinput {
@@ -574,6 +588,7 @@ input {
 	.submitinput {
 		margin-top: 12px;
 	}
+	
 }
 #dialogtemplates  {
 	display: none;
