@@ -30,6 +30,16 @@ class SQLException extends Exception {
 class MySQLWrapper extends mysqli {
 
 	/** -----------------------------------------------------------------------
+	 * Construct with some special sauce.
+	 */
+	public function __construct( $host, $user, $password, $database, $flags ) {
+		parent::init();
+		
+		parent::real_connect( $host, $user, $password, $database,
+			null, null, $flags );
+	}
+
+	/** -----------------------------------------------------------------------
 	 * Execute a query and throw an SQLException if it fails.
 	 *
 	 * @param string $query SQL query to execute.
@@ -78,7 +88,11 @@ class MySQLWrapper extends mysqli {
 function GetSQL() {
 	global $g_sqldb;
 	if( !$g_sqldb ) {
-		$g_sqldb = new MySQLWrapper( $GLOBALS["sql_addr"], $GLOBALS["sql_user"],$GLOBALS["sql_password"],$GLOBALS["sql_database"] );
+		$g_sqldb = new MySQLWrapper( 
+			$GLOBALS["sql_addr"], $GLOBALS["sql_user"],
+			$GLOBALS["sql_password"],$GLOBALS["sql_database"]
+			MYSQLI_CLIENT_FOUND_ROWS );
+			
 		if( $g_sqldb->connect_errno ) {
 			$g_sqldb = null;
 			throw new SQLException( (int)$g_sqldb->connect_errno, "SQL Connection Error: ". (int)$g_sqldb->connect_error );

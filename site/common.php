@@ -1,5 +1,7 @@
 <?php
 
+require_once 'config.php';
+
 $g_session_open = false;
 
 /** ---------------------------------------------------------------------------
@@ -47,7 +49,10 @@ function CheckArgsGET() {
  * This also handles an extra verification step.
  */
 function OpenSession() {
+	global $g_session_open;
 	if( $g_session_open ) return;
+	
+	session_set_cookie_params( Config::$SESSIONTIME, Config::$ABSPATH );
 	session_start();
 	
 	// extra verification: match key cookie with session variable.
@@ -60,12 +65,12 @@ function OpenSession() {
 		$key = mt_rand() & 0xFFFFFFF;
 		$_SESSION['sessionkey'] = $key;
 		setcookie( "sessionkey", $key, 
-			time() + \Config::$SESSIONTIME, $config->AbsPath() );
+			time() + Config::$SESSIONTIME, Config::$ABSPATH );
 	} else {
 		
 		// extend time.
 		setcookie( "sessionkey", $_COOKIE['sessionkey'], 
-			time() + \Config::$SESSIONTIME, $config->AbsPath() );
+			time() + Config::$SESSIONTIME, Config::$ABSPATH );
 	}
 	
 }

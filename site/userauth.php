@@ -1,8 +1,17 @@
 <?php
  
+require_once 'common.php';
 require_once 'libs/password.php';
 
-class InvalidAccountException extends Exception { }
+class InvalidAccountException extends Exception { 
+	public $id;
+	public function __construct( $id ) {
+		$this->id = $id;
+		parent::__construct( "Invalid account ID: $id" );
+	}
+
+}
+class InvalidAccountFieldException extends Exception { }
 
 //-----------------------------------------------------------------------------
 final class UserAuth {
@@ -12,6 +21,26 @@ private static $logged_in = FALSE;
 private static $account_id = 0;
 private static $secret_charset = 
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	
+private static $account_field_types;
+
+const FIELD_STRING = 0;
+const FIELD_INT = 1; 
+
+public static function init() {
+	self::$account_field_types = array(
+		'password'     => self::FIELD_STRING,
+		'nickname'     => self::FIELD_STRING,
+		'name'         => self::FIELD_STRING,
+		'website'      => self::FIELD_STRING,
+		'bio'          => self::FIELD_STRING,
+		'linksmade'    => self::FIELD_INT,
+		'stronglinks'  => self::FIELD_INT,
+		'perfectlinks' => self::FIELD_INT,
+		'banned'       => self::FIELD_INT,
+		'banreason'    => self::FIELD_INT
+	);
+}
 
 /** ---------------------------------------------------------------------------
  * Check if the user is logged in
@@ -62,8 +91,8 @@ public static function HashUsername( $username ) {
  */
 public static function GetAccountIDFromUsername( $username ) {
 	$hash = HashUsername( $username );
-	$sql = GetSQL();
-	$result = $sql->safequery( 
+	$db = GetSQL();
+	$result = $db->safequery( 
 		"SELECT username, account
 		FROM Accounts WHERE user_hash=0x$hash" );
 	
@@ -89,19 +118,63 @@ public static function GetAccountIDFromUsername( $username ) {
 public static function ReadAccount( $id, $fields ) {
 	$id = (int)$id; // safety
 	
-	$sql = GetSQL();
-	$result = $sql->safequery( 	
+	$db = GetSQL();
+	$result = $db->safequery( 	
 		"SELECT ". implode( ',' , $fields ) . "
 		FROM Accounts  
 		WHERE id = $id" );
 	
 	$row = $result->fetch_assoc();
 	if( $row === FALSE ) {
-		throw new InvalidAccountException( 
-			"Invalid account ID: $id" );
+		throw new InvalidAccountException( $id );
 	}
 	$row['id'] = $id;
 	return $row;
+}
+
+/** ---------------------------------------------------------------------------
+ * Modify an account in the database.
+ *
+ * Only certain fields can be written to.
+ *
+ * @param int    $id     ID of account to modify
+ * @param array $fields  Array of fields to write to. Key is the field, value
+ *                       is the value. Values are handled safely.
+ *                       e.g. array( "email" => "abc@example.com" )
+ *
+ * @throws InvalidAccountException If the account doesn't exist.
+ * @throws InvalidArgumentException If the $fields argument contains errors.
+ * @throws SQL exception on database failure
+ */
+public static function WriteAccount( $id, $fields ) {
+	$db = GetSQL();
+	
+	$set = array();
+	foreach( $fields as $key => $value ) {
+		if( !isset( self::$account_field_types[$key] ) ) {
+			throw new InvalidArgumentException( "$key is not a valid field." );
+		}
+		
+		$type = self::$account_field_types[$key];
+		if( $type == self::FIELD_STRING ) {
+			
+			$set[] = "$key='" + $db->real_escape_string( $value ) + "'";
+		} else {
+			$value = (int)$value;
+			$set[] = "$key=$value";
+		}
+		
+	}
+	if( empty( $set ) ) return;
+	
+	$result = $db->safequery( 	
+		"UPDATE Accounts
+		SET ". implode( ',' , $set ) . "
+		WHERE id = $id" );
+	
+	if( $result->affected_rows == 0 ) {
+		throw new InvalidAccountException( $id );
+	}
 }
 
 /** ---------------------------------------------------------------------------
@@ -145,7 +218,7 @@ public static function CheckLogin() {
 	$id     = 0;
 	$secret = 0;
 	
-	if( !ParseLoginToken( $id, $secret ) ) return FALSE;
+	if( !self::ParseLoginToken( $id, $secret ) ) return FALSE;
 	
 	$time = time();
 	$db = GetSQL();
@@ -195,8 +268,12 @@ public static function CheckLogin() {
 public static function LogIn( $username, $password, $remember ) {
 	$db = GetSQL();
 	
+	$username = trim($username);
+	if( !IsValidString( $username ) ) return FALSE;
+	if( !IsValidString( $password ) ) return FALSE;
+	
 	$user_hash = HashUsername( $username );
-	$user_safe = $sql->real_escape_string($username);
+	$user_safe = $db->real_escape_string( $username );
 	$result = $db->RunQuery( 
 		"SELECT id, password FROM Accounts
 		WHERE user_hash=x'$user_hash' AND username='$user_safe'" );
@@ -216,7 +293,7 @@ public static function LogIn( $username, $password, $remember ) {
 	$_SESSION['account_id'] = self::$account_id;
 	
 	if( $remember ) {
-		CreateLoginToken();
+		self::CreateLoginToken();
 	} 
 }
 
@@ -244,7 +321,69 @@ private static function CreateLoginToken() {
 		$expires, $config->AbsPath(), $config->SecureMode() );
 	
 }
+
+/** ---------------------------------------------------------------------------
+ * Tests if a given string is valid for a username, password, or nickname.
+ *
+ * @param  string $string Input to test.
+ * @return bool           TRUE if valid.
+ */
+private static function IsValidString( $string ) {
+	return preg_match( $string, '^[\x20-\x7E]+$' );
+}
+
+/** ---------------------------------------------------------------------------
+ * Create a new account.
+ *
+ * @param string $username Username for account.
+ * @param string $password Password for account.
+ * @param string $nickname Initial nickname for the account.
+ *
+ * @return string "okay" if the account was created.
+ *                "exists" if the username already exists.
+ *                "error" if the input is not valid (invalid chars)
+ *
+ * @throws SQLException if a database error occurs.
+ */
+public static function CreateAccount( $username, $password, $nickname ) {
+	$db = GetSQL();
+	
+	$username = trim($username);
+	if( !IsValidString( $username ) ) {
+		return 'error';
+	}
+	if( !IsValidString( $password ) ) {
+		return 'error';
+	}
+	$nickname = trim($nickname);
+	if( !IsValidString( $nickname ) ) {
+		return 'error';
+	} 
+	
+	$user_hash = HashUsername( $username );
+	
+	$username = $db->real_escape_string( $username );
+	$password = $db->real_escape_string( $password );
+	$nickname = $db->real_escape_string( $nickname );
+	
+	try {
+		$db->RunQuery( 
+			"INSERT INTO Accounts 
+			(user_hash, username, password, nickname)
+			VALUES ('$username','$password','$nickname')" );
+	} catch( SQLException $e ) {
+		if( $e->errno == 1169 ) { // ER_DUP_UNIQUE
+			return 'exists';
+		}
+		throw $e;
+	}
+	
+	return 'okay';
+}
+
 	
 } // class UserAuth
+
+UserAuth::init();
 
 ?>

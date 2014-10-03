@@ -177,10 +177,10 @@ $( function() {
 	s_navphrases = s_navboxes.children( ".phrase" );
 	s_navarrows = s_nav.children( ".arrow" );
 	
-	AdjustSizes();
 	
 	AdjustNewLinkInputSize();
 	
+	AdjustSizes();
 	$(".thought span").each( AdjustThoughtSize );
 	
 	setTimeout(  // god i fucking hate the web.

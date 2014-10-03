@@ -41,6 +41,19 @@ this.SetInit = function( f ) {
 	m_init_function = f;
 }
 
+function Login_OnSubmit() {
+	var username = $("#text_username").text();
+	var password = $("#text_password").text();
+	username = username.trim();
+	if( username == "" ) {
+		$("#error").text( "Enter a username." );
+		return;
+	}
+	////if( 
+	////$.post( 
+	return false;
+}
+
 /** ---------------------------------------------------------------------------
  * Initializer for the Login dialog.
  */
@@ -50,6 +63,7 @@ this.InitLoginDialog = function() {
 	$("#button_createaccount").click( function() {
 		brains.Dialog.Show( "createaccount" );
 	});
+	$("#form_login").submit( Login_OnSubmit );
 }
 
 /** ---------------------------------------------------------------------------

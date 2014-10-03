@@ -27,28 +27,26 @@ if( $droptables ) {
 $sql->safequery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
 		id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-		email_hash   INT UNSIGNED NOT NULL 
-		             COMMENT 'crc32b hash of email, used to group emails for fast queries.',
-		email        VARCHAR(255) NOT NULL, 
-		confirmed    BOOLEAN NOT NULL DEFAULT 0 
-		             COMMENT 'Set when they confirm their email.',
-		password     VARCHAR(255) NOT NULL,
+		user_hash    INT UNSIGNED NOT NULL 
+		             COMMENT 'crc32b hash of username, used as a username index.',
+		username     VARCHAR(255) NOT NULL COMMENT 'User name',
+		password     VARCHAR(255) NOT NULL COMMENT 'Hashed password',
 		nickname     VARCHAR(64) NOT NULL 
-		             COMMENT 'Nicknames do not have to be unique, only their e-mail.',
-		name         VARCHAR(64) NOT NULL,
-		website      VARCHAR(128),
-		bio          VARCHAR(32000),
+		             COMMENT 'Nicknames do not have to be unique, only the username.',
+		name         VARCHAR(64) COMMENT 'Optional real name.',
+		website      VARCHAR(128) COMMENT 'Optional website address.',
+		bio          VARCHAR(32000) COMMENT 'Optional biography.',
 		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 
 		             COMMENT 'Normal links made.',
 		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 
 		             COMMENT 'Strong links made.',
 		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 
 		             COMMENT 'Perfect links made.',
-		banned       BOOLEAN NOT NULL DEFAULT 0,
-		bantime      INT NOT NULL DEFAULT 0,
-		banreason    VARCHAR(512),
+		banned       BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Suspended account.',
+		bantime      INT NOT NULL DEFAULT 0 COMMENT 'Time of suspension.',
+		banreason    VARCHAR(512) COMMENT 'Reason for suspension.,
 		
-		INDEX USING HASH(email_hash) )
+		INDEX USING BTREE(user_hash) )
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
 	" );
