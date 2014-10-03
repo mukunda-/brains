@@ -590,6 +590,20 @@ input {
 	}
 	
 }
+
+#dialog_error {
+	visibility: none;
+	color: white;
+	transition: color 0s;
+}
+
+#dialog_error.visible {
+	visibility: inherit;
+	color: red;
+	transition: color 1s;
+}
+	
+	
 #dialogtemplates  {
 	display: none;
 }

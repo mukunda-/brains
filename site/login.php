@@ -8,16 +8,27 @@ require_once 'common.php';
 require_once 'userauth.php';
 require_once 'captcha.php';
  
-define( R_ERROR,   'error.'   ); // an error occurred.
-define( R_INVALID, 'invalid.' ); // invalid login
-define( R_CAPTCHA, 'captcha.' ); // failed the captcha
-define( R_EXISTS,  'exists.'  ); // create: the username already exists
-define( R_CREATED, 'created.' ); // create: the account was created successfully
-define( R_OKAY,    'okay.'    ); // login successful.
+// an error occurred.
+define( 'R_ERROR', 'error.' );
+
+// invalid login
+define( 'R_INVALID', 'invalid.' ); 
+
+// failed the captcha
+define( 'R_CAPTCHA', 'captcha.' ); 
+
+// create: the username already exists
+define( 'R_EXISTS', 'exists.' ); 
+
+// create: the account was created successfully
+define( 'R_CREATED', 'created.' ); 
+
+// login successful.
+define( 'R_OKAY', 'okay.' ); 
  
 try {
 	
-	if( isset( $_POST['create'] ) ){ 
+	if( isset( $_POST['create'] ) ) {
 		// create new account
 		
 		if( !CheckArgsPOST( 'username', 'password', 'nickname' ) ) {
@@ -47,7 +58,10 @@ try {
 		// login
 		if( !CheckArgsPOST( 'username', 'password' ) ) exit( R_ERROR );
 		
-		if( !UserAuth::LogIn( $_POST['username'], $_POST['password'] ) ) {
+		if( !UserAuth::LogIn( $_POST['username'], 
+							  $_POST['password'],
+							  isset($_POST['remember']) ) ) {
+							  
 			exit( R_INVALID );
 		}
 		

@@ -154,6 +154,7 @@ require_once 'libs/recaptchalib.php';
 				<div id="captcha"></div><br>
 			
 				<input type="submit" class="submitinput" value="Create Account">
+				<input type="button" class="submitinput" id="button_cancel" value="Cancel">
 			</form>
 			</center>
 			
@@ -165,14 +166,16 @@ require_once 'libs/recaptchalib.php';
 			<center>
 				<div id="dialog_error"></div>
 				<form id="form_login">
-				
+					
 					<label>Username</label><br>
 					<input type="text" name="username" class="textinput" id="text_username"><br>
 					<label>Password</label><br>
 					<input type="password" name="password" class="textinput" id="text_password"><br>
 					<input type="checkbox" name="rememberme" id="check_rememberme">
 					<label for="check_rememberme">Remember me</label><br>
-					<input type="submit" class="submitinput" value="Login"> <input type="button" class="submitinput" id="button_createaccount" value="Create Account"><br>
+					<input type="submit" class="submitinput" value="Login"> 
+					<input type="button" class="submitinput" id="button_createaccount" value="Create Account"><br>
+					
 				</form>
 			</center>
 			<script>brains.Dialog.SetInit( brains.Dialog.InitLoginDialog );</script>

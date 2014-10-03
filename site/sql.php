@@ -1,10 +1,10 @@
 <?php
 
-// SQL wrapper with safe query function
-// safe query throws an exception on failure
+// SQL wrapper with useful query function
+// which throws an exception on failure
 //
-// also provides global instance of sql database
-// requried
+// also provides global instance of database link
+//
 
 require_once "sql_login.php";
 
@@ -13,7 +13,7 @@ $g_sqldb = null;
 define( 'SQLERR_DEADLOCK', 1205 );
 
 /** ---------------------------------------------------------------------------
- * Exception thrown from ExQuery
+ * Exception thrown from RunQuery
  */
 class SQLException extends Exception {
 	public $code; // mysqli errno
@@ -90,7 +90,7 @@ function GetSQL() {
 	if( !$g_sqldb ) {
 		$g_sqldb = new MySQLWrapper( 
 			$GLOBALS["sql_addr"], $GLOBALS["sql_user"],
-			$GLOBALS["sql_password"],$GLOBALS["sql_database"]
+			$GLOBALS["sql_password"],$GLOBALS["sql_database"],
 			MYSQLI_CLIENT_FOUND_ROWS );
 			
 		if( $g_sqldb->connect_errno ) {

@@ -1,6 +1,7 @@
 <?php
  
 require_once 'common.php';
+require_once 'sql.php';
 require_once 'libs/password.php';
 
 class InvalidAccountException extends Exception { 
@@ -269,10 +270,10 @@ public static function LogIn( $username, $password, $remember ) {
 	$db = GetSQL();
 	
 	$username = trim($username);
-	if( !IsValidString( $username ) ) return FALSE;
-	if( !IsValidString( $password ) ) return FALSE;
+	if( !self::IsValidString( $username ) ) return FALSE;
+	if( !self::IsValidString( $password ) ) return FALSE;
 	
-	$user_hash = HashUsername( $username );
+	$user_hash = self::HashUsername( $username );
 	$user_safe = $db->real_escape_string( $username );
 	$result = $db->RunQuery( 
 		"SELECT id, password FROM Accounts
@@ -329,7 +330,7 @@ private static function CreateLoginToken() {
  * @return bool           TRUE if valid.
  */
 private static function IsValidString( $string ) {
-	return preg_match( $string, '^[\x20-\x7E]+$' );
+	return preg_match( '/^[\\x20-\\x7E]+$/', $string );
 }
 
 /** ---------------------------------------------------------------------------
@@ -349,14 +350,14 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	$db = GetSQL();
 	
 	$username = trim($username);
-	if( !IsValidString( $username ) ) {
+	if( !self::IsValidString( $username ) ) {
 		return 'error';
 	}
-	if( !IsValidString( $password ) ) {
+	if( !self::IsValidString( $password ) ) {
 		return 'error';
 	}
 	$nickname = trim($nickname);
-	if( !IsValidString( $nickname ) ) {
+	if( !self::IsValidString( $nickname ) ) {
 		return 'error';
 	} 
 	

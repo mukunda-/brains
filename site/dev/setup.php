@@ -5,13 +5,13 @@ require_once '../sql.php';
 
 if( !$config->DebugMode() ) die('aaaa');
 
-$sql = GetSQL();
+$db = GetSQL();
 
 $droptables = 1;
 
 function DropTable( $name ) {
-	global $sql;
-	$sql->safequery( "DROP TABLE IF EXISTS $name" );
+	global $db;
+	$db->RunQuery( "DROP TABLE IF EXISTS $name" );
 }
 
 if( $droptables ) {
@@ -24,7 +24,7 @@ if( $droptables ) {
 }
 
 
-$sql->safequery( "
+$db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Accounts (
 		id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
 		user_hash    INT UNSIGNED NOT NULL 
@@ -44,14 +44,14 @@ $sql->safequery( "
 		             COMMENT 'Perfect links made.',
 		banned       BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Suspended account.',
 		bantime      INT NOT NULL DEFAULT 0 COMMENT 'Time of suspension.',
-		banreason    VARCHAR(512) COMMENT 'Reason for suspension.,
+		banreason    VARCHAR(512) COMMENT 'Reason for suspension.',
 		
 		INDEX USING BTREE(user_hash) )
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
 	" );
 	
-$sql->safequery( "
+$db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS LoginTokens (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
@@ -62,7 +62,7 @@ $sql->safequery( "
 	COMMENT = 'Active user logins.'
 	" );
 
-$sql->safequery( "
+$db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Thoughts (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		creator INT UNSIGNED          COMMENT 'Account of creator.',
@@ -73,7 +73,7 @@ $sql->safequery( "
 	COMMENT = 'Mapping of thoughts and their IDs.'
 	" );
 
-$sql->safequery( "
+$db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Links (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
@@ -89,7 +89,7 @@ $sql->safequery( "
 	COMMENT = 'Describes all links between thoughts.'
 	" );
 	
-$sql->safequery( "
+$db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Votes (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',

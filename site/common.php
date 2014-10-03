@@ -1,6 +1,7 @@
 <?php
 
 require_once 'config.php';
+require_once 'logging.php';
 
 $g_session_open = false;
 
