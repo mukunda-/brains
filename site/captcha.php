@@ -17,7 +17,7 @@ class Captcha {
 	 * Return the HTML for a captcha form.
 	 */
 	public static function GetHTML() {
-		return recaptcha_get_html( $recaptcha_public_key );
+		return recaptcha_get_html( $GLOBALS['recaptcha_public_key'] );
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -27,18 +27,19 @@ class Captcha {
 	 * returns TRUE if the input was valid and the session has been updated.
 	 */
 	public static function Validate() {
-		 
+		
 		if( !CheckArgsPOST( 
 				'recaptcha_challenge_field', 
 				'recaptcha_response_field' ) ) return FALSE;
 				
-		$resp = recaptcha_check_answer( $recaptcha_private_key,
+		$resp = recaptcha_check_answer( $GLOBALS['recaptcha_private_key'],
 										$_SERVER['REMOTE_ADDR'],
 										$_POST['recaptcha_challenge_field'],
 										$_POST['recaptcha_response_field'] );
 						
 		if( !$resp->is_valid ) return FALSE;
 		
+		OpenSession();
 		// time might be utilized later.
 		$_SESSION['captcha'] = array( "time" => time() );
 		return TRUE;

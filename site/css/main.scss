@@ -4,6 +4,7 @@ $bgcolor: #F8CC8A;
 //$cl_bg: #82BF9A; // teenage robot (green)
 //$cl_bg: #EDAA65;
 //$cl_bg: #115533;
+$cl_red: #fe0201;
 $cl_bg: #6CD4FB; // blue stone (light blue)
 $cl_hl: complement( $cl_bg );
 $cl_topbar: #93406D; // A Flower's Secrets
@@ -583,6 +584,10 @@ input {
 		&:focus {
 			border-color: $cl_hl; //2px solid #159;
 		}
+		
+		&.error {
+			border-color: $cl_red;
+		}
 	}
 	
 	.submitinput {
@@ -603,6 +608,9 @@ input {
 	transition: color 1s;
 }
 	
+.dialog_createaccount .dialog_error {
+	margin-bottom: 16px;
+}
 	
 #dialogtemplates  {
 	display: none;

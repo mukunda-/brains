@@ -45,7 +45,7 @@ function Build() {
 	$gentime = file_exists( $css_target ) ? filemtime( $css_target ) : 0;
 
 	if( $newtime >= $gentime ) {
-		\Logger\PrintInfo( "building css..." );
+		\Logger::PrintInfo( "building css..." );
 		if( $config->DebugMode() ) {
 			// debug mode, don't compress.
 			 
@@ -65,7 +65,7 @@ function Build() {
 	$newtime = GetNewestFileTime( $js );
 	$gentime = file_exists( $js_target ) ? filemtime( $js_target ) : 0;
 	if( $newtime >= $gentime ) {
-		\Logger\PrintInfo( "building javascript..." );
+		\Logger::PrintInfo( "building javascript..." );
 		
 		$code = "";
 		foreach( $js as $jsfile ) {

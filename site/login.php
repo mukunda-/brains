@@ -19,11 +19,8 @@ define( 'R_CAPTCHA', 'captcha.' );
 
 // create: the username already exists
 define( 'R_EXISTS', 'exists.' ); 
-
-// create: the account was created successfully
-define( 'R_CREATED', 'created.' ); 
-
-// login successful.
+ 
+// login successful, or an account was created successfully.
 define( 'R_OKAY', 'okay.' ); 
  
 try {
@@ -44,7 +41,8 @@ try {
 		
 		$result = UserAuth::CreateAccount( 
 								$_POST['username'], 
-								$_POST['password'] );
+								$_POST['password'],
+								$_POST['nickname'] );
 								
 		if( $result == 'exists' ) {
 			exit( R_EXISTS );

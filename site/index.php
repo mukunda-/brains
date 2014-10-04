@@ -27,6 +27,7 @@ require_once 'libs/recaptchalib.php';
 		<link rel="stylesheet" href="min/style.min.css" type="text/css">
 		<script src="min/scripts.min.js"></script>
 		
+		
 		<?php
 			if( UserAuth::LoggedIn() ) {
 				echo '<script>brains.SetLoggedIn( true );</script>';
@@ -137,34 +138,37 @@ require_once 'libs/recaptchalib.php';
 		
 		?>
 		<template id="dialog_createaccount">
-			<div class="title">Create an account</div>
-			<!--<div class="desc">Creating an account here is easy and fun! Just fill out the info and the captcha and you will be logged in instantly. Accounts are required if you want to create new thought links or vote on links. You don't need an account if you just want to browse.</div>-->
-			<center>
-			<form id="form_createaccount">
-				<label>Nickname, what other people will see you as.<br>Doesn't have to be unique.</label><br>
-				<input type="text" class="textinput"><br>
-				<label>Username, what you will use to log in.<br>Has to be unique.</label><br>
-				<input type="text" class="textinput"><br>
-				<label>Password</label><br>
-				<input type="password" class="textinput"><br>
-				<label>Re-type Password</label><br>
-				<input type="password" class="textinput"><br>
-				<label>E-mail, only used if you need to reset your password. (optional)</label><br>
-				<input type="text" class="textinput"><br>
-				<div id="captcha"></div><br>
-			
-				<input type="submit" class="submitinput" value="Create Account">
-				<input type="button" class="submitinput" id="button_cancel" value="Cancel">
-			</form>
-			</center>
-			
-			<script>brains.Dialog.SetInit( brains.Dialog.InitCreateAccountDialog );</script>
+
+			<div class="dialog_createaccount">
+		
+				<div class="title">Create an account</div>
+				<!--<div class="desc">Creating an account here is easy and fun! Just fill out the info and the captcha and you will be logged in instantly. Accounts are required if you want to create new thought links or vote on links. You don't need an account if you just want to browse.</div>-->
+				<center>
+					<div id="dialog_error" class="dialog_error"></div>
+					<form id="form_createaccount">
+						<label>Nickname, what other people will see you as.<br>Doesn't have to be unique.</label><br>
+						<input type="text" class="textinput" id="ca_nickname"><br>
+						<label>Username, what you will use to log in.<br>Has to be unique.</label><br>
+						<input type="text" class="textinput" id="ca_username"><br>
+						<label>Password</label><br>
+						<input type="password" class="textinput" id="ca_password"><br>
+						<label>Re-type Password</label><br>
+						<input type="password" class="textinput" id="ca_password2"><br><br>
+						<div id="ca_captcha"></div>
+						
+						<input type="submit" class="submitinput" value="Create Account">
+						<input type="button" class="submitinput" id="button_cancel" value="Cancel">
+					</form>
+				</center>
+				
+				<script>brains.Dialog.SetInit( brains.Dialog.InitCreateAccountDialog );</script>
+			</div>
 		</template>
 		
 		<template id="dialog_login">
 			<div class="desc">To create a link you need to be logged in.</div>
 			<center>
-				<div id="dialog_error"></div>
+				<div id="dialog_error" class="dialog_error"></div>
 				<form id="form_login">
 					
 					<label>Username</label><br>
@@ -181,6 +185,12 @@ require_once 'libs/recaptchalib.php';
 			<script>brains.Dialog.SetInit( brains.Dialog.InitLoginDialog );</script>
 		</template>
 		
-
+		<template id="dialog_profile">
+			<div class="desc" id='dialog_desc'>Profile for ...</div>
+			<center>
+				<div id="profile_email"></div>
+				<div id="profile_bio"></div>
+			</center>
+		</template>
 	</body>
 </html>

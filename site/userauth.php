@@ -310,7 +310,9 @@ private static function CreateLoginToken() {
 	$id = self::$account_id;
 	
 	$secrethash = password_hash($secret);
+	if( $secrethash === FALSE ) return; // failure
 	$expires = time() + \Config::$AUTHTOKEN_DURATION;
+	
 	$db->RunQuery( 
 		"INSERT INTO LoginTokens (account, secret, expires)
 		VALUES ( $id, '$secrethash', $expires )" ); 
@@ -361,23 +363,48 @@ public static function CreateAccount( $username, $password, $nickname ) {
 		return 'error';
 	} 
 	
-	$user_hash = HashUsername( $username );
+	$user_hash = self::HashUsername( $username );
+	
+	$password = password_hash( $password, PASSWORD_DEFAULT );
+	if( $password === FALSE ) return 'error';
 	
 	$username = $db->real_escape_string( $username );
 	$password = $db->real_escape_string( $password );
 	$nickname = $db->real_escape_string( $nickname );
-	
+	 
 	try {
+		$db->RunQuery( 'START TRANSACTION' );
+		
+		$result = $db->RunQuery( 
+			"SELECT 1 FROM Accounts 
+			WHERE user_hash=x'$user_hash' AND username='$username'" );
+			
+		if( $result->num_rows != 0 ) {
+			$db->RunQuery( 'ROLLBACK' );
+			return 'exists';
+		}
+		
 		$db->RunQuery( 
 			"INSERT INTO Accounts 
 			(user_hash, username, password, nickname)
-			VALUES ('$username','$password','$nickname')" );
-	} catch( SQLException $e ) {
-		if( $e->errno == 1169 ) { // ER_DUP_UNIQUE
-			return 'exists';
+			VALUES (x'$user_hash','$username','$password','$nickname')" );
+		
+		$result = $db->RunQuery( 
+			"SELECT COUNT(*) FROM Accounts 
+			WHERE user_hash=x'$user_hash' AND username='$username'" );
+				
+		if( $result->num_rows != 1 ) {
+			// collision with another query or something...
+			$db->RunQuery( 'ROLLBACK' );
+			return 'error';
 		}
+		
+	} catch ( SQLException $e ) {
+		$db->RunQuery( 'ROLLBACK' );
 		throw $e;
 	}
+	
+	$db->RunQuery( 'COMMIT' );
 	
 	return 'okay';
 }

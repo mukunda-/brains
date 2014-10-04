@@ -18,6 +18,7 @@ var s_navarrows;
 var m_async = AsyncGroup.Create();
 
 var m_logged_in;
+var m_captcha_validated;
 
 /** ---------------------------------------------------------------------------
  * Adjust the font size of a phrase element to fit inside the box.
@@ -310,6 +311,22 @@ brains.SetLoggedIn = function( value ) {
  */
 brains.LoggedIn = function() {
 	return m_logged_in;
+}
+
+/** ---------------------------------------------------------------------------
+ * Set whether or not the session is validated by a captcha.
+ *
+ * @return bool New value of the state.
+ */
+brains.SetCaptchaValidated = function( value ) {
+	m_captcha_validated = value;
+}
+
+/** ---------------------------------------------------------------------------
+ * Get whether or not the session is validated by a captcha.
+ */
+brains.IsCaptchaValidated = function() {
+	return m_captcha_validated;
 }
 
 //-----------------------------------------------------------------------------
