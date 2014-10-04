@@ -54,7 +54,9 @@ function OpenSession() {
 	if( $g_session_open ) return;
 	
 	session_set_cookie_params( Config::$SESSIONTIME, Config::$ABSPATH );
-	session_start();
+	session_start();	
+	setcookie(session_name(), session_id(), time()+Config::$SESSIONTIME, Config::$ABSPATH);
+
 	$g_session_open = true;
 	
 	// extra verification: match key cookie with session variable.

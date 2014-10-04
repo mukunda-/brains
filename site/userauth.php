@@ -4,20 +4,30 @@ require_once 'common.php';
 require_once 'sql.php';
 require_once 'libs/password.php';
 
+/** ---------------------------------------------------------------------------
+ * Exception thrown when an account doesn't exist.
+ */
 class InvalidAccountException extends Exception { 
-	public $id;
+	public $id; // Account ID that was used.
+	
 	public function __construct( $id ) {
 		$this->id = $id;
 		parent::__construct( "Invalid account ID: $id" );
 	}
 
 }
+
+/** ---------------------------------------------------------------------------
+ * Exception thrown when the program attempts to read from
+ * an unknown field in the account table.
+ */
 class InvalidAccountFieldException extends Exception { }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Interface for managing user properties and authentication.
+ */
 final class UserAuth {
-
-
+ 
 private static $logged_in = FALSE;
 private static $account_id = 0;
 private static $secret_charset = 
@@ -49,7 +59,68 @@ public static function init() {
  * @return bool TRUE if the user is logged in.
  */
 public static function LoggedIn() {
-	return $logged_in;
+	return self::$logged_in;
+}
+
+/** ---------------------------------------------------------------------------
+ * Set if the current session is logged in.
+ *
+ * @param int $account_id Account ID to associate with the session, or 0 to
+ *                        set a logged out state.
+ * @param string $username Username of the user, leave null to query the db
+ *                         for it.
+ * @param string $nickname Nickname of the user, leave null to query the db
+ *                         for it.
+ */
+public static function SetLoggedIn( $account_id, 
+									$username = null, 
+									$nickname = null ) {
+	OpenSession();
+	if( $account_id ) {
+		self::$logged_in = true;
+		self::$account_id = $account_id;
+		$_SESSION['account_id'] = self::$account_id;
+		
+		if( $username === null || $nickname === null ) {
+			// if these aren't provided, get them from the db.
+			$query = self::ReadAccount( $account_id, ['username','nickname'] );
+			$username = $query['username'];
+			$nickname = $query['nickname'];
+		}
+		$_SESSION['account_username'] = $username;
+		$_SESSION['account_nickname'] = $nickname;
+		
+	} else {
+		self::$logged_in = false;
+		self::$account_id = 0;
+		if( isset( $_SESSION['account_id'] ) ) {
+			unset( $_SESSION['account_id'] );
+		}
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Get the user's Username
+ *
+ * @return string|false Username or FALSE if the user is not logged in.
+ */
+public static function GetUsername() {
+	if( self::$logged_in ) {
+		return $_SESSION['account_username'];
+	}
+	return FALSE;
+}
+
+/** ---------------------------------------------------------------------------
+ * Get the user's nickname.
+ *
+ * @return string|false Nickname or FALSE if the user is not logged in.
+ */
+public static function GetNicknam() {
+	if( self::$logged_in ) {
+		return $_SESSION['account_nickname'];
+	}
+	return FALSE;
 }
 
 /** ---------------------------------------------------------------------------
@@ -58,7 +129,7 @@ public static function LoggedIn() {
  * @return int User account id, or 0 if not logged in.
  */
 public static function AccountID() {
-	return $account_id;
+	return self::$account_id;
 }
 
 /** ---------------------------------------------------------------------------
@@ -108,11 +179,12 @@ public static function GetAccountIDFromUsername( $username ) {
 }
 
 /** ---------------------------------------------------------------------------
- * Do an account database query.
+ * Read fields from an account in the database.
  *
- * @param int    $id     ID of account to read
- * @param array $fields String array of fields to read. this is not sanitized.
- * @return array         Assoc array containing the account field values.
+ * @param int   $id      ID of account to read
+ * @param array $fields  String array of fields to read. this is not sanitized.
+ * @return array         Assoc array containing the requested account 
+ *                       field values.
  * @throws InvalidAccountException If the account doesn't exist.
  * @throws SQL exception on database failure
  */
@@ -237,23 +309,9 @@ public static function CheckLogin() {
 		setcookie( "login", 0, 0, $config->AbsPath() );
 		return FALSE;
 	}
-	
-	// extend remaining time if it's low.
-	//$remaining = $row['expires'] - $time;
-	//if( $remaining < \Config::$AUTHTOKEN_EXTEND_MIN ) {
-	//	$expires = $time + \Config::$AUTHTOKEN_EXTEND_DURATION;
-	//	$db->RunQuery( 
-	//		"UPDATE ACCOUNT SET expires = $expires
-	//		WHERE id=$token" );
-	//	
-	//	setcookie( "login", $_COOKIE['login'], 
-	//		$expires, $config->AbsPath() );
-	//}
-	
-	self::$logged_in = true;
-	self::$account_id = $row['account'];
-	$_SESSION['account_id'] = self::$account_id;
-	
+	 
+	SetLoggedIn( (int)$row['account'], null, null );
+ 
 	return self::$account_id;
 }
 
@@ -268,15 +326,16 @@ public static function CheckLogin() {
  */
 public static function LogIn( $username, $password, $remember ) {
 	$db = GetSQL();
-	
+	$a = (int)$remember;
+	echo "$username, $password, $a \r\n";
 	$username = trim($username);
-	if( !self::IsValidString( $username ) ) return FALSE;
-	if( !self::IsValidString( $password ) ) return FALSE;
+	if( !self::IsNormalString( $username ) ) return FALSE;
+	if( !self::IsValidPassword( $password ) ) return FALSE;
 	
 	$user_hash = self::HashUsername( $username );
 	$user_safe = $db->real_escape_string( $username );
 	$result = $db->RunQuery( 
-		"SELECT id, password FROM Accounts
+		"SELECT id, password, nickname FROM Accounts
 		WHERE user_hash=x'$user_hash' AND username='$user_safe'" );
 	
 	$row = $result->fetch_assoc();
@@ -287,12 +346,8 @@ public static function LogIn( $username, $password, $remember ) {
 		return FALSE;
 	}
 	
-	OpenSession();
-	self::$logged_in = true;
-	self::$account_id = (int)$row['account']; 
+	self::SetLoggedIn( (int)$row['id'], $username, $row['nickname'] );
 	 
-	$_SESSION['account_id'] = self::$account_id;
-	
 	if( $remember ) {
 		self::CreateLoginToken();
 	} 
@@ -326,12 +381,28 @@ private static function CreateLoginToken() {
 }
 
 /** ---------------------------------------------------------------------------
- * Tests if a given string is valid for a username, password, or nickname.
+ * Tests if a given string is a valid "Normal" string.
+ *
+ * This is for testing for a valid username or nickname, basically doesn't
+ * allow strange characters.
  *
  * @param  string $string Input to test.
  * @return bool           TRUE if valid.
  */
-private static function IsValidString( $string ) {
+private static function IsNormalString( $string ) {
+	return preg_match( '/^[a-zA-Z0-9 _+=~,.@#-]+$/', $string );
+}
+
+/** ---------------------------------------------------------------------------
+ * Tests if a given string is valid for a password field.
+ *
+ * Allows any "real" ascii character, not control codes or characters values
+ * past 126.
+ *
+ * @param  string $string Input to test.
+ * @return bool           TRUE if valid.
+ */
+private static function IsValidPassword( $string ) {
 	return preg_match( '/^[\\x20-\\x7E]+$/', $string );
 }
 
@@ -352,14 +423,14 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	$db = GetSQL();
 	
 	$username = trim($username);
-	if( !self::IsValidString( $username ) ) {
+	if( !self::IsNormalString( $username ) ) {
 		return 'error';
 	}
-	if( !self::IsValidString( $password ) ) {
+	if( !self::IsValidPassword( $password ) ) {
 		return 'error';
 	}
 	$nickname = trim($nickname);
-	if( !self::IsValidString( $nickname ) ) {
+	if( !self::IsNormalString( $nickname ) ) {
 		return 'error';
 	} 
 	
@@ -372,6 +443,7 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	$password = $db->real_escape_string( $password );
 	$nickname = $db->real_escape_string( $nickname );
 	 
+	$account_id = 0;
 	try {
 		$db->RunQuery( 'START TRANSACTION' );
 		
@@ -388,6 +460,8 @@ public static function CreateAccount( $username, $password, $nickname ) {
 			"INSERT INTO Accounts 
 			(user_hash, username, password, nickname)
 			VALUES (x'$user_hash','$username','$password','$nickname')" );
+			
+		$account_id = $db->insert_id;
 		
 		$result = $db->RunQuery( 
 			"SELECT COUNT(*) FROM Accounts 
@@ -399,6 +473,8 @@ public static function CreateAccount( $username, $password, $nickname ) {
 			return 'error';
 		}
 		
+		
+		
 	} catch ( SQLException $e ) {
 		$db->RunQuery( 'ROLLBACK' );
 		throw $e;
@@ -406,10 +482,14 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	
 	$db->RunQuery( 'COMMIT' );
 	
+	self::SetLoggedIn( $account_id, $username, $nickname );
+	
+	// one captcha per account creation.
+	Captcha::Reset();
+	
 	return 'okay';
 }
-
-	
+ 
 } // class UserAuth
 
 UserAuth::init();

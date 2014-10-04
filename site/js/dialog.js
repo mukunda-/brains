@@ -12,7 +12,7 @@ var m_locked = false;
 
 
 
-var ca_loading_captcha;
+//var ca_loading_captcha;
 
 /** ---------------------------------------------------------------------------
  * Show the dialog box.
@@ -142,11 +142,28 @@ this.InitLoginDialog = function() {
 }
 
 /** ---------------------------------------------------------------------------
- * Check if a string contains only valid characters.
+ * Tests if a given string is a valid "Normal" string.
  *
- * @param string string String to check.
+ * This is for testing for a valid username or nickname, basically doesn't
+ * allow special characters.
+ *
+ * @param  string string Input to test.
+ * @return bool           TRUE if valid.
  */
-function StringIsValid( string ) {
+function IsNormalString( string ) {
+	return string.match( /^[a-zA-Z0-9 _+=~,.@#-]+$/ );
+}
+
+/** ---------------------------------------------------------------------------
+ * Tests if a given string is valid for a password field.
+ *
+ * Allows any "real" ascii character, not control codes or characters values
+ * past 126.
+ *
+ * @param  string string Input to test.
+ * @return bool          TRUE if valid.
+ */
+function IsValidPassword( string ) {
 	return string.match( /^[\x20-\x7E]+$/ );
 }
 
@@ -163,7 +180,7 @@ function Login_OnSubmit() {
 		MarkErrorField( "ca_username" );
 		return false;
 	}
-	if( !StringIsValid( username ) ) {
+	if( !IsNormalString( username ) ) {
 		ShowError( "Username is not valid." );
 		MarkErrorField( "ca_username" );
 		return false;
@@ -173,7 +190,7 @@ function Login_OnSubmit() {
 		MarkErrorField( "ca_password" );
 		return false;
 	}
-	if( !StringIsValid( password ) ) {
+	if( !IsValidPassword( password ) ) {
 		ShowError( "Password is not valid." );
 		MarkErrorField( "ca_password" );
 		return false;
@@ -189,7 +206,7 @@ function Login_OnSubmit() {
 	};
 	
 	if( $("#check_rememberme").prop( 'checked' ) ) {
-		post.rememberme = 1;
+		post.remember = 1;
 	}
 
 	$.post( "login.php", post )
@@ -272,16 +289,7 @@ this.InitCreateAccountDialog = function() {
 	
 	if( !brains.IsCaptchaValidated() ) {
 		ShowCaptcha();
-		
-		/*
-		$.post( "getcaptcha.php" )
-			.done( function( data ) {
-				alert(data);
-				$("#ca_captcha").html( data );
-			})
-			.fail( function( data ) {
-				$("#ca_captcha").html( "couldn't obtain captcha, please reload the page." );
-			});*/
+		 
 	}
 	$("#form_createaccount").submit( CreateAccount_OnSubmit );
 }
@@ -291,18 +299,22 @@ this.InitCreateAccountDialog = function() {
  *
  * @param int id      ID of element to read
  * @param string name Friendly name to display in errors.
- * @param bool trim   Default=true, trim the input string.
+ * @param bool password Default=false, treat as password, allows additional
+ *                    characters and doesn't trim whitespace.
  */
-function ReadField( id, name, trim ) {
-	if( !isSet(trim) ) trim = true;
+function ReadField( id, name, password ) {
+	if( !isSet(password) ) password = false;
 	var value = $("#"+id).val();
-	if( trim ) value = value.trim();
+	if( !password ) value = value.trim();
+	
 	if( value == "" ) {
 		ShowError( name + " cannot be blank." );
 		MarkErrorField( id );
 		return false;
 	}
-	if( !StringIsValid( value ) ) {
+	
+	var valid = password ? IsValidPassword( value ) : IsNormalString( value );
+	if( !valid ) {
 		ShowError( name + " contains invalid characters." );
 		MarkErrorField( id );
 		return false;
@@ -319,17 +331,19 @@ function CreateAccount_OnSubmit() {
 	if( nickname === false ) return false;
 	var username = ReadField( "ca_username", "Username" );
 	if( username === false ) return false; 
-	var password = ReadField( "ca_password", "Password", false );
+	var password = ReadField( "ca_password", "Password", false, true );
 	if( password === false ) return false;
 	var password2 = $("#ca_password2").val();
 	if( password2 !== password ) {
 		ShowError( "The passwords you entered didn't match." );
-		MarkErrorField( "ca_password" );
-		MarkErrorField( "ca_password2" );
 		$("#ca_password").val("");
 		$("#ca_password2").val("");
+		MarkErrorField( "ca_password" );
+		MarkErrorField( "ca_password2" );
 		return false;
 	}
+	
+	password = Fubar( password, username );
 	
 	var post = {
 		"nickname": nickname,
@@ -374,6 +388,9 @@ function CreateAccount_OnSubmit() {
 					MarkErrorField( "ca_username" );
 					break;
 				case "okay.":
+					brains.SetLoggedIn( true, username );
+					m_dialog.Close();
+					brains.SetCaptchaValidated(false);
 					break;
 			}
 		})

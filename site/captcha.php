@@ -3,6 +3,9 @@
 require_once 'libs/recaptchalib.php';
 require_once 'recaptcha_keys.php';
 
+/**
+ * Interface for captcha validation
+ */
 class Captcha {
 
 	/** -----------------------------------------------------------------------
@@ -11,6 +14,16 @@ class Captcha {
 	public static function Valid() {
 		OpenSession();
 		return isset($_SESSION['captcha']);
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Invalidate the captcha for this session.
+	 */
+	public static function Reset() {	
+		OpenSession();
+		if( isset( $_SESSION['captcha'] ) ) {
+			unset( $_SESSION['captcha'] );
+		}
 	}
 	
 	/** -----------------------------------------------------------------------

@@ -18,6 +18,7 @@ var s_navarrows;
 var m_async = AsyncGroup.Create();
 
 var m_logged_in;
+var m_username;
 var m_captcha_validated;
 
 /** ---------------------------------------------------------------------------
@@ -299,9 +300,15 @@ brains.InitializePostLoad = function() {
  * Set the logged in state.
  *
  * @param bool value Value of logged in state.
+ * @param string username The username they are logged in with.
  */
-brains.SetLoggedIn = function( value ) {
+brains.SetLoggedIn = function( value, username ) {
 	m_logged_in = value;
+	if( value ) {
+		m_username = username;
+	} else {
+		m_username = "";
+	}
 }
 
 /** ---------------------------------------------------------------------------
