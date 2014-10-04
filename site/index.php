@@ -31,7 +31,7 @@ require_once 'libs/recaptchalib.php';
 		
 		<?php
 			if( UserAuth::LoggedIn() ) {
-				echo '<script>brains.SetLoggedIn( true, '.UserAuth::GetUsername().' );</script>';
+				echo '<script>brains.SetLoggedIn( true, \''.UserAuth::GetUsername().'\' );</script>';
 			}
 			
 			if( Captcha::Valid() ) {
@@ -39,7 +39,6 @@ require_once 'libs/recaptchalib.php';
 			}
 		?>
 		 
-		</script>
 		<title>brains</title>
 	</head>
 	<body>

@@ -191,9 +191,9 @@ $( function() {
 			AdjustSizes();
 			$(".thought span").each( AdjustThoughtSize );
 		}, 100 );
-	 
 	
- 
+	
+	
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
 		$(this).addClass( "held" );
@@ -234,6 +234,14 @@ $( function() {
 		}
 		
 		return false;
+	});
+	
+	$("#user").click( function(e) {
+		if( m_logged_in ) {
+			brains.Dialog.Show( "profile" );
+		} else {
+			brains.Dialog.Show( "ca_login" );
+		}
 	});
 	
 	brains.Dialog.Show( "login" );

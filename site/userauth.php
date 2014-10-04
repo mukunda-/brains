@@ -327,7 +327,7 @@ public static function CheckLogin() {
 public static function LogIn( $username, $password, $remember ) {
 	$db = GetSQL();
 	$a = (int)$remember;
-	echo "$username, $password, $a \r\n";
+
 	$username = trim($username);
 	if( !self::IsNormalString( $username ) ) return FALSE;
 	if( !self::IsValidPassword( $password ) ) return FALSE;
@@ -351,6 +351,7 @@ public static function LogIn( $username, $password, $remember ) {
 	if( $remember ) {
 		self::CreateLoginToken();
 	} 
+	return TRUE;
 }
 
 /** ---------------------------------------------------------------------------
