@@ -75,18 +75,21 @@ function HideLoadingIcon() {
 /** ---------------------------------------------------------------------------
  * Load a content page.
  *
- * @param url URL of page to load.
- * @param delay Used to control the Extra Dramatic Break Effect.
+ * @param string url URL of page to load.
+ * @param int delay Used to control the Extra Dramatic Break Effect.
  *              negated values are treated as negated absolute values
  *              positive values are added to the normal fade constant
+ * @param object data Optional data to pass with the request.
+ * @param bool post   Make a POST request. Default=false (GET)
  */
-this.Load = function( url, delay, get ) {
+this.Load = function( url, delay, data, post ) {
 	if( m_loading ) return;
 	
 	//matbox.ResetIdleTime();
 
 	if( !isSet(get) ) get = {};
 	if( !isSet(delay) ) delay = 500;
+	if( !isSet(post) ) post = false;
 	if( delay < 0 ) delay = -delay - FADE_OUT_TIME; 
 	
 	m_loading = true;
@@ -114,7 +117,9 @@ this.Load = function( url, delay, get ) {
 			}
 		}, FADE_OUT_TIME+delay );
 	
-	m_ag.AddAjax( $.get( url, get ) )
+	var ajax = post ? $.post( url, data ) : $.get( url_data );
+	
+	m_ag.AddAjax( ajax )
 		.done( function(data) {
 			
 			if( m_fading_out ) {

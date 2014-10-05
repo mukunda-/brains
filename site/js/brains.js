@@ -20,29 +20,7 @@ var m_async = AsyncGroup.Create();
 var m_logged_in;
 var m_username;
 var m_captcha_validated;
-
-/** ---------------------------------------------------------------------------
- * Adjust the font size of a phrase element to fit inside the box.
- *
- * @param e The element to be modified.
- * @param size The size scale of the box.
- */
-function AdjustPhraseSize( e, size ) {
-	//var length = e.text().length;
-	$("#magicbox").text( e.text() );
-	var length = $("#magicbox").width();
-	
-	size = 32 * size; // base px size * scale
-	var factor = 1.0;
-	if( length < 240 ) {
-		// normal size.
-		
-	} else {
-		factor = (240 / length);
-	}
-	e.css( "font-size", Math.floor(size*factor) + "px" );
-}
-
+ 
 /** ---------------------------------------------------------------------------
  * Adjust the size of a thought based on its text length.
  *
@@ -62,58 +40,15 @@ function AdjustThoughtSize() {
 		e.css( "font-size", size + "px" );
 	}
 	
-}
-
+} 
+ 
 /** ---------------------------------------------------------------------------
- * Adjust the size of the navboxes according to the window size.
+ * Adjust the size of all thoughts based on their text length.
  *
+ * (e.g. scale down the text if it is very long.)
  */
-function ResizeNavBoxes() {
-	
-	var ww = $(window).width();
-	var size = 0.5;
-
-	if( ww < 600 ) {
-		// stacked.
-		size = 0.8;
-		s_nav.addClass( "vertical" );
-		m_vertical = true;
-	} else {
-		s_nav.removeClass( "vertical" );
-		if( ww < 770 ) {
-			size = 0.6;
-		} else if( ww < 970 ) {
-			size = 0.8;
-		} else {
-			size = 1.0;
-		}
-		m_vertical = false;
-	}
-	
-	
-	var width = 240 * size;
-	var height = 80 * size;
-	var padding_h = 30 * size;
-	var padding_v = 10 * size;
-	//var fontsize = 32 * size;
-	
-	s_navboxes.width( width )
-		.height( height )
-		//.css( "font-size", fontsize + "px" )
-		.css( "padding", padding_v + "px " + padding_h + "px" );
-	
-	if( m_vertical ) {
-		s_navarrows.css( "top", "0px" );
-	} else {
-		s_navarrows.css( "top", (((height+padding_v*2)/2)-8) + "px" );
-	}
-	
-	s_navphrases.css( "top", ((height+padding_v*2)/2) + "px" );
-	
-	s_navphrases.each( function() {
-		AdjustPhraseSize( $(this), size );
-	} );
-	
+function AdjustThoughtSizes() {
+	$("#links").children(".thought span").each( AdjustThoughtSize ); 
 }
 
 /** ---------------------------------------------------------------------------
@@ -121,20 +56,18 @@ function ResizeNavBoxes() {
  * window dimensions.
  */
 function AdjustSizes() {
-	
-	ResizeNavBoxes();
-	
-	var width = $(window).width();
-	
+	 
+	var width = $(window).width(); 
 	$("#newlink").css( "max-width", (width - 80 - 14) + "px" );
-	$("#discovery").css( "max-width", (width - 128 - 14) + "px" );
+	
 	
 	var disc = $("#discovery");
-	
+	disc.css( "max-width", (width - 128 - 14) + "px" );
 	// i cannot believe this isn't feasible with css
 	disc.children(".score").css( "top", ((disc.height() + 5) / 2 - 17) + "px" );
 	//$("#view").height( $(window).height() - 48 + "px" );
 }
+
 
 /** ---------------------------------------------------------------------------
  * Adjust window sizes when the user resizes or zooms his screen.
@@ -165,6 +98,9 @@ $(window).bind("mousewheel",function(ev, delta) {
 	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
 }); 
 
+/** ---------------------------------------------------------------------------
+ * Expand the newlink input box according to the text in it.
+ */
 function AdjustNewLinkInputSize() {
 	var newlink = $("#newlink");
 	$("#magicbox3").text( newlink.val() );
@@ -174,25 +110,20 @@ function AdjustNewLinkInputSize() {
 }
 
 $( function() {
-	s_nav = $(".navigator");
-	s_navboxes = s_nav.children( ".box" );
-	s_navphrases = s_navboxes.children( ".phrase" );
-	s_navarrows = s_nav.children( ".arrow" );
-	
+	// content initialization. 
 	
 	AdjustNewLinkInputSize();
 	
 	AdjustSizes();
-	$(".thought span").each( AdjustThoughtSize );
+	AdjustThoughtSizes();
+	
 	
 	setTimeout(  // god i fucking hate the web.
 		function () {
 			
 			AdjustSizes();
-			$(".thought span").each( AdjustThoughtSize );
+			AdjustThoughtSizes();
 		}, 100 );
-	
-	
 	
 	$(".thought").mousedown( function( e ) {
 		current_button = $(this);
@@ -293,15 +224,23 @@ brains.InitializePostLoad = function() {
 				setTimeout( AdjustNewLinkInputSize, 0 );
 			} );
 			
-		$("#newlinkform").submit( function() {
-			if( !m_logged_in ) {
-				brains.Dialog.Show( "login" );
-				return false;
-			}
-			return false;
-		} );
+		$("#newlinkform").submit( NewLinkForm_OnSubmit );
 		
 	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Callback for the newlink form.
+ */
+function NewLinkForm_OnSubmit() {
+	if( !m_logged_in ) {
+		brains.Dialog.Show( "login" );
+		return false;
+	} else {
+		$(this).unbind( "submit" );
+		brains.Loader.Load( "newlink.php", undefined, { a: 
+	}
+	return false;
 }
 
 /** ---------------------------------------------------------------------------

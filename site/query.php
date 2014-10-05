@@ -10,6 +10,11 @@
 	
   }
   
+  searches for a thought
+  
+  if it isn't found, a page is still returned as if it exists
+  query doesn't create links or thoughts. newlink does.
+  
   RETURN page contents
   
 */

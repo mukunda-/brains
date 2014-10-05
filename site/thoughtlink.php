@@ -20,6 +20,7 @@ final class ThoughtLink {
 	 * @return ThoughtLink instance or FALSE if the link doesn't exist.
 	 */
 	public static function Get( $thought1, $thought2, $account = 0 ) {
+		if( $thought1===$thought2 ) return FALSE;
 		Thought::Order( $thought1, $thought2 );
 		
 		$result = new self;

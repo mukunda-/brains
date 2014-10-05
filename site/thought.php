@@ -115,10 +115,10 @@ final class Thought {
 	
 	/** ---------------------------------------------------------------------------
 	 * Return TRUE if a Link exists between two thoughts.
-	 *
-	 * thoughts must be Ordered()
 	 */
 	public static function LinkExists( $a, $b ) {
+		self::Order( $a, $b );
+		
 		$db = GetSQL();
 		$result = $db->RunQuery( 
 			"SELECT 1 FROM Links 
