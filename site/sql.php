@@ -10,7 +10,9 @@ require_once "sql_login.php";
 
 $g_sqldb = null;
 
-define( 'SQLERR_DEADLOCK', 1205 );
+define( 'SQL_ER_DUP_KEY', 1022 );
+define( 'SQL_ER_LOCK_WAIT_TIMEOUT', 1205 );
+define( 'SQL_ER_LOCK_DEADLOCK', 1213 );
 
 /** ---------------------------------------------------------------------------
  * Exception thrown from RunQuery
@@ -57,16 +59,16 @@ class MySQLWrapper extends mysqli {
 	/** -----------------------------------------------------------------------
 	 * Try executing a function and retrying it if any "normal" errors occur.
 	 * 
-	 * @param function($sql) $function Function to execute.
+	 * @param function($db) $function Function to execute.
 	 * @param int      $tries Max number of failures to allow.
+	 * @return mixed   The return value of $function on success.
 	 */
 	public function DoTransaction( $function, $tries = 5 ) {
 	
 		for( ; $tries; $tries-- ) {
 			try {
 				
-				$function( $this );
-				break;
+				return $function( $this );
 
 			} catch( SQLException $e ) {
 				if( $e->code == SQLERR_DEADLOCK ) {
@@ -77,6 +79,8 @@ class MySQLWrapper extends mysqli {
 				throw $e;
 			}
 		}
+		
+		throw new RuntimeException( "SQL deadlock occurred too many times." );
 	}
 }
 

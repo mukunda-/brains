@@ -95,13 +95,27 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
-		vote     BOOL,
+		fake     BOOL COMMENT 'Fake votes don't affect the score.',
+		vote     BOOL COMMENT 'true=upvote, false=downvote',
 		PRIMARY KEY ( thought1, thought2, account ),
 		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
 		)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
+	" );
+	
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS RecentVotes (
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		ip       VARBINARY(16) NOT NULL COMMENT 'IP address used.',
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		
+		PRIMARY KEY ( thought1, thought2, ip )
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Hold recent vote information for abuse prevention.'
 	" );
 	
 ?>

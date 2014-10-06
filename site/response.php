@@ -4,6 +4,14 @@ class Response {
 	public $status;
 	public $data = [];
 	
+	public function __set( $id, $value ) {
+		$data[$id] = $value;
+	}
+	
+	public function __get( $id, $value ) {
+		return $data[$id];
+	}
+	
 	/** -----------------------------------------------------------------------
 	 * Send the response and exit the script.
 	 *
