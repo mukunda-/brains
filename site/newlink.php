@@ -12,7 +12,7 @@
 require_once 'config.php';
 require_once 'sql.php';
 require_once 'common.php'
-require_once 'userauth.php';
+require_once 'user.php';
 
 // response status codes
 define( 'R_ERROR' , 'error.'  ); // an error occurred.
@@ -32,7 +32,7 @@ function TryReturnExisting( $t1, $t2 ) {
 
 try {
 	if( !CheckArgs( 'a', 'b' ) ) Response::SendSimple( R_ERROR );
-	if( !UserAuth::LoggedIn() ) Response::SendSimple( R_LOGIN );
+	if( !User::LoggedIn() ) Response::SendSimple( R_LOGIN );
 	
 	$thought1 = Thought::Scrub( $_POST['a'] );
 	if( $thought1 === FALSE ) Response::SendSimple( R_ERROR );
@@ -48,18 +48,18 @@ try {
 	$response->data['from'] = $thought1->phrase;
 	$response->data['to'] = $thought2->phrase;
 	
-	$link = ThoughtLink::Get( $thought1, $thought2, UserAuth::AccountID(), true );
+	$link = ThoughtLink::Get( $thought1, $thought2, User::AccountID(), true );
 	$response->data['score'] = $link->score;
 	$response->data['creator'] = $link->creator;
-	$response->data['creator_nick'] = UserAuth::GetNickname( $link->creator );
+	$response->data['creator_nick'] = User::ReadAccount( $link->creator, 'nickname' );
 	$response->data['vote'] = $link->vote;
 	
 	if( $link->created ) {
 		$response->Send( R_OKAY );
 	} else {
 		$response->Send( R_EXISTS );
-	} 
-	
+	}
+	     
 } catch( Exception $e ) {
 	Logger::PrintException( $e );
 }

@@ -26,7 +26,7 @@ class InvalidAccountFieldException extends Exception { }
 /** ---------------------------------------------------------------------------
  * Interface for managing user properties and authentication.
  */
-final class UserAuth {
+final class User {
  
 private static $logged_in = FALSE;
 private static $account_id = 0;
@@ -116,7 +116,7 @@ public static function GetUsername() {
  *
  * @return string|false Nickname or FALSE if the user is not logged in.
  */
-public static function GetNicknam() {
+public static function GetNickname() {
 	if( self::$logged_in ) {
 		return $_SESSION['account_nickname'];
 	}
