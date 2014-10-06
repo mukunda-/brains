@@ -39,46 +39,26 @@ try {
 	$thought2 = Thought::Scrub( $_POST['b'] );
 	if( $thought2 === FALSE ) Response::SendSimple( R_ERROR );
 	
-	$db = GetSQL();
-	
 	$thought1 = Thoughts::Get( $thought1, true );
 	$thought2 = Thoughts::Get( $thought2, true );
 	
 	if( $thought1->id == $thought2->id ) Response::SendSimple( R_ERROR );
 	
 	$response = new Response;
-	$response->from = $thought1->phrase;
-	$response->to = $thought2->phrase;
+	$response->data['from'] = $thought1->phrase;
+	$response->data['to'] = $thought2->phrase;
 	
-	//
-	TryReturnExisting( $thought1, $thought2 );
+	$link = ThoughtLink::Get( $thought1, $thought2, UserAuth::AccountID(), true );
+	$response->data['score'] = $link->score;
+	$response->data['creator'] = $link->creator;
+	$response->data['creator_nick'] = UserAuth::GetNickname( $link->creator );
+	$response->data['vote'] = $link->vote;
 	
-	$time = time();
-	$creator = UserAuth::AccountID(); 
-	
-	Thought::Order( $thought1, $thought2 );
-	
-	try {
-		
-		$db->RunQuery(
-			"INSERT INTO Links (thought1, thought2, time, creator )
-			VALUES ( $thought1->id, $thought2->id, $time, $creator )" );
-	} catch( SQLException $e ) {
-		if( $e->code == SQL_ER_DUP_KEY ) { // 2601: duplicate key.
-			// we collided with another user making the same link
-			// pretty lucky eh?
-			
-			// this should exit the script, if not, an error happened.
-			TryReturnExisting( $thought1, $thought2 );
-			Response::SendSimple( R_ERROR );
-		}
-		throw $e;
-	}
-	$db->RunQuery(
-		"INSERT INTO Links (thought1, thought2, time, creator )
-		VALUES ( $thought1->id, $thought2->id, $time, $creator )" );
-	 
-	exit( R_OKAY );
+	if( $link->created ) {
+		$response->Send( R_OKAY );
+	} else {
+		$response->Send( R_EXISTS );
+	} 
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );

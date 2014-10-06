@@ -7,8 +7,11 @@ final class ThoughtLink {
 	public $bads;
 	public $score;
 	public $time;
-	public $vote;
-	public $creator;
+	public $vote = null;
+	public $creator = 0;
+	public $created = false; // true if this thought was returned 
+							 // by Create, or Get with $create=true
+							 // (and it was created.)
 	
 	private function __construct( $thought1, $thought2 ) {
 		$thought1_id = $thought1->id;
@@ -69,13 +72,11 @@ final class ThoughtLink {
 		$link->time = $row[2];
 		$link->creator = $row[3];
 		if( $account != 0 && !is_null($row[4]) ) {
-			$link->vote = $row[4] ? TRUE : FALSE;
-		} else {
-			$link->vote = null;
+			$link->vote = $row[4] ? TRUE : FALSE; 
 		}
 		
-		$link->score = self::ComputeScoreWithBias( 
-			$link->goods, $link->bads, $link->vote );
+		$link->score = self::ComputeScore( 
+			$link->goods, $link->bads  );
 		
 		return $result;
 	}
@@ -107,8 +108,7 @@ final class ThoughtLink {
 	/** -----------------------------------------------------------------------
 	 * Compute a score, and apply a voting bias to it.
 	 *
-	 * This adds or subtracts 1 according to the vote given (typically what
-	 * the user voted).
+	 * This adds or subtracts 1 according to the vote given.
 	 *
 	 * @param int $goods Number of upvotes.
 	 * @param int $bads  Number of downvotes.
@@ -119,6 +119,7 @@ final class ThoughtLink {
 		$score = self::ComputeScore( $goods, $bads );
 		
 		if( $vote === TRUE ) {
+			// only add 1 if it wont make it 99 ("perfect")
 			if( $score != 99 ) {
 				$score = min( $result+1, 98 );
 			}
@@ -166,6 +167,7 @@ final class ThoughtLink {
 		$link->time = $time;
 		$link->creator = $creator;
 		$link->vote = ($creator == 0) ? null : TRUE;
+		$link->created = true;
 		
 		// add an upvote.
 		if( $creator != 0 ) {

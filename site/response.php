@@ -1,16 +1,12 @@
 <?php
 
+/*
+ * Contains a response for a query script.
+ */
 class Response {
 	public $status;
 	public $data = [];
-	
-	public function __set( $id, $value ) {
-		$data[$id] = $value;
-	}
-	
-	public function __get( $id, $value ) {
-		return $data[$id];
-	}
+	 
 	
 	/** -----------------------------------------------------------------------
 	 * Send the response and exit the script.
@@ -19,6 +15,7 @@ class Response {
 	 */
 	public function Send( $status ) {
 		$this->status = $status;
+		if( empty( $this->data ) ) unset( $this->data );
 		echo json_encode( $this );
 		exit();
 	}
@@ -30,6 +27,7 @@ class Response {
 	 */
 	public static function SendSimple( $status, $data=null ) {
 		$response = new Response();
+		$this->data = $data;
 		$response->Send( $status );
 	}
 }
