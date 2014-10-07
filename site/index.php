@@ -3,10 +3,10 @@ date_default_timezone_set( 'America/Chicago' );
 
 require_once 'config.php';
 require_once 'svg.php';
-require_once 'userauth.php';
+require_once 'user.php';
 require_once 'captcha.php';
 
-UserAuth::CheckLogin();
+User::CheckLogin();
 
 if( $config->DebugMode() ) {
 	require_once 'dev/build.php';
@@ -30,8 +30,8 @@ require_once 'libs/recaptchalib.php';
 		
 		
 		<?php
-			if( UserAuth::LoggedIn() ) {
-				echo '<script>brains.SetLoggedIn( true, \''.UserAuth::GetUsername().'\' );</script>';
+			if( User::LoggedIn() ) {
+				echo '<script>brains.SetLoggedIn( true, \''.User::GetUsername().'\' );</script>';
 			}
 			
 			if( Captcha::Valid() ) {

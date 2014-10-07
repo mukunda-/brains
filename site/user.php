@@ -491,8 +491,8 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	return 'okay';
 }
  
-} // class UserAuth
+} // class User
 
-UserAuth::init();
+User::init();
 
 ?>

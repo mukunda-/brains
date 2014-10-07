@@ -33,7 +33,11 @@ if( $thought_string === FALSE ) {
 
 $thought = Thought::Get( $thought_string );
 
+$response = new Response;
+$response->data['source'] = $thought_string;
+
 if( $thought === FALSE ) {
+	$response->Send( 'new' );
 	// show an empty thought
 	Content::PrintNewLinkInput( $thought_string );
 	exit();
