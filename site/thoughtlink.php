@@ -1,8 +1,10 @@
 <?php
 
 final class ThoughtLink {
-	public $thought1_id;
-	public $thought2_id;
+	public $source; // source thought
+	public $dest; // destination thought
+	
+	
 	public $creator = 0;
 	public $time;
 	public $goods;
@@ -13,10 +15,10 @@ final class ThoughtLink {
 							 // by Create, or Get with $create=true
 							 // (and it was created.)
 	
-	private function __construct( $thought1, $thought2, $time, $creator = 0
+	private function __construct( $source, $dest, $time, $creator = 0
 								  $goods = 0, $bads = 0, $vote = null ) {
-		$this->thought1_id = $thought1->id;
-		$this->thought2_id = $thought2->id;
+		$this->source = $thought1;
+		$this->dest = $thought2;
 		$this->creator = $creator
 		$this->time = $time;
 		$this->goods = $goods;
@@ -28,22 +30,26 @@ final class ThoughtLink {
 	/** -----------------------------------------------------------------------
 	 * Get a thought link.
 	 * 
-	 * @param Thought $thought1 First thought in the link.
-	 * @param Thought $thought2 Second thought in the link.
+	 * @param Thought $source First thought in the link.
+	 * @param Thought $dest   Second thought in the link.
 	 * @param int $account Account ID to associate with the query
 	 *                     which is used to get the vote bias. 0 = admin
 	 * @param bool $create Create a link if it doesn't exist.
 	 * @return ThoughtLink instance or FALSE if the link doesn't exist.
 	 */
-	public static function Get( $thought1, $thought2,
+	public static function Get( $source, $dest,
 							    $account = 0, $create = false ) {
 								
-		if( $thought1 === $thought2 ) {
+		if( $source === $dest ) {
 			throw new InvalidArgumentException( 
 				"Link cannot point to itself." );
 		}
 		
-		Thought::Order( $thought1, $thought2 );
+		$ordered1 = $source;
+		$ordered2 = $dest;
+		
+		// order the thoughts for the db query
+		Thought::Order( $ordered1, $ordered2 );
 		
 		$db = GetSQL();
 		$result = 0;
@@ -54,11 +60,11 @@ final class ThoughtLink {
 				ON Votes.thought1=Links.thought1
 				AND Votes.thought2=Links.thought2
 				AND Votes.account=$account
-				WHERE thought1=$thought1->id AND thought2=$thought2->id" );
+				WHERE thought1=$ordered1->id AND thought2=$ordered2->id" );
 		} else {
 			$result = $db->RunQuery( 
 				"SELECT goods, bads, time, creator FROM Links
-				WHERE thought1=$thought1->id AND thought2=$thought2->id" );
+				WHERE thought1=$ordered1->id AND thought2=$ordered2->id" );
 		}
 		
 		$row = $result->fetch_assoc();
@@ -66,7 +72,7 @@ final class ThoughtLink {
 			if( $create ) {
 				
 				// create a new link.
-				return self::Create( $thought1, $thought2, $account );
+				return self::Create( $source, $dest, $account );
 			}
 			else return FALSE;
 		}
@@ -77,7 +83,7 @@ final class ThoughtLink {
 		}
 		
 		// return existing link.  
-		$link = new self( $thought1, $thought2, 
+		$link = new self( $source, $dest, 
 						  $row['time'], $row['creator'], 
 						  $row['goods'], $row['bads'], $vote ); 
 	 
@@ -137,25 +143,31 @@ final class ThoughtLink {
 	 * Should check if the link exists first to avoid creating auto increment
 	 * holes.
 	 *
-	 * @param Thought $thought1 First thought in the link.
-	 * @param Thought $thought2 Second thought in the link.
+	 * @param Thought $source, $dest Different thoughts that form the
+	 *                               link.
 	 * @param int $creator      Account ID to set as the creator. 0 to assume
 	 *                          server/admin. This also creates an upvote for
 	 *                          the link by this user.
 	 * @return ThoughtLink|false Created ThoughtLink or FALSE if the link 
 	 *                           already exists.
 	 */
-	public static function Create( $thought1, $thought2, $creator = 0 ) { 
+	public static function Create( $source, $dest, $creator = 0 ) { 
 	
-		Thoughts::Order( $thought1, $thought2 );
-		$time = time();
+		if( $source === $dest ) {
+			throw new InvalidArgumentException( 
+				"Link cannot point to itself." );
+		}
 		
+		$ordered1 = $source;
+		$ordered2 = $dest;
+		Thoughts::Order( $ordered1, $ordered2 );
+		$time = time();
 		$db = GetSQL();
 		
 		try {
 			$db->RunQuery(
 				"INSERT INTO Links (thought1, thought2, time, creator )
-				VALUES ( $thought1->id, $thought2->id, $time, $creator )" );
+				VALUES ( $ordered1->id, $ordered2->id, $time, $creator )" );
 		} catch( SQLException $e ) {
 			if( $e->code == 2601 ) { // 2601: duplicate key.
 				return FALSE;
@@ -168,7 +180,7 @@ final class ThoughtLink {
 		// add an upvote.
 		if( $creator != 0 ) {
 			try {
-				if( Vote( $thought1, $thought2, $creator, true ) ) {
+				if( Vote( $source, $dest, $creator, true ) ) {
 					
 				} else {
 					// if in some event Vote fails, we just skip the auto vote
@@ -180,7 +192,7 @@ final class ThoughtLink {
 			}
 		}
 		
-		$link = new self( $thought1, $thought2, 
+		$link = new self( $source, $dest, 
 						  $time, $creator, $vote === TRUE ? 1:0, 0, 
 						  $vote );
 		$link->created = true;
@@ -197,12 +209,12 @@ final class ThoughtLink {
 	 * @return bool            TRUE if the vote was inserted or updated, 
 	 *                         FALSE if something strange happened.
 	 */
-	public static function Vote( $thought1, $thought2, $accountid, $vote ) {
+	public static function Vote( $source, $dest, $accountid, $vote ) {
 		
-		Thoughts::Order( $thought1, $thought2 );
+		Thoughts::Order( $source, $dest );
 		
 		$result = $db->DoTransaction( function( $db ) 
-									  use( $thought1, $thought2, 
+									  use( $source, $dest, 
 									       $accountid, $vote ) {
 			$time = time();	
 			$db->RunQuery( 'START TRANSACTION' );
@@ -210,7 +222,7 @@ final class ThoughtLink {
 			// get the current scores of the link
 			$result = $db->RunQuery( 
 				"SELECT goods, bads FROM Links 
-				WHERE thought1=$thought1->id AND thought2=$thought2->id
+				WHERE thought1=$source->id AND thought2=$dest->id
 				FOR UPDATE" );
 			
 			$row = $result->fetch_row();
@@ -233,7 +245,7 @@ final class ThoughtLink {
 			// check if there is already a vote from this user.
 			$result = $db->RunQuery(
 				"SELECT vote, fake FROM Votes WHERE
-				thought1=$thought1->id AND thought2=$thought2->id
+				thought1=$source->id AND thought2=$dest->id
 				AND account=$accountid FOR UPDATE" );
 			
 			$row = $result->fetch_assoc();
@@ -259,7 +271,7 @@ final class ThoughtLink {
 				// update the user's vote.
 				$db->RunQuery(
 					"UPDATE Votes SET vote=$voteval, time=$time
-					WHERE thought1=$thought1->id AND thought2=$thought2->id
+					WHERE thought1=$source->id AND thought2=$dest->id
 					AND account=$accountid" );
 				
 				// if the vote isnt FAKE, update the link score.
@@ -267,7 +279,7 @@ final class ThoughtLink {
 				if( !$row['fake'] ) {
 					$db->RunQuery( 
 						"UPDATE Links SET goods=$goods, bads=$bads
-						WHERE thought1=$thought1->id AND thought2=$thought2->id" );
+						WHERE thought1=$source->id AND thought2=$dest->id" );
 				}
 				
 			} else {
@@ -275,7 +287,7 @@ final class ThoughtLink {
 				try {
 					$db->RunQuery( 
 						"INSERT INTO Votes (thought1, thought2, account, time, vote )
-						VALUES ($thought1->id, $thought2->id, $accountid, $time, $voteval )" );
+						VALUES ($source->id, $dest->id, $accountid, $time, $voteval )" );
 				} catch( SQLException $e ) {
 					if( $e->code == SQL_ER_DUP_KEY ) {
 						$db->RunQuery( 'ROLLBACK' );
@@ -318,17 +330,21 @@ final class ThoughtLink {
 		
 		// method 2, union the two key queries. safer but may be slower.
 		$result = $db->RunQuery( 
-			"(SELECT thought1, thought2, goods, bads, Links.time, creator, vote
+			"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
+			         Links.time, creator, vote
 			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
 			AND Links.thought2 = Votes.thought2
 			AND Votes.account = $accountid
-			WHERE Links.thought1 = 1)
+			LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+			WHERE Links.thought1 = $thought->id)
 			UNION ALL
-			(SELECT thought1, thought2, goods, bads, Links.time, creator, vote
+			(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
+			        Links.time, creator, vote
 			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
 			AND Links.thought2 = Votes.thought2
 			AND Votes.account = $accountid
-			WHERE Links.thought2 = 1)" 
+			LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+			WHERE Links.thought2 = $thought->id)" 
 		);
 		
 		$list = [];
@@ -336,7 +352,10 @@ final class ThoughtLink {
 		while( $row = $result->fetch_assoc() ) {
 			$vote = $row['vote'];
 			if( !is_null($vote) ) $vote = $vote ? TRUE:FALSE;
-			$link = new self( $row['thought1'], $row['thought2'], $row['creator'],
+			
+			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
+			
+			$link = new self( $thought, $dest, $row['creator'],
 							  $row['goods'], $row['bads'], $vote );
 			$list[] = $link;
 		}

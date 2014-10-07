@@ -11,14 +11,15 @@ final class Thought {
 	public $phrase;
 	const MAXLEN = 20;
 		
-	public function __construct( $id, $creator, $time, $phrase ) {
+	public function __construct( $id, $phrase, 
+								 $creator = null, $time = null ) {
 		$this->id = $id;
+		$this->phrase = $phrase;
 		$this->creator = $creator;
 		$this->time = $time;
-		$this->phrase = $phrase;
 	}
 		
-	/** ---------------------------------------------------------------------------
+	/** -----------------------------------------------------------------------
 	 * Scrub a thought phrase.
 	 *
 	 * Converts dashes into spaces and rejects any invalid characters.

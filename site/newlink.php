@@ -19,7 +19,7 @@ define( 'R_ERROR' , 'error.'  ); // an error occurred.
 define( 'R_LOGIN' , 'login.'  ); // user is not logged in.
 define( 'R_EXISTS', 'exists.' ); // the link already exists.
 define( 'R_OKAY'  , 'okay.'   ); // the link was created.
-
+/*
 function TryReturnExisting( $t1, $t2 ) {
 	$link = ThoughtLink::Get( $t1, $t2, UserAuth::AccountID() );
 	if( $link !== FALSE ) {
@@ -28,7 +28,7 @@ function TryReturnExisting( $t1, $t2 ) {
 		$response->data['link']['score'] = $link->score;
 		$response->Send( R_EXISTS );
 	}
-}
+}*/
 
 try {
 	if( !CheckArgs( 'a', 'b' ) ) Response::SendSimple( R_ERROR );
