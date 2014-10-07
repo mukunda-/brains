@@ -3,19 +3,26 @@
 final class ThoughtLink {
 	public $thought1_id;
 	public $thought2_id;
+	public $creator = 0;
+	public $time;
 	public $goods;
 	public $bads;
 	public $score;
-	public $time;
 	public $vote = null;
-	public $creator = 0;
 	public $created = false; // true if this thought was returned 
 							 // by Create, or Get with $create=true
 							 // (and it was created.)
 	
-	private function __construct( $thought1, $thought2 ) {
-		$thought1_id = $thought1->id;
-		$thought2_id = $thought2->id;
+	private function __construct( $thought1, $thought2, $time, $creator = 0
+								  $goods = 0, $bads = 0, $vote = null ) {
+		$this->thought1_id = $thought1->id;
+		$this->thought2_id = $thought2->id;
+		$this->creator = $creator
+		$this->time = $time;
+		$this->goods = $goods;
+		$this->bads = $bads;
+		$this->vote = $vote;
+		$this->score = self::ComputeScore( $goods, $bads );
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -54,7 +61,7 @@ final class ThoughtLink {
 				WHERE thought1=$thought1->id AND thought2=$thought2->id" );
 		}
 		
-		$row = $result->fetch_row();
+		$row = $result->fetch_assoc();
 		if( $row === FALSE ) {
 			if( $create ) {
 				
@@ -64,20 +71,16 @@ final class ThoughtLink {
 			else return FALSE;
 		}
 		
-		$link = new self( $thought1, $thought2 ); 
-			
-		// return existing link.
-		$link->goods = $row[0];
-		$link->bads = $row[1];
-		$link->time = $row[2];
-		$link->creator = $row[3];
+		$vote = null;
 		if( $account != 0 && !is_null($row[4]) ) {
-			$link->vote = $row[4] ? TRUE : FALSE; 
+			$vote = $row[4] ? TRUE : FALSE; 
 		}
 		
-		$link->score = self::ComputeScore( 
-			$link->goods, $link->bads  );
-		
+		// return existing link.  
+		$link = new self( $thought1, $thought2, 
+						  $row['time'], $row['creator'], 
+						  $row['goods'], $row['bads'], $vote ); 
+	 
 		return $result;
 	}
 	
@@ -159,34 +162,29 @@ final class ThoughtLink {
 			}
 			throw $e;
 		}
-		
-		$link = new self( $thought1, $thought2 );
-		
-		$link->goods = 0;
-		$link->bads = 0;
-		$link->time = $time;
-		$link->creator = $creator;
-		$link->vote = ($creator == 0) ? null : TRUE;
-		$link->created = true;
+	
+		$vote = $creator == 0 ? null : TRUE;
 		
 		// add an upvote.
 		if( $creator != 0 ) {
-			
-			
 			try {
 				if( Vote( $thought1, $thought2, $creator, true ) ) {
-					$link->goods = 1;
+					
 				} else {
 					// if in some event Vote fails, we just skip the auto vote
-					$link->vote = null;
+					$vote = null;
 				}
 			} catch( SQLException $e ) {
 				// such robust
-				$link->vote = null;
+				$vote = null;
 			}
 		}
 		
-		$link->score = self::ComputeScore( $link->goods, $link->bads );
+		$link = new self( $thought1, $thought2, 
+						  $time, $creator, $vote === TRUE ? 1:0, 0, 
+						  $vote );
+		$link->created = true;
+		
 		return $link;
 	}
 	
@@ -294,7 +292,56 @@ final class ThoughtLink {
 		return $result; 
 	}
 	
-	
+	/** -----------------------------------------------------------------------
+	 * Find links that are connected to a thought.
+	 *
+	 * @param Thought $thought Thought to search for.
+	 * @param int $accountid   Account ID to use to get the VOTE field.
+	 *                         0=NONE/ADMIN.
+	 * @return array           Array of ThoughtLink instances that are linked
+	 *                         to the thought given.
+	 */
+	public static function FindLinks( $thought, $accountid = 0 ) {
+		$db = GetSQL();
+		
+		// method 1, not sure if this is the right way to do a query like this
+		// and can't properly test unless the table has data in it.
+		/*
+		$result = $db->RunQuery( 
+			"SELECT thought1, thought2 goods, bads, Links.time, creator, vote 
+			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
+			AND Links.thought2 = Votes.thought2
+			AND Votes.account = $accountid
+			WHERE Links.thought1=$thought->id 
+			OR    Links.thought2=$thought->id" );
+		*/
+		
+		// method 2, union the two key queries. safer but may be slower.
+		$result = $db->RunQuery( 
+			"(SELECT thought1, thought2, goods, bads, Links.time, creator, vote
+			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
+			AND Links.thought2 = Votes.thought2
+			AND Votes.account = $accountid
+			WHERE Links.thought1 = 1)
+			UNION ALL
+			(SELECT thought1, thought2, goods, bads, Links.time, creator, vote
+			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
+			AND Links.thought2 = Votes.thought2
+			AND Votes.account = $accountid
+			WHERE Links.thought2 = 1)" 
+		);
+		
+		$list = [];
+			
+		while( $row = $result->fetch_assoc() ) {
+			$vote = $row['vote'];
+			if( !is_null($vote) ) $vote = $vote ? TRUE:FALSE;
+			$link = new self( $row['thought1'], $row['thought2'], $row['creator'],
+							  $row['goods'], $row['bads'], $vote );
+			$list[] = $link;
+		}
+		return $list;
+	}
 }
 
 ?>

@@ -42,11 +42,12 @@ $db->RunQuery( "
 		             COMMENT 'Strong links made.',
 		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 
 		             COMMENT 'Perfect links made.',
-		banned       BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Suspended account.',
+		banned       BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Account is suspended.',
 		bantime      INT NOT NULL DEFAULT 0 COMMENT 'Time of suspension.',
 		banreason    VARCHAR(512) COMMENT 'Reason for suspension.',
 		
-		INDEX USING BTREE(user_hash) )
+		INDEX USING BTREE( user_hash ) 
+	)
 	ENGINE = InnoDB 
 	COMMENT = 'Account information.' 
 	" );
@@ -57,7 +58,7 @@ $db->RunQuery( "
 		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
 		secret  BINARY(16) NOT NULL   COMMENT 'Hashed secret code.',
 		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.'
-		) 
+	) 
 	ENGINE = InnoDB
 	COMMENT = 'Active user logins.'
 	" );
@@ -68,7 +69,7 @@ $db->RunQuery( "
 		creator INT UNSIGNED          COMMENT 'Account of creator.',
 		time    INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		phrase  VARCHAR(31) NOT NULL UNIQUE
-		) 
+	) 
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of thoughts and their IDs.'
 	" );
@@ -81,10 +82,11 @@ $db->RunQuery( "
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = nobody/admin',
-		PRIMARY KEY ( thought1, thought2 ),
-		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
-		)
+		PRIMARY KEY( thought1, thought2 ),
+		INDEX USING BTREE( thought2 ),
+		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
 	ENGINE = InnoDB
 	COMMENT = 'Describes all links between thoughts.'
 	" );
@@ -95,12 +97,12 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
-		fake     BOOL COMMENT 'Fake votes don't affect the score.',
+		fake     BOOL COMMENT 'Fake votes don\'t affect the score.',
 		vote     BOOL COMMENT 'true=upvote, false=downvote',
-		PRIMARY KEY ( thought1, thought2, account ),
-		FOREIGN KEY ( thought1 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY ( thought2 ) REFERENCES Thoughts ( id ) ON DELETE CASCADE ON UPDATE CASCADE
-		)
+		PRIMARY KEY( thought1, thought2, account ),
+		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
 	" );
@@ -112,7 +114,7 @@ $db->RunQuery( "
 		ip       VARBINARY(16) NOT NULL COMMENT 'IP address used.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		
-		PRIMARY KEY ( thought1, thought2, ip )
+		PRIMARY KEY( thought1, thought2, ip )
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Hold recent vote information for abuse prevention.'
