@@ -10,14 +10,24 @@
 	
   }
   
-  searches for a thought
+  searches for a thought.
   
-  if it isn't found, a page is still returned as if it exists
+  if it isn't found, a page is still returned as if it exists.
   
   query doesn't create links or thoughts. newlink does.
   
-  RETURN page contents
+  RESPONSE "new" {} // The thoguht doesn't exist yet
   
+  RESPONSE "exists" { // The thought exists
+    data {
+	  links[
+	    { dest: destination thought
+		  score: score of link
+		  vote: user's vote (if logged in)
+		}
+	  ]
+	}
+  }
 */
 
 require_once 'core.php'; 
@@ -35,10 +45,7 @@ $response = new Response;
 $response->data['source'] = $thought_string;
 
 if( $thought === FALSE ) {
-	$response->Send( 'new' );
-	// show an empty thought
-	//Content::PrintNewLinkInput( $thought_string );
-	//exit();
+	$response->Send( 'new' ); 
 }
 
 $links = ThoughtLink::FindLinks( $thought, User::AccountID() );
@@ -54,7 +61,6 @@ foreach( $links as $link ) {
 	$response->data['links'] = $a;
 }
 
-
-
+$response->Send( 'exists' );
 
 ?>
