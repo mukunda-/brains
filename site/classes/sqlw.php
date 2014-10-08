@@ -6,35 +6,23 @@
 // also provides global instance of database link
 //
 
-require_once "sql_login.php";
-
-$g_sqldb = null;
-
-define( 'SQL_ER_DUP_KEY', 1022 );
-define( 'SQL_ER_LOCK_WAIT_TIMEOUT', 1205 );
-define( 'SQL_ER_LOCK_DEADLOCK', 1213 );
-
-/** ---------------------------------------------------------------------------
- * Exception thrown from RunQuery
- */
-class SQLException extends Exception {
-	public $code; // mysqli errno
-	
-	public function __construct( $errno, $error ) {	
-		$code = $errno;
-		parent::__construct( $error );
-	}
-}
-
 /** ---------------------------------------------------------------------------
  * mysqli wrapper class
  */
-class MySQLWrapper extends mysqli {
+class SQLW extends mysqli {
 
+	// some useful errors
+	const ER_DUP_KEY = 1022; // insert failure from duplicate key
+	const ER_LOCK_WAIT_TIMEOUT = 1205; // deadlock thing
+	const ER_LOCK_DEADLOCK = 1213; // deadlock thing
+
+	private static $db = null;
+	
 	/** -----------------------------------------------------------------------
 	 * Construct with some special sauce.
 	 */
-	public function __construct( $host, $user, $password, $database, $flags ) {
+	public function __construct( $host, $user, $password, 
+								 $database, $flags ) {
 		parent::init();
 		
 		parent::real_connect( $host, $user, $password, $database,
@@ -82,41 +70,41 @@ class MySQLWrapper extends mysqli {
 		
 		throw new RuntimeException( "SQL deadlock occurred too many times." );
 	}
-}
+	
+	/** -----------------------------------------------------------------------
+	 * Connect to the database or return an existing connection.
+	 *
+	 * @return MySQLW instance.
+	 */
+	public static function Get() { 
+		if( !$this->db ) {
+			$this->db = new MySQLWrapper( 
+				SQL_Login::$address, SQL_Login::$username,
+				SQL_Login::$password, SQL_Login::$database,
+				MYSQLI_CLIENT_FOUND_ROWS );
+				
+			if( $this->db->connect_errno ) {
+				$this->db = null;
+				throw new SQLException( 
+					(int)$this->db->connect_errno, 
+					"SQL Connection Error: ". (int)$this->db->connect_error );
+			}
+			//$this->db->reconnect = 1;
 
-/** ---------------------------------------------------------------------------
- * Connect to the database or return an existing connection.
- *
- * @return MySQLWrapper instance.
- */
-function GetSQL() {
-	global $g_sqldb;
-	if( !$g_sqldb ) {
-		$g_sqldb = new MySQLWrapper( 
-			$GLOBALS["sql_addr"], $GLOBALS["sql_user"],
-			$GLOBALS["sql_password"],$GLOBALS["sql_database"],
-			MYSQLI_CLIENT_FOUND_ROWS );
-			
-		if( $g_sqldb->connect_errno ) {
-			$g_sqldb = null;
-			throw new SQLException( (int)$g_sqldb->connect_errno, "SQL Connection Error: ". (int)$g_sqldb->connect_error );
 		}
-		//$g_sqldb->reconnect = 1;
-
+		return $this->db; 
 	}
-	return $g_sqldb;
-}
-
-/** ---------------------------------------------------------------------------
- * Close the current SQL connection.
- *
- * Normally this is handled by the script termination.
- */
-function CloseSQL() {
-	global $g_sqldb;
-	if( $g_sqldb ) {
-		$g_sqldb->close();
-		$g_sqldb = null;
+	
+	/** -----------------------------------------------------------------------
+	 * Close the current database connection.
+	 *
+	 * Normally this is handled by the script termination.
+	 */
+	public static function Close() {
+		if( $this->db !== null ) {
+			$this->db->close();
+			$this->db = null;
+		}
 	}
 }
 

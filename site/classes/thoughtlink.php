@@ -4,7 +4,6 @@ final class ThoughtLink {
 	public $source; // source thought
 	public $dest; // destination thought
 	
-	
 	public $creator = 0;
 	public $time;
 	public $goods;
@@ -318,6 +317,7 @@ final class ThoughtLink {
 		
 		// method 1, not sure if this is the right way to do a query like this
 		// and can't properly test unless the table has data in it.
+		
 		/*
 		$result = $db->RunQuery( 
 			"SELECT thought1, thought2 goods, bads, Links.time, creator, vote 
@@ -329,24 +329,40 @@ final class ThoughtLink {
 		*/
 		
 		// method 2, union the two key queries. safer but may be slower.
-		$result = $db->RunQuery( 
-			"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
-			         Links.time, creator, vote
-			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
-			AND Links.thought2 = Votes.thought2
-			AND Votes.account = $accountid
-			LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
-			WHERE Links.thought1 = $thought->id)
-			UNION ALL
-			(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
-			        Links.time, creator, vote
-			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
-			AND Links.thought2 = Votes.thought2
-			AND Votes.account = $accountid
-			LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
-			WHERE Links.thought2 = $thought->id)" 
-		);
-		
+		if( $accountid != 0 ) {
+			$result = $db->RunQuery( 
+				"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
+						 Links.time, creator, vote
+				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
+				AND Links.thought2 = Votes.thought2
+				AND Votes.account = $accountid
+				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+				WHERE Links.thought1 = $thought->id)
+				UNION ALL
+				(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
+						Links.time, creator, vote
+				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
+				AND Links.thought2 = Votes.thought2
+				AND Votes.account = $accountid
+				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+				WHERE Links.thought2 = $thought->id)" 
+			);
+		} else {
+			// simpler query without account polling
+			$result = $db->RunQuery( 
+				"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
+						 Links.time, creator, vote
+				FROM Links 
+				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+				WHERE Links.thought1 = $thought->id)
+				UNION ALL
+				(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
+						Links.time, creator, vote
+				FROM Links 
+				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+				WHERE Links.thought2 = $thought->id)" 
+			);
+		}
 		$list = [];
 			
 		while( $row = $result->fetch_assoc() ) {

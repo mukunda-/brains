@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Contains a response for a query script.
  */
 class Response {

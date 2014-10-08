@@ -21,8 +21,9 @@
 
 require_once 'config.php';
 require_once 'common.php';
-require_once 'content.php';
+//require_once 'content.php';
 require_once 'thought.php';
+require_once 'thoughtlink.php';
   
 if( !CheckArgsGET( 'thought' ) ) exit();
 
@@ -39,9 +40,23 @@ $response->data['source'] = $thought_string;
 if( $thought === FALSE ) {
 	$response->Send( 'new' );
 	// show an empty thought
-	Content::PrintNewLinkInput( $thought_string );
-	exit();
+	//Content::PrintNewLinkInput( $thought_string );
+	//exit();
 }
+
+$links = ThoughtLink::FindLinks( $thought, User::AccountID() );
+
+$response->data['links'] = [];
+
+foreach( $links as $link ) {
+	$a = [ 
+		'dest' => $link->dest,
+		'score' => $link->score,
+		'vote' => $link->vote
+	];
+	$response->data['links'] = $a;
+}
+
 
 
 

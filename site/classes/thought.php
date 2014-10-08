@@ -10,7 +10,7 @@ final class Thought {
 	public $time;
 	public $phrase;
 	const MAXLEN = 20;
-		
+	
 	public function __construct( $id, $phrase, 
 								 $creator = null, $time = null ) {
 		$this->id = $id;

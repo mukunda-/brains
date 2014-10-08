@@ -1,27 +1,6 @@
 <?php
- 
-require_once 'common.php';
-require_once 'sql.php';
+
 require_once 'libs/password.php';
-
-/** ---------------------------------------------------------------------------
- * Exception thrown when an account doesn't exist.
- */
-class InvalidAccountException extends Exception { 
-	public $id; // Account ID that was used.
-	
-	public function __construct( $id ) {
-		$this->id = $id;
-		parent::__construct( "Invalid account ID: $id" );
-	}
-
-}
-
-/** ---------------------------------------------------------------------------
- * Exception thrown when the program attempts to read from
- * an unknown field in the account table.
- */
-class InvalidAccountFieldException extends Exception { }
 
 /** ---------------------------------------------------------------------------
  * Interface for managing user properties and authentication.
