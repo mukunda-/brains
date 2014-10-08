@@ -1,128 +1,51 @@
 <?php
 
 /*
-  votelink
+  votelink - upvotes or downvotes a link
   POST (
-     a: thought phrase
-	 b: thought phrase
-	 vote: 'good' or 'bad'
+     t1, t2: thoughts that form the link.
+	 vote: 'good' for upvote or 'bad' for downvote
   )
 */
 
-require_once 'config.php';
-require_once 'sql.php';
-require_once 'common.php';
-require_once 'userauth.php';
+require_once 'core.php';
 
-define( 'R_ERROR', 'error.' );
-define( 'R_NOTFOUND', 'notfound.' );
-define( 'R_LOGIN', 'login.' );
-define( 'R_OKAY', 'okay.' );
- 
+// response codes
+define( 'R_ERROR', 'error.' ); // input or database error
+define( 'R_NOTFOUND', 'notfound.' ); // link doesn't exist
+define( 'R_LOGIN', 'login.' ); // user needs to log in
+define( 'R_OKAY', 'okay.' ); // vote was added or updated.
+
 try {
-	if( !CheckArgs( 'a', 'b', 'vote' ) ) exit( R_ERROR );
+	if( !CheckArgsPOST( 't1', 't2', 'vote' ) ) exit( R_ERROR );
 	
-	$votevalue = 0;
 	if( $_POST['vote'] == 'good' ) {
-		$votevalue = 1;
+		$votevalue = true;
 	} else if( $_POST['vote'] == 'bad' ) {
-		$votevalue = 0;
+		$votevalue = false;
 	} else {
-		exit( R_ERROR );
+		Response::SendSimple( R_ERROR );
 	}
 	
-	if( !UserAuth::LoggedIn() ) exit( R_LOGIN );
+	if( !User::CheckLogin() ) Response::SendSimple( R_LOGIN );
 	
-	$thought1 = Thought::ScrubGet( $_POST['a'] );
-	if( $thought1 === FALSE ) exit( R_ERROR );
-	$thought2 = Thought::ScrubGet( $_POST['b'] );
-	if( $thought2 === FALSE ) exit( R_ERROR );
+	// scrub and catch invalid input
+	$thought1 = Thought::Scrub( $_POST['t1'] );
+	if( $thought1 === FALSE ) Response::SendSimple( R_ERROR );
+	$thought2 = Thought::Scrub( $_POST['t2'] );
+	if( $thought2 === FALSE ) Response::SendSimple( R_ERROR );
 	
-	Thought::Order( $thought1, $thought2 );
+	// get thoughts, or error if not found.
+	$thought1 = Thought::Get( $thought1 );
+	if( $thought1 === FALSE ) Response::SendSimple( R_NOTFOUND );
+	$thought2 = Thought::Get( $thought2 );
+	if( $thought2 === FALSE ) Response::SendSimple( R_NOTFOUND );
 	
-	$sql = GetSQL();
-	
-	$accountid = UserAuth::AccountID();
-	
-	$transaction = function ( $sql ) 
-			use ( $thought1, $thought2, 
-				  $accountid, $votevalue ) {
-		
-		$time = time();	
-		$sql->safequery( "START TRANSACTION" );
-		
-		$result = $sql->safequery( 
-			"SELECT goods, bads FROM Links 
-			WHERE thought1=$thought1->id AND thought2=$thought2->id
-			FOR UPDATE" );
-		
-		$row = $result->fetch_row();
-		if( $row === FALSE ) {
-			$sql->safequery( "ROLLBACK" );
-			exit( R_NOTFOUND );
-		}
-		
-		$goods = $row[0];
-		$bads  = $row[1];
-		
-		// add the vote
-		if( $voteval == 1 ) {
-			$goods++;
-		} else {
-			$bads++;
-		}
-		
-		$result = $sql->safequery(
-			"SELECT vote FROM Votes WHERE
-			thought1=$thought1->id AND thought2=$thought2->id
-			AND account=$accountid FOR UPDATE" );
-		
-		$row = $result->fetch_row();
-		if( $row !== FALSE ) {
-			// a vote already exists:
-			
-			// reverse original vote, 
-			// or exit if it already matches the request.
-			if( !is_null($row[0]) ) {
-				if( $row[0] == $voteval ) {
-					$sql->safequery( 'ROLLBACK' );
-					exit( R_OKAY );
-				}
-				
-				if( $row[0] == 1 ) {
-					$goods--;
-				} else {
-					$bads--;
-				}
-			}
-			
-			$sql->safequery( 
-				"UPDATE Votes SET vote=$voteval, time=$time
-				WHERE thought1=$thought1->id AND thought2=$thought2->id
-				AND account=$accountid" );
-			
-			$sql->safequery( 
-				"UPDATE Links SET goods=$goods, bads=$bads
-				WHERE thought1=$thought1->id AND thought2=$thought2->id" );
-			
-		} else {
-			$sql->safequery( 
-				"INSERT IGNORE INTO Votes (thought1, thought2, account, time, vote )
-				VALUES ($thought1->id, $thought2->id, $accountid, $time, $voteval )" );
-			if( $sql->affected_rows == 0 ) {
-				// error.
-				$sql->safequery( 'ROLLBACK' );
-				exit( R_ERROR );
-			}
-		}
-		
-		$sql->safequery( 'COMMIT' );
-		
+	if( !ThoughtLink::Vote( $thought1, $thought2, User::AccountID(), $votevalue ) ) {
+		Response::SendSimple( R_ERROR );
 	}
 	
-	$sql->DoTransaction( $transaction );
-	
-	exit( R_OKAY );
+	Response::SendSimple( R_OKAY );
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );

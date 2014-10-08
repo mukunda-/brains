@@ -13,17 +13,14 @@
   searches for a thought
   
   if it isn't found, a page is still returned as if it exists
+  
   query doesn't create links or thoughts. newlink does.
   
   RETURN page contents
   
 */
 
-require_once 'config.php';
-require_once 'common.php';
-//require_once 'content.php';
-require_once 'thought.php';
-require_once 'thoughtlink.php';
+require_once 'core.php'; 
   
 if( !CheckArgsGET( 'thought' ) ) exit();
 

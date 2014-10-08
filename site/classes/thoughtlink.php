@@ -50,7 +50,7 @@ final class ThoughtLink {
 		// order the thoughts for the db query
 		Thought::Order( $ordered1, $ordered2 );
 		
-		$db = GetSQL();
+		$db = SQLW::Get();
 		$result = 0;
 		if( $account != 0 ) {
 			$result = $db->RunQuery( 
@@ -161,7 +161,7 @@ final class ThoughtLink {
 		$ordered2 = $dest;
 		Thoughts::Order( $ordered1, $ordered2 );
 		$time = time();
-		$db = GetSQL();
+		$db = SQLW::Get();
 		
 		try {
 			$db->RunQuery(
@@ -282,7 +282,7 @@ final class ThoughtLink {
 				}
 				
 			} else {
-			
+				// TODO abuse prevention ip shit.
 				try {
 					$db->RunQuery( 
 						"INSERT INTO Votes (thought1, thought2, account, time, vote )
@@ -313,7 +313,7 @@ final class ThoughtLink {
 	 *                         to the thought given.
 	 */
 	public static function FindLinks( $thought, $accountid = 0 ) {
-		$db = GetSQL();
+		$db = SQLW::Get();
 		
 		// method 1, not sure if this is the right way to do a query like this
 		// and can't properly test unless the table has data in it.

@@ -142,7 +142,7 @@ public static function HashUsername( $username ) {
  */
 public static function GetAccountIDFromUsername( $username ) {
 	$hash = HashUsername( $username );
-	$db = GetSQL();
+	$db = SQLW::Get();
 	$result = $db->safequery( 
 		"SELECT username, account
 		FROM Accounts WHERE user_hash=0x$hash" );
@@ -170,7 +170,7 @@ public static function GetAccountIDFromUsername( $username ) {
 public static function ReadAccount( $id, $fields ) {
 	$id = (int)$id; // safety
 	
-	$db = GetSQL();
+	$db = SQLW::Get();
 	$result = $db->safequery( 	
 		"SELECT ". implode( ',' , $fields ) . "
 		FROM Accounts  
@@ -199,7 +199,7 @@ public static function ReadAccount( $id, $fields ) {
  * @throws SQL exception on database failure
  */
 public static function WriteAccount( $id, $fields ) {
-	$db = GetSQL();
+	$db = SQLW::Get();
 	
 	$set = array();
 	foreach( $fields as $key => $value ) {
@@ -273,7 +273,7 @@ public static function CheckLogin() {
 	if( !self::ParseLoginToken( $id, $secret ) ) return FALSE;
 	
 	$time = time();
-	$db = GetSQL();
+	$db = SQLW::Get();
 	$result = $db->RunQuery( 
 		"SELECT account, secret, expires FROM LoginTokens
 		WHERE id=$id AND $time < expires" );
@@ -304,7 +304,7 @@ public static function CheckLogin() {
  * @return int|false Account ID or FALSE if the credentials are invalid.
  */
 public static function LogIn( $username, $password, $remember ) {
-	$db = GetSQL();
+	$db = SQLW::Get();
 	$a = (int)$remember;
 
 	$username = trim($username);
@@ -340,7 +340,7 @@ public static function LogIn( $username, $password, $remember ) {
  */
 private static function CreateLoginToken() {
 	
-	$db = GetSQL();
+	$db = SQLW::Get();
 	$secret = GenerateSecret();
 	$id = self::$account_id;
 	
@@ -400,7 +400,7 @@ private static function IsValidPassword( $string ) {
  * @throws SQLException if a database error occurs.
  */
 public static function CreateAccount( $username, $password, $nickname ) {
-	$db = GetSQL();
+	$db = SQLW::Get();
 	
 	$username = trim($username);
 	if( !self::IsNormalString( $username ) ) {
