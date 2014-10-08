@@ -141,11 +141,11 @@ $( function() {
 		
 	} );
 	
-	$(".thought .vote").mousedown( function(e) {
+	$(".thought .vote").mousedown( function( e ) {
 		e.stopPropagation();
 	} );
 	
-	$(".thought .vote").click( function(e) {
+	$(".thought .vote").click( function( e ) {
 		
 		e.stopPropagation();
 	} );
@@ -158,7 +158,7 @@ $( function() {
 	
 	$("#queryform").keypress( function(e) {
 		if( (e.which >= 65 && e.which <= 90)  // A-Z
-			|| e.which >= 97 && e.which <= 122 // a-z
+			|| (e.which >= 97 && e.which <= 122) // a-z
 			|| e.which <= 32 ) { // space and control characters
 			
 			return true;
@@ -191,7 +191,10 @@ function OnNewQuery() {
 	}
 	$("#query").blur();
 	
-	brains.Loader.Load( "query.php", undefined, { "thought": thought } );
+	brains.Load( { 
+		url: "query.php", 
+		data: { "input": thought }, 
+		);
 	/*
 	m_async.AddAjax( $.get( "query.php", { "thought": thought } ) )
 		.done( function(data) {

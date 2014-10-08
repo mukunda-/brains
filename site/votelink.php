@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /*
   votelink - upvotes or downvotes a link
   POST (

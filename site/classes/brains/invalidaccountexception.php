@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /** ---------------------------------------------------------------------------
  * Exception thrown when trying to read from a nonexistant account.
  */

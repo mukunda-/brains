@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 // login.php
 // used to log in a user or create an account
 //

@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /**
  * Site configuration.
  *
@@ -31,13 +33,17 @@ final class Config {
 	public static $SESSIONTIME = 1440; 
 	
 	// number of votes needed for a score to have a real value.
-	public static $SCORERAMPCONST = 50; // 
+	public static $SCORERAMPCONST = 50; //
 	
 	public static function init() {
 		// absolute path to site directory
 		// ie /brains/site/
-		self::$ABSPATH = str_replace( "\\", "/", substr( rtrim(dirname(__FILE__), '/\\'), strlen($_SERVER["DOCUMENT_ROOT"]) ) ).'/';
-
+		self::$ABSPATH = str_replace( 
+			"\\", "/", 
+			substr( rtrim(dirname(__FILE__), '/\\'), 
+			strlen($_SERVER["DOCUMENT_ROOT"]) ) 
+			) . '/';
+		
 		if( $_SERVER['SERVER_NAME'] != 'localhost' ) {
 			// disable debug in non local servers.
 			Config::$DEBUG = FALSE;
@@ -45,11 +51,11 @@ final class Config {
 		
 		self::$AUTHTOKEN_DURATION = 60*60*24*90; // 90 days
 		
-		session_set_cookie_params( 
+		session_set_cookie_params(
 			self::$SESSIONTIME,  // 24 minutes
-			$this->AbsPath() );
+			self::$ABSPATH );
 	}
-	 
+	
 	// some fancy functions
 	public static function AbsPath() {
 		return self::$ABSPATH;

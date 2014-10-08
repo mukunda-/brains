@@ -1,7 +1,8 @@
 <?php
 
-require_once 'libs/recaptchalib.php';
-require_once 'recaptcha_keys.php';
+namespace Brains;
+
+require_once 'libs/recaptchalib.php'; 
 
 /**
  * Interface for captcha validation

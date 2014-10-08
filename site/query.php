@@ -1,12 +1,14 @@
 <?php
 
+namespace Brains;
+
 /* 
   query.php
   
   ORGANIC QUERY
   
   GET {
-    thought: thought_string
+    input: thought_string
 	
   }
   

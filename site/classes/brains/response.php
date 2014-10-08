@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /**
  * Contains a response for a query script.
  */

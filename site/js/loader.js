@@ -37,6 +37,7 @@ var PAGE_LOAD_FAILED_CONTENT =
  *
  */
 function FadeIn( content ) {
+	m_fading_out = false;
 	HideLoadingIcon();
 	$(window).scrollTop(0);
 	
@@ -48,8 +49,7 @@ function FadeIn( content ) {
 	brains.InitializePostLoad();
 	m_loading = false;
 	
-	//matbox.AdjustSize();
-	$(window).scrollTop(0);
+	$(window).scrollTop( 0 );
 	output.addClass( 'visible' ); // fade in
 }
 
@@ -75,36 +75,49 @@ function HideLoadingIcon() {
 /** ---------------------------------------------------------------------------
  * Load a content page.
  *
- * @param string url URL of page to load.
- * @param int delay Used to control the Extra Dramatic Break Effect.
- *              negated values are treated as negated absolute values
- *              positive values are added to the normal fade constant
- * @param object data Optional data to pass with the request.
- * @param bool post   Make a POST request. Default=false (GET)
+ * @param object info Information about request
+ *                 "url": URL of page to load
+ *                 [delay]: Used to control the Extra Dramatic Break Effect.
+ *                          negated values are treated as negated absolute 
+ *                          values positive values are added to the normal
+ *                          fade constant.
+ *                 [data]: Data to send with request.
+ *                 [post]: Make a POST request, Default is GET
  */
-this.Load = function( url, delay, data, post ) {
+this.Load = function( info ) {
 	if( m_loading ) return;
 	
 	//matbox.ResetIdleTime();
-
+	if( !info.hasOwnProperty( "url" ) ) {
+		throw "Must specify URL.";
+	}
+	
+	if( !info.hasOwnProperty( "delay" ) ) {
+		info.delay = 500;
+	}	
+	
+	if( !info.hasOwnProperty( "process" ) ) {
+		info.process = function() {};
+	}
+	
 	if( !isSet(get) ) get = {};
 	if( !isSet(delay) ) delay = 500;
 	if( !isSet(post) ) post = false;
-	if( delay < 0 ) delay = -delay - FADE_OUT_TIME; 
+	if( info.delay < 0 ) info.delay = -info.delay - FADE_OUT_TIME; 
 	
 	m_loading = true;
 	
 	//matbox.LiveRefresh.Reset(); 
 	
-	output = $( '#content' );
-	output.removeClass( 'visible' ); // fade out
+	//output = $( '#content' );
+	//output.removeClass( 'visible' ); // fade out
 	
 	m_fading_out = true;
 	
-	m_icontimeout.Set( ShowLoadingIcon, 2000 );
+	ShowLoadingIcon();
+	//m_icontimeout.Set( ShowLoadingIcon, 2000 );
 	
-	// whichever one of these finishes first (fadeout/ajax)
-	// thats the one that sets the content and fades in
+	/*
 	m_ag.Set( 
 		function() {
 			m_fading_out = false; 
@@ -116,27 +129,28 @@ this.Load = function( url, delay, data, post ) {
 				output.html("");
 			}
 		}, FADE_OUT_TIME+delay );
-	
+	*/
 	var ajax = post ? $.post( url, data ) : $.get( url_data );
 	
 	m_ag.AddAjax( ajax )
 		.done( function(data) {
+			data = info.process( data );
+			if( data === false ) return; // page load cancelled.
+										 // (usually because of an error.)
+			m_page_content = data;
+			output = $( '#content' );
+			output.removeClass( 'visible' ); // fade out
 			
-			if( m_fading_out ) {
-				m_page_content = data;
-			} else {
-				FadeIn( data );
-				
-			}
+			m_ag.Set(
+				function() {
+					FadeIn( m_page_content );
+					m_page_content = null;
+				}, FADE_OUT_TIME+delay );
 		})
 		.fail( function( handle ) {
 			if( handle.ag_cancelled ) return;
 			
-			if( m_fading_out ) {
-				m_page_content = PAGE_LOAD_FAILED_CONTENT;
-			} else {
-				FadeIn( PAGE_LOAD_FAILED_CONTENT );
-			}
+			alert( "An error occurred. Please try again." );
 		});
 	
 }

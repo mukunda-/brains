@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 class Logger {
 
 	public static function LogStamp() {
@@ -8,13 +10,13 @@ class Logger {
 	}
 
 	public static function PrintInfo( $text ) {
-		if( $GLOBALS['config']->InfoLogging() ) {
+		if( Config::InfoLogging() ) {
 			file_put_contents( "logs/info.log", self::LogStamp() . " $text\n", FILE_APPEND ); 
 		}
 	}
 
 	public static function PrintException( $e ) {
-		if( $GLOBALS['config']->ErrorLogging() ) {
+		if( Config::ErrorLogging() ) {
 			file_put_contents( "logs/error.log", self::LogStamp() . print_r( $e, true ) ."\n", FILE_APPEND ); 
 		}
 	}

@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 require_once 'libs/password.php';
 
 /** ---------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 final class ThoughtLink {
 	public $source; // source thought
 	public $dest; // destination thought

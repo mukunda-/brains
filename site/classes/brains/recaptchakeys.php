@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /**
  * contains public and private keys for the Recaptcha API.
  */

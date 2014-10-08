@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 /*
   newlink.php
   

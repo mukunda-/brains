@@ -1,11 +1,14 @@
-﻿<?php
+<?php
+
+namespace Brains;
+
 date_default_timezone_set( 'America/Chicago' );
 
 require_once 'core.php';
 
 User::CheckLogin();
 
-if( $config->DebugMode() ) {
+if( Config::DebugMode() ) {
 	require_once 'dev/build.php';
 }
  
@@ -94,14 +97,14 @@ if( $config->DebugMode() ) {
 		echo '</div>'; // content
 		
 		echo '<div id="top">';
-			$svg = new SVG( 'img/logo1.svg' );
+			$svg = new \SVG( 'img/logo1.svg' );
 			$svg->SetID( 'logo' );
 			$svg->Output();
 			//echo '<div class="logo"></div>';
 			echo '<form autocomplete="off" id="queryform">';
 			echo '<input id="query" maxlength="20" >';
 			echo '</form>';
-			$svg = new SVG( 'img/person.svg' );
+			$svg = new \SVG( 'img/person.svg' );
 			$svg->SetID( 'user' );
 			$svg->Output();
 		 

@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 if( !file_exists( '.htaccess' ) ) {
 
 	$apath = $config->AbsPath();
