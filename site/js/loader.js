@@ -83,6 +83,10 @@ function HideLoadingIcon() {
  *                          fade constant.
  *                 [data]: Data to send with request.
  *                 [post]: Make a POST request, Default is GET
+ *                 [process]: Function to process the data. This function
+ *                            accepts the response as a parameter and
+ *                            returns the new page content or FALSE to cancel
+ *                            the page load.
  */
 this.Load = function( info ) {
 	if( m_loading ) return;
@@ -97,12 +101,9 @@ this.Load = function( info ) {
 	}	
 	
 	if( !info.hasOwnProperty( "process" ) ) {
-		info.process = function() {};
+		info.process = function( data ) { return data; };
 	}
-	
-	if( !isSet(get) ) get = {};
-	if( !isSet(delay) ) delay = 500;
-	if( !isSet(post) ) post = false;
+	 
 	if( info.delay < 0 ) info.delay = -info.delay - FADE_OUT_TIME; 
 	
 	m_loading = true;

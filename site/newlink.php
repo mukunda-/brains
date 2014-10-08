@@ -11,10 +11,7 @@ namespace Brains;
   )
 */ 
 
-require_once 'config.php';
-require_once 'sql.php';
-require_once 'common.php'
-require_once 'user.php';
+require_once 'core.php';
 
 // response status codes
 define( 'R_ERROR' , 'error.'  ); // an error occurred.
@@ -33,13 +30,14 @@ function TryReturnExisting( $t1, $t2 ) {
 }*/
 
 try {
-	if( !CheckArgs( 'a', 'b' ) ) Response::SendSimple( R_ERROR );
-	if( !User::LoggedIn() ) Response::SendSimple( R_LOGIN );
+	if( !CheckArgsPOST( 'a', 'b' ) ) exit();
 	
 	$thought1 = Thought::Scrub( $_POST['a'] );
-	if( $thought1 === FALSE ) Response::SendSimple( R_ERROR );
+	if( $thought1 === FALSE ) exit();
 	$thought2 = Thought::Scrub( $_POST['b'] );
-	if( $thought2 === FALSE ) Response::SendSimple( R_ERROR );
+	if( $thought2 === FALSE ) exit();
+	
+	if( !User::LoggedIn() ) Response::SendSimple( R_LOGIN );
 	
 	$thought1 = Thoughts::Get( $thought1, true );
 	$thought2 = Thoughts::Get( $thought2, true );

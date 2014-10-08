@@ -191,10 +191,19 @@ function OnNewQuery() {
 	}
 	$("#query").blur();
 	
+	var process = function() {
+		
+	}
+	
 	brains.Load( { 
 		url: "query.php", 
 		data: { "input": thought }, 
-		);
+		process: function() {
+			
+		}
+	});
+	
+	
 	/*
 	m_async.AddAjax( $.get( "query.php", { "thought": thought } ) )
 		.done( function(data) {
