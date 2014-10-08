@@ -1,18 +1,13 @@
 ﻿<?php
 date_default_timezone_set( 'America/Chicago' );
 
-require_once 'config.php';
-require_once 'svg.php';
-require_once 'user.php';
-require_once 'captcha.php';
+require_once 'core.php';
 
 User::CheckLogin();
 
 if( $config->DebugMode() ) {
 	require_once 'dev/build.php';
 }
-
-require_once 'libs/recaptchalib.php';
  
 ?><!DOCTYPE html>
 <html> 

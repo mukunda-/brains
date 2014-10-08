@@ -1,18 +1,39 @@
 <?php
 
-class Config {
+/**
+ * Site configuration.
+ *
+ */
+final class Config {
+
+	// debug mode, make sure to turn this off!
+	// controls minification and allows major setup features
 	public static $DEBUG = TRUE;
-	public static $ERRLOG = TRUE;
-	public static $INFOLOG = TRUE;
-	public static $AUTHTOKEN_EXTEND_MIN;
-	public static $AUTHTOKEN_EXTEND_DURATION;
-	public static $AUTHTOKEN_DURATION;
-	public static $ABSPATH;
-	public static $SECURE = FALSE;
-	public static $SESSIONTIME = 1440;
-	public static $SCORERAMPCONST = 50;
 	
-	public function __construct() {
+	// log errors/exceptions to disk
+	public static $ERRLOG = TRUE; 
+	
+	// log additional information to disk
+	public static $INFOLOG = TRUE; 
+	//public static $AUTHTOKEN_EXTEND_MIN;
+//	public static $AUTHTOKEN_EXTEND_DURATION;
+
+	// duration (seconds) when saved logins expire
+	public static $AUTHTOKEN_DURATION; 
+	
+	// absolute path to site directory
+	public static $ABSPATH; 
+	
+	// using https mode
+	public static $SECURE = FALSE; 
+	
+	// length of server session time (seconds)
+	public static $SESSIONTIME = 1440; 
+	
+	// number of votes needed for a score to have a real value.
+	public static $SCORERAMPCONST = 50; // 
+	
+	public static function init() {
 		// absolute path to site directory
 		// ie /brains/site/
 		self::$ABSPATH = str_replace( "\\", "/", substr( rtrim(dirname(__FILE__), '/\\'), strlen($_SERVER["DOCUMENT_ROOT"]) ) ).'/';
@@ -29,27 +50,28 @@ class Config {
 			$this->AbsPath() );
 	}
 	 
-	public function AbsPath() {
+	// some fancy functions
+	public static function AbsPath() {
 		return self::$ABSPATH;
 	}
 	
-	public function DebugMode() {
+	public static function DebugMode() {
 		return self::$DEBUG;
 	}
 	
-	public function ErrorLogging() {
+	public static function ErrorLogging() {
 		return self::$ERRLOG;
 	}
 	
-	public function InfoLogging() {
+	public static function InfoLogging() {
 		return self::$INFOLOG;
 	}
 	
-	public function SecureMode() {
+	public static function SecureMode() {
 		return self::$SECURE;
 	}
 }
 
-$config = new Config();
-
+Config::init();
+ 
 ?>

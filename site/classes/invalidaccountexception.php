@@ -1,7 +1,7 @@
 <?php
 
 /** ---------------------------------------------------------------------------
- * Exception thrown when an account doesn't exist.
+ * Exception thrown when trying to read from a nonexistant account.
  */
 class InvalidAccountException extends Exception { 
 	public $id; // Account ID that was used.

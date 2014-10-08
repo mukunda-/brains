@@ -17,12 +17,7 @@ require_once 'config.php';
 require_once 'sql.php';
 require_once 'common.php';
 require_once 'userauth.php';
-
-/*
-class ContentPage {
-	public $
-}*/
-
+  
 final class Content {
 
 	public static function PrintNewLinkInput( $thought ) {

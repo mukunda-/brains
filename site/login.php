@@ -1,27 +1,17 @@
 <?php
 
 // login.php
-// used to log in a user
+// used to log in a user or create an account
 //
 
-require_once 'common.php';
-require_once 'userauth.php';
-require_once 'captcha.php';
- 
-// an error occurred.
-define( 'R_ERROR', 'error.' );
+require_once 'core.php';
 
-// invalid login
-define( 'R_INVALID', 'invalid.' ); 
-
-// failed the captcha
-define( 'R_CAPTCHA', 'captcha.' ); 
-
-// create: the username already exists
-define( 'R_EXISTS', 'exists.' ); 
- 
-// login successful, or an account was created successfully.
-define( 'R_OKAY', 'okay.' ); 
+define( 'R_ERROR', 'error.' );      // an error occurred.
+define( 'R_INVALID', 'invalid.' );  // invalid login
+define( 'R_CAPTCHA', 'captcha.' );  // failed the captcha
+define( 'R_EXISTS', 'exists.' );    // create: the username already exists
+define( 'R_OKAY', 'okay.' );    // login successful, or an account was 
+								// created successfully (and logged into).
  
 try {
 	
