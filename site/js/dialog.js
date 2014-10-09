@@ -219,7 +219,7 @@ function Login_OnSubmit() {
 					ShowError( "Invalid username or password." );
 					break;
 				case "okay.":
-					// todo LOGIN.
+					brains.SetLoggedIn( true, username );
 					Close();
 					break;
 					
@@ -389,7 +389,7 @@ function CreateAccount_OnSubmit() {
 					break;
 				case "okay.":
 					brains.SetLoggedIn( true, username );
-					m_dialog.Close();
+					Close();
 					brains.SetCaptchaValidated(false);
 					break;
 			}

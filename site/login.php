@@ -31,11 +31,11 @@ try {
 			exit( R_CAPTCHA );
 		}
 		
-		$result = UserAuth::CreateAccount( 
-								$_POST['username'], 
-								$_POST['password'],
-								$_POST['nickname'] );
-								
+		$result = User::CreateAccount( 
+						$_POST['username'], 
+						$_POST['password'],
+						$_POST['nickname'] );
+		
 		if( $result == 'exists' ) {
 			exit( R_EXISTS );
 		} else if( $result != 'okay' ) {
@@ -48,7 +48,7 @@ try {
 		// login
 		if( !CheckArgsPOST( 'username', 'password' ) ) exit( R_ERROR );
 		
-		if( !UserAuth::LogIn( $_POST['username'], 
+		if( !User::LogIn( $_POST['username'], 
 							  $_POST['password'],
 							  isset($_POST['remember']) ) ) {
 							  

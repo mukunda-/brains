@@ -1,11 +1,12 @@
 <?php
 
-require_once '../config.php';
-require_once '../sql.php';
+chdir('..');
 
-if( !$config->DebugMode() ) die('aaaa');
+require_once 'core.php';
 
-$db = GetSQL();
+if( !Config::DebugMode() ) die('aaaa');
+
+$db = \SQLW::Get();
 
 $droptables = 1;
 
@@ -19,8 +20,7 @@ if( $droptables ) {
 	DropTable( 'Votes' );
 	DropTable( 'Links' );
 	DropTable( 'Thoughts' );
-	DropTable( 'Accounts' );
-	
+	DropTable( 'Accounts' ); 
 }
 
 

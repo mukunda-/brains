@@ -25,8 +25,7 @@ if( Config::DebugMode() ) {
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="min/style.min.css" type="text/css">
 		<script src="min/scripts.min.js"></script>
-		
-		
+		 
 		<?php
 			if( User::LoggedIn() ) {
 				echo '<script>brains.SetLoggedIn( true, \''.User::GetUsername().'\' );</script>';
@@ -51,7 +50,7 @@ if( Config::DebugMode() ) {
 		echo '<div id="margintop"></div>';
 		echo '<div id="trail"></div>';
 		
-		echo '<div id="content">';
+		echo '<div id="content">hi';
 		/*
 		echo '<div class="discovery" id="discovery">';
 			echo '<div class="score">48</div>';
@@ -140,9 +139,9 @@ if( Config::DebugMode() ) {
 		
 		?>
 		<template id="dialog_createaccount">
-
-			<div class="dialog_createaccount">
 		
+			<div class="dialog_createaccount">
+				
 				<div class="title">Create an account</div>
 				<!--<div class="desc">Creating an account here is easy and fun! Just fill out the info and the captcha and you will be logged in instantly. Accounts are required if you want to create new thought links or vote on links. You don't need an account if you just want to browse.</div>-->
 				<center>
@@ -180,9 +179,11 @@ if( Config::DebugMode() ) {
 					<input type="checkbox" name="rememberme" id="check_rememberme">
 					<label for="check_rememberme">Remember me</label><br>
 					<input type="submit" class="submitinput" value="Login"> 
-					<input type="button" class="submitinput" id="button_createaccount" value="Create Account"><br>
+					<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
 					
 				</form>
+				<div style="height: 12px"></div>
+				<a href="javascript:;" id="button_createaccount">Create an account</a>
 			</center>
 			<script>brains.Dialog.SetInit( brains.Dialog.InitLoginDialog );</script>
 		</template>

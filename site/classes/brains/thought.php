@@ -59,7 +59,7 @@ final class Thought {
 	 *                       doesn't exist yet and $create is FALSE.
 	 */
 	public static function Get( $phrase, $create = false ) {
-		$db = SQLW::Get();
+		$db = \SQLW::Get();
 		// just in case?
 		$phrase_sql = $db->real_escape_string( $phrase );
 		
@@ -122,7 +122,7 @@ final class Thought {
 	public static function LinkExists( $a, $b ) {
 		self::Order( $a, $b );
 		
-		$db = SQLW::Get();
+		$db = \SQLW::Get();
 		$result = $db->RunQuery( 
 			"SELECT 1 FROM Links 
 			WHERE thought1=$a->id AND thought2=$b->id" );

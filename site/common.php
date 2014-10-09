@@ -52,28 +52,31 @@ function OpenSession() {
 	global $g_session_open;
 	if( $g_session_open ) return;
 	
-	session_set_cookie_params( Config::$SESSIONTIME, Config::$ABSPATH );
+	session_set_cookie_params( Config::$SESSIONTIME, GetDocumentRoot() );
 	session_start();	
-	setcookie(session_name(), session_id(), time()+Config::$SESSIONTIME, Config::$ABSPATH);
-
+	setcookie( session_name(), session_id(), 
+			   time()+Config::$SESSIONTIME, GetDocumentRoot() );
+	
 	$g_session_open = true;
 	
 	// extra verification: match key cookie with session variable.
 	if( !isset( $_SESSION['sessionkey'] ) || 
 		!isset( $_COOKIE['sessionkey'] ) || 
 		$_SESSION['sessionkey'] != $_COOKIE['sessionkey'] ) {
-		
+
 		// reset session.
 		$_SESSION = array();
-		$key = mt_rand() & 0xFFFFFFF;
+		$key = Garbage::Produce( 16 );
 		$_SESSION['sessionkey'] = $key;
 		setcookie( "sessionkey", $key, 
-			time() + Config::$SESSIONTIME, Config::$ABSPATH );
+			time() + Config::$SESSIONTIME, GetDocumentRoot() );
+
 	} else {
 		
 		// extend time.
 		setcookie( "sessionkey", $_COOKIE['sessionkey'], 
-			time() + Config::$SESSIONTIME, Config::$ABSPATH );
+			time() + Config::$SESSIONTIME, GetDocumentRoot() );
+
 	}
 	
 }

@@ -423,6 +423,7 @@ input {
 
 #top {
 	background-color: $cl_white;
+	opacity: 0.1; 
 	position: fixed;
 	top: 0px;
 	left: 0px;
@@ -595,6 +596,10 @@ input {
 		margin-top: 12px;
 	}
 	
+	#button_createaccount {
+		
+		font-size: 90%;
+	}
 }
 
 #dialog_error {
@@ -612,7 +617,7 @@ input {
 .dialog_createaccount .dialog_error {
 	margin-bottom: 16px;
 }
-	
+
 #dialogtemplates  {
 	display: none;
 }

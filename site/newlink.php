@@ -16,6 +16,7 @@ require_once 'core.php';
 // response status codes
 define( 'R_ERROR' , 'error.'  ); // an error occurred.
 define( 'R_LOGIN' , 'login.'  ); // user is not logged in.
+define( 'R_SAME', 'same.' ); // the inputs entered were identical.
 define( 'R_EXISTS', 'exists.' ); // the link already exists.
 define( 'R_OKAY'  , 'okay.'   ); // the link was created.
 /*
@@ -42,7 +43,7 @@ try {
 	$thought1 = Thoughts::Get( $thought1, true );
 	$thought2 = Thoughts::Get( $thought2, true );
 	
-	if( $thought1->id == $thought2->id ) Response::SendSimple( R_ERROR );
+	if( $thought1->id == $thought2->id ) Response::SendSimple( R_SAME );
 	
 	$response = new Response;
 	$response->data['from'] = $thought1->phrase;

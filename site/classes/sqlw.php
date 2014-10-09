@@ -77,22 +77,21 @@ class SQLW extends mysqli {
 	 * @return MySQLW instance.
 	 */
 	public static function Get() { 
-		if( !$this->db ) {
-			$this->db = new MySQLWrapper( 
+		if( !self::$db ) {
+			self::$db = new self( 
 				SQL_Login::$address, SQL_Login::$username,
 				SQL_Login::$password, SQL_Login::$database,
 				MYSQLI_CLIENT_FOUND_ROWS );
 				
-			if( $this->db->connect_errno ) {
-				$this->db = null;
+			if( self::$db->connect_errno ) {
+				self::$db = null;
 				throw new SQLException( 
-					(int)$this->db->connect_errno, 
-					"SQL Connection Error: ". (int)$this->db->connect_error );
+					(int)self::$db->connect_errno, 
+					"SQL Connection Error: ". (int)self::$db->connect_error );
 			}
-			//$this->db->reconnect = 1;
-
+		
 		}
-		return $this->db; 
+		return self::$db; 
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -100,7 +99,7 @@ class SQLW extends mysqli {
 	 *
 	 * Normally this is handled by the script termination.
 	 */
-	public static function Close() {
+	public static function CloseConnection() {
 		if( $this->db !== null ) {
 			$this->db->close();
 			$this->db = null;

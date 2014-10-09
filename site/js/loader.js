@@ -76,17 +76,26 @@ function HideLoadingIcon() {
  * Load a content page.
  *
  * @param object info Information about request
- *                 "url": URL of page to load
- *                 [delay]: Used to control the Extra Dramatic Break Effect.
- *                          negated values are treated as negated absolute 
- *                          values positive values are added to the normal
- *                          fade constant.
- *                 [data]: Data to send with request.
- *                 [post]: Make a POST request, Default is GET
- *                 [process]: Function to process the data. This function
- *                            accepts the response as a parameter and
- *                            returns the new page content or FALSE to cancel
- *                            the page load.
+ * {
+ *    "url"      URL of page to load
+ *    "process"  Function to process the data. This function
+ *               accepts the response as a parameter and
+ *               returns the new page content or FALSE to cancel
+ *               the page load.
+ *
+ *    "failure"  Function to process a failed request.
+ *
+ *    [data]     Data to send with request.
+ *
+ *    [post]     Make a POST request, Default is GET
+ *
+ *    [delay]    Used to control the Extra Dramatic Break Effect.
+ *               negated values are treated as negated absolute 
+ *               values positive values are added to the normal
+ *               fade constant.
+ *
+ *    [...] params are optional.
+ * }
  */
 this.Load = function( info ) {
 	if( m_loading ) return;
@@ -101,9 +110,10 @@ this.Load = function( info ) {
 	}	
 	
 	if( !info.hasOwnProperty( "process" ) ) {
-		info.process = function( data ) { return data; };
+		throw "Must specify process.";
 	}
-	 
+	
+	info.data = info.data || {};
 	if( info.delay < 0 ) info.delay = -info.delay - FADE_OUT_TIME; 
 	
 	m_loading = true;
@@ -113,7 +123,6 @@ this.Load = function( info ) {
 	//output = $( '#content' );
 	//output.removeClass( 'visible' ); // fade out
 	
-	m_fading_out = true;
 	
 	ShowLoadingIcon();
 	//m_icontimeout.Set( ShowLoadingIcon, 2000 );
@@ -131,10 +140,31 @@ this.Load = function( info ) {
 			}
 		}, FADE_OUT_TIME+delay );
 	*/
-	var ajax = post ? $.post( url, data ) : $.get( url_data );
+	var ajax = info.post ? 
+				$.post( info.url, info.data ) : 
+				$.get( info.url, info.data );
+				
+	function call_failure() {
+		info.failure();
+		m_loading = false;
+		m_fading_out = false;
+	}
+	
 	
 	m_ag.AddAjax( ajax )
 		.done( function(data) {
+			alert( data );
+			if( data == "" ) {
+				call_failure();
+				return;
+			}
+			try {
+				data = JSON.parse( data );
+			} catch( err ) {
+				call_failure();
+				return;
+			}
+			
 			data = info.process( data );
 			if( data === false ) return; // page load cancelled.
 										 // (usually because of an error.)
@@ -142,16 +172,17 @@ this.Load = function( info ) {
 			output = $( '#content' );
 			output.removeClass( 'visible' ); // fade out
 			
+			m_fading_out = true;
 			m_ag.Set(
 				function() {
 					FadeIn( m_page_content );
 					m_page_content = null;
-				}, FADE_OUT_TIME+delay );
+				}, FADE_OUT_TIME+info.delay );
 		})
 		.fail( function( handle ) {
 			if( handle.ag_cancelled ) return;
 			
-			alert( "An error occurred. Please try again." );
+			call_failure();
 		});
 	
 }

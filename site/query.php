@@ -56,7 +56,7 @@ try {
 	$response->data['query'] = $thought_string;
 
 	if( $thought === FALSE ) {
-		$response->Send( R_ERROR );
+		$response->Send( R_NEW );
 	}
 
 	$links = ThoughtLink::FindLinks( $thought, User::AccountID() );

@@ -11,9 +11,7 @@ final class User {
  
 private static $logged_in = FALSE;
 private static $account_id = 0;
-private static $secret_charset = 
-	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	
+
 private static $account_field_types;
 
 const FIELD_STRING = 0;
@@ -112,21 +110,7 @@ public static function GetNickname() {
 public static function AccountID() {
 	return self::$account_id;
 }
-
-/** ---------------------------------------------------------------------------
- * Generate a random secret string.
- *
- * @return string 32-char secret string
- */
-public static function GenerateSecret() {
-	$secret = '';
-    $count = strlen($charset) - 1;
-	for( $i = 0; $i < 32; $i++ ) {
-		$secret .= $charset[mt_rand( 0, $count )];
-	}
-	return $secret;
-}
-
+  
 /** ---------------------------------------------------------------------------
  * Hash a username for a database query.
  *
@@ -144,7 +128,7 @@ public static function HashUsername( $username ) {
  */
 public static function GetAccountIDFromUsername( $username ) {
 	$hash = HashUsername( $username );
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	$result = $db->safequery( 
 		"SELECT username, account
 		FROM Accounts WHERE user_hash=0x$hash" );
@@ -172,7 +156,7 @@ public static function GetAccountIDFromUsername( $username ) {
 public static function ReadAccount( $id, $fields ) {
 	$id = (int)$id; // safety
 	
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	$result = $db->safequery( 	
 		"SELECT ". implode( ',' , $fields ) . "
 		FROM Accounts  
@@ -201,7 +185,7 @@ public static function ReadAccount( $id, $fields ) {
  * @throws SQL exception on database failure
  */
 public static function WriteAccount( $id, $fields ) {
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	
 	$set = array();
 	foreach( $fields as $key => $value ) {
@@ -259,7 +243,6 @@ public static function CheckLogin() {
 	if( self::$logged_in ) {
 		return self::$account_id;
 	}
-	
 	// first check if they are logged in via their session.
 	OpenSession();
 	if( isset($_SESSION['account_id']) ) {
@@ -272,10 +255,11 @@ public static function CheckLogin() {
 	$id     = 0;
 	$secret = 0;
 	
+	echo "H1";
 	if( !self::ParseLoginToken( $id, $secret ) ) return FALSE;
 	
 	$time = time();
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	$result = $db->RunQuery( 
 		"SELECT account, secret, expires FROM LoginTokens
 		WHERE id=$id AND $time < expires" );
@@ -291,7 +275,7 @@ public static function CheckLogin() {
 		return FALSE;
 	}
 	 
-	SetLoggedIn( (int)$row['account'], null, null );
+	self::SetLoggedIn( (int)$row['account'], null, null );
  
 	return self::$account_id;
 }
@@ -306,7 +290,7 @@ public static function CheckLogin() {
  * @return int|false Account ID or FALSE if the credentials are invalid.
  */
 public static function LogIn( $username, $password, $remember ) {
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	$a = (int)$remember;
 
 	$username = trim($username);
@@ -342,8 +326,8 @@ public static function LogIn( $username, $password, $remember ) {
  */
 private static function CreateLoginToken() {
 	
-	$db = SQLW::Get();
-	$secret = GenerateSecret();
+	$db = \SQLW::Get();
+	$secret = Garbage::Produce( 32 );
 	$id = self::$account_id;
 	
 	$secrethash = password_hash($secret);
@@ -402,7 +386,7 @@ private static function IsValidPassword( $string ) {
  * @throws SQLException if a database error occurs.
  */
 public static function CreateAccount( $username, $password, $nickname ) {
-	$db = SQLW::Get();
+	$db = \SQLW::Get();
 	
 	$username = trim($username);
 	if( !self::IsNormalString( $username ) ) {

@@ -18,4 +18,14 @@ spl_autoload_register( function( $class ) {
 	}
 });
 
+$docroot = str_replace( 
+			"\\", "/", 
+			substr( rtrim(dirname(__FILE__), '/\\'), 
+			strlen($_SERVER["DOCUMENT_ROOT"]) ) 
+			) . '/';
+			
+function GetDocumentRoot() {
+	return $GLOBALS['docroot'];
+}
+
 ?>

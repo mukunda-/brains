@@ -31,7 +31,7 @@ class Captcha {
 	 * Return the HTML for a captcha form.
 	 */
 	public static function GetHTML() {
-		return recaptcha_get_html( $GLOBALS['recaptcha_public_key'] );
+		return recaptcha_get_html( RecaptchaKeys::$public );
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -46,7 +46,7 @@ class Captcha {
 				'recaptcha_challenge_field', 
 				'recaptcha_response_field' ) ) return FALSE;
 				
-		$resp = recaptcha_check_answer( $GLOBALS['recaptcha_private_key'],
+		$resp = recaptcha_check_answer( RecaptchaKeys::$private,
 										$_SERVER['REMOTE_ADDR'],
 										$_POST['recaptcha_challenge_field'],
 										$_POST['recaptcha_response_field'] );

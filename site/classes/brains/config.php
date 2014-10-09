@@ -24,7 +24,7 @@ final class Config {
 	public static $AUTHTOKEN_DURATION; 
 	
 	// absolute path to site directory
-	public static $ABSPATH; 
+//	public static $ABSPATH; 
 	
 	// using https mode
 	public static $SECURE = FALSE; 
@@ -38,11 +38,11 @@ final class Config {
 	public static function init() {
 		// absolute path to site directory
 		// ie /brains/site/
-		self::$ABSPATH = str_replace( 
-			"\\", "/", 
-			substr( rtrim(dirname(__FILE__), '/\\'), 
-			strlen($_SERVER["DOCUMENT_ROOT"]) ) 
-			) . '/';
+//		self::$ABSPATH = str_replace( 
+//			"\\", "/", 
+//			substr( rtrim(dirname(__FILE__), '/\\'), 
+//			strlen($_SERVER["DOCUMENT_ROOT"]) ) 
+//			) . '/';
 		
 		if( $_SERVER['SERVER_NAME'] != 'localhost' ) {
 			// disable debug in non local servers.
@@ -53,7 +53,7 @@ final class Config {
 		
 		session_set_cookie_params(
 			self::$SESSIONTIME,  // 24 minutes
-			self::$ABSPATH );
+			GetDocumentRoot() );
 	}
 	
 	// some fancy functions

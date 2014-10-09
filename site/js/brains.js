@@ -91,11 +91,12 @@ $(window).keydown( function(e) {
 /** ---------------------------------------------------------------------------
  * Make the mousewheel scroll the page.
  */
-$(window).bind("mousewheel",function(ev, delta) {
+$(window).bind( "mousewheel", function( ev, delta ) {
 	
-	var scrollTop = $(window).scrollTop()-Math.round(delta)*51;
+	// idk how this got made lol.
+	var scrollTop = $(window).scrollTop() - Math.round( delta )*51;
 	
-	$(window).scrollTop(scrollTop-Math.round(delta)*51); 
+	$(window).scrollTop( scrollTop - Math.round( delta )*51 ); 
 }); 
 
 /** ---------------------------------------------------------------------------
@@ -156,7 +157,7 @@ $( function() {
 		return false;
 	});
 	
-	$("#queryform").keypress( function(e) {
+	$("#queryform").keypress( function( e ) {
 		if( (e.which >= 65 && e.which <= 90)  // A-Z
 			|| (e.which >= 97 && e.which <= 122) // a-z
 			|| e.which <= 32 ) { // space and control characters
@@ -167,7 +168,7 @@ $( function() {
 		return false;
 	});
 	
-	$("#user").click( function(e) {
+	$("#user").click( function( e ) {
 		if( m_logged_in ) {
 			brains.Dialog.Show( "profile" );
 		} else {
@@ -175,13 +176,46 @@ $( function() {
 		}
 	});
 	
-	brains.Dialog.Show( "login" );
+	//brains.Dialog.Show( "login" );
 });
+
+/** ---------------------------------------------------------------------------
+ * Content generator for a "new" thought page.
+ *
+ * @param array out Output buffer.
+ * @param object data Data from response.
+ */
+function PageContent_NewThought( out, data ) {
+	
+	out.push( '<h2>What does "' + data.query + '" make you think of?</h2>' );
+	out.push( '<div class="newlink">' );
+	out.push(    '<form id="newlinkform">' );
+	out.push(       '<input type="text" autocomplete="off" id="newlink" maxlength="20">' );
+	out.push(    '</form>' );
+	out.push( '</div>' );
+	
+}
+
+/** ---------------------------------------------------------------------------
+ * Content generator for an existing thought. Appends links to the new
+ * thought content.
+ *
+ * @param array out Output buffer.
+ * @param object data Data from response.
+ */
+function PageContent_ExistingThought( out, data ) {
+	
+	PageContent_NewThought( out, data );
+	out.push( '<p>todo.</p>' );
+	
+}
 
 /** ---------------------------------------------------------------------------
  * Handler for the main query box
  */
 function OnNewQuery() {
+	if( brains.Loader.IsLoading() ) return;
+	
 	var thought = $("#query").val().trim();
 	if( thought == "" ) return;
 	thought = thought.toLowerCase();
@@ -191,16 +225,30 @@ function OnNewQuery() {
 	}
 	$("#query").blur();
 	
-	var process = function() {
-		
+	var failure = function() {
+		alert( "An error occurred. Please try again." );
+		return false;
 	}
 	
-	brains.Load( { 
+	brains.Loader.Load( { 
 		url: "query.php", 
 		data: { "input": thought }, 
-		process: function() {
+		process: function( data ) {
+		
+			var html = [];
 			
-		}
+			if( data.status == "error." ) {
+				return failure();
+			} else if( data.status == "new." ) {
+				PageContent_NewThought( html, data.data );
+			} else if( data.status == "exists." ) {
+				PageContent_ExistingThought( html, data.data );
+			}
+			
+			return html.join("");
+		},
+		failure: failure
+		
 	});
 	
 	
@@ -245,12 +293,16 @@ brains.InitializePostLoad = function() {
  * Callback for the newlink form.
  */
 function NewLinkForm_OnSubmit() {
+	if( brains.Loader.IsLoading() ) return false;
 	if( !m_logged_in ) {
 		brains.Dialog.Show( "login" );
 		return false;
 	} else {
-		$(this).unbind( "submit" );
-		brains.Loader.Load( "newlink.php", undefined, { a: 
+		
+		brains.Loader.Load( {
+			url: "newlink.php",
+			data: {a: 
+		});
 	}
 	return false;
 }
