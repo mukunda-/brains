@@ -20,6 +20,11 @@ var m_async = AsyncGroup.Create();
 var m_logged_in;
 var m_username;
 var m_captcha_validated;
+
+var m_current_thought;
+
+var s_thoughts;
+var s_votebuttons;
  
 /** ---------------------------------------------------------------------------
  * Adjust the size of a thought based on its text length.
@@ -126,10 +131,10 @@ $( function() {
 			AdjustThoughtSizes();
 		}, 100 );
 	
-	$(".thought").mousedown( function( e ) {
-		current_button = $(this);
-		$(this).addClass( "held" );
-	} );
+//	$(".thought").mousedown( function( e ) {
+//		current_button = $(this);
+//		$(this).addClass( "held" );
+//	} );
 	
 	$(window).mouseup( function( e ) {
 		if( current_button != null ) {
@@ -142,14 +147,14 @@ $( function() {
 		
 	} );
 	
-	$(".thought .vote").mousedown( function( e ) {
-		e.stopPropagation();
-	} );
+//	$(".thought .vote").mousedown( function( e ) {
+//		e.stopPropagation();
+//	} );
 	
-	$(".thought .vote").click( function( e ) {
-		
-		e.stopPropagation();
-	} );
+//	$(".thought .vote").click( function( e ) {
+//		
+//		e.stopPropagation();
+//	} );
 	
 	
 	$("#queryform").submit( function() {
@@ -197,6 +202,23 @@ function PageContent_NewThought( out, data ) {
 }
 
 /** ---------------------------------------------------------------------------
+ * Tweak a score according to the user's vote.
+ * Adds or subtracts 1, but clamps to 0, 98 (to not make a false 99)
+ *
+ * @param int score Score of thought.
+ * @param int vote Vote of user. TRUE FALSE or NULL.
+ */
+function BiasScore( score, vote ) {
+	if( vote === null ) return score;
+	if( score == 99 ) return score;
+	if( vote === true ) {
+		return Math.min( 98, score+1 );
+	} else {
+		return Math.max( 0, score-1 );
+	}
+}
+
+/** ---------------------------------------------------------------------------
  * Content generator for an existing thought. Appends links to the new
  * thought content.
  *
@@ -206,9 +228,33 @@ function PageContent_NewThought( out, data ) {
 function PageContent_ExistingThought( out, data ) {
 	
 	PageContent_NewThought( out, data );
-	out.push( '<p>todo.</p>' );
+
+	out.push( '<h2>What other people thought of:</h2>' );
+	out.push( '<div id="links">' );
 	
+		for( var i = 0; i < data.links.length; i++ ) {
+			var score = data.links[i].score;
+			score = BiasScore( score, data.links[i].vote );
+			out.push( '<div class="thought" data-dest="'+ data.links[i].dest 
+					+'" data-score="'+ data.links[i].score +'">' );
+				out.push( '<div class="score">'+ score +'</div>' );
+				
+				var voteclass = "vote up";
+				if( data.links[i].vote === true ) voteclass += " selected";
+				
+				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
+				
+				voteclass = "vote down";
+				if( data.links[i].vote === false ) voteclass += " selected";
+				
+				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
+				out.push( '<span>'+ data.links[i].dest +'</span>' );
+			out.push( '</div>' );
+		}
+
+	out.push( '</div>' );
 }
+
 
 /** ---------------------------------------------------------------------------
  * Handler for the main query box
@@ -226,28 +272,33 @@ function OnNewQuery() {
 	$("#query").blur();
 	
 	var failure = function() {
-		alert( "An error occurred. Please try again." );
-		return false;
+		
 	}
 	
 	brains.Loader.Load( { 
 		url: "query.php", 
 		data: { "input": thought }, 
-		process: function( data ) {
-		
-			var html = [];
+		process: function( response ) {
 			
-			if( data.status == "error." ) {
-				return failure();
-			} else if( data.status == "new." ) {
-				PageContent_NewThought( html, data.data );
-			} else if( data.status == "exists." ) {
-				PageContent_ExistingThought( html, data.data );
+			if( response === null ) {
+				alert( "An error occurred. Please try again." );
+				return false;
 			}
 			
+			var html = [];
+			
+			if( response.status == "error." ) {
+				return failure();
+			} else if( response.status == "new." ) {
+				PageContent_NewThought( html, response.data );
+			} else if( response.status == "exists." ) {
+				PageContent_ExistingThought( html, response.data );
+			}
+			
+			m_current_thought = response.data.query;
+			
 			return html.join("");
-		},
-		failure: failure
+		} 
 		
 	});
 	
@@ -286,6 +337,28 @@ brains.InitializePostLoad = function() {
 			
 		$("#newlinkform").submit( NewLinkForm_OnSubmit );
 		
+		s_thoughts = $("#links").children( ".thought" );
+		
+		s_thoughts.mousedown( function( e ) {
+			
+			current_button = $(this);
+			$(this).addClass( "held" );
+		});
+		
+		s_thoughts.click( function( e ) {
+			// follow link.
+		} );
+		
+		s_votebuttons = s_thoughts.children( ".vote" );
+		s_votebuttons.mousedown( function( e ) {
+			e.stopPropagation();
+		});
+		
+		s_votebuttons.click( function( e ) {
+			e.stopPropagation();
+		});
+		
+		
 	}
 }
 
@@ -301,7 +374,11 @@ function NewLinkForm_OnSubmit() {
 		
 		brains.Loader.Load( {
 			url: "newlink.php",
-			data: {a: 
+			data: {a: m_current_thought, b: $("#newlink").val() },
+			post: true,
+			process: function( response ) {
+				alert( response );
+			}
 		});
 	}
 	return false;

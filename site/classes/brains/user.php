@@ -33,7 +33,9 @@ public static function init() {
 }
 
 /** ---------------------------------------------------------------------------
- * Check if the user is logged in
+ * Check if the user is logged in.
+ *
+ * CheckLogin should be called before this function is used.
  *
  * @return bool TRUE if the user is logged in.
  */
@@ -129,41 +131,46 @@ public static function HashUsername( $username ) {
 public static function GetAccountIDFromUsername( $username ) {
 	$hash = HashUsername( $username );
 	$db = \SQLW::Get();
-	$result = $db->safequery( 
-		"SELECT username, account
-		FROM Accounts WHERE user_hash=0x$hash" );
+	$username_sql = $db->real_escape_string( $username );
+	$result = $db->RunQuery( 
+		"SELECT id FROM Accounts 
+		WHERE user_hash=0x$hash
+		AND username='$username_sql'" );
 	
-	if( $result->num_rows == 0 ) return 0; // unrecognized username.
-	
-	while( $row = $result->fetch_row( $result ) ) {
-		if( $row[0] === $username ) {
-			return (int)$row[1];
-		}
-	}
-	return 0; // unrecognized username.
+	$row = $result->fetch_row();
+	if( $row === NULL ) return 0; // unrecognized username.
+	return (int)$row[0];
 }
 
 /** ---------------------------------------------------------------------------
  * Read fields from an account in the database.
  *
  * @param int   $id      ID of account to read
- * @param array $fields  String array of fields to read. this is not sanitized.
+ * @param array|string $fields String array of fields to read. 
+ *                       This is not sanitized for the SQL query. This can
+ *                       also be a string for a single field reading.
+ *
  * @return array         Assoc array containing the requested account 
  *                       field values.
  * @throws InvalidAccountException If the account doesn't exist.
  * @throws SQL exception on database failure
  */
 public static function ReadAccount( $id, $fields ) {
+	if( gettype( $fields ) == "string" ) {
+	} else if( gettype( $fields ) == "array" ) { 
+		$fields = implode( ',', $fields );
+	} else {
+		throw new InvalidArgumentException( 
+			'$fields must be an array or a string.' );
+	}
 	$id = (int)$id; // safety
 	
 	$db = \SQLW::Get();
-	$result = $db->safequery( 	
-		"SELECT ". implode( ',' , $fields ) . "
-		FROM Accounts  
-		WHERE id = $id" );
+	$result = $db->RunQuery( 	
+		"SELECT $fields FROM Accounts WHERE id=$id" );
 	
 	$row = $result->fetch_assoc();
-	if( $row === FALSE ) {
+	if( $row === NULL ) {
 		throw new InvalidAccountException( $id );
 	}
 	$row['id'] = $id;
@@ -205,7 +212,7 @@ public static function WriteAccount( $id, $fields ) {
 	}
 	if( empty( $set ) ) return;
 	
-	$result = $db->safequery( 	
+	$result = $db->RunQuery( 	
 		"UPDATE Accounts
 		SET ". implode( ',' , $set ) . "
 		WHERE id = $id" );
@@ -265,7 +272,7 @@ public static function CheckLogin() {
 		WHERE id=$id AND $time < expires" );
 	
 	$row = $result->fetch_assoc();
-	if( $row === FALSE 
+	if( $row === NULL
 		|| !password_verify( $secret, $row['secret'] ) ) {
 		// TODO record login strike
 		// and tempban ip if they accumulate.
@@ -304,7 +311,7 @@ public static function LogIn( $username, $password, $remember ) {
 		WHERE user_hash=x'$user_hash' AND username='$user_safe'" );
 	
 	$row = $result->fetch_assoc();
-	if( $row === FALSE ) return FALSE;
+	if( $row === NULL ) return FALSE;
 	
 	if( !password_verify( $password, $row['password'] ) ) {
 		// TODO record strike and tempban ip.

@@ -18,6 +18,7 @@ class Response {
 	public function Send( $status ) {
 		$this->status = $status;
 		if( empty( $this->data ) ) unset( $this->data );
+
 		echo json_encode( $this );
 		exit();
 	}
@@ -29,8 +30,26 @@ class Response {
 	 */
 	public static function SendSimple( $status, $data=null ) {
 		$response = new Response();
-		$this->data = $data;
+		$response->data = $data;
 		$response->Send( $status );
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Copy links from an array into data.links
+	 *
+	 * @param array $links Links returned from ThoughtLink::FindLinks
+	 * @param bool $init Initialize/erase the link list.
+	 */
+	public function CopyLinks( $links, $init=true ) {
+		$this->data['links'] = [];
+
+		foreach( $links as $link ) {
+			$this->data['links'][] = [ 
+				'dest' => $link->dest->phrase,
+				'score' => $link->score,
+				'vote' => $link->vote
+			];
+		}
 	}
 }
 

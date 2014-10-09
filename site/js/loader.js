@@ -81,9 +81,8 @@ function HideLoadingIcon() {
  *    "process"  Function to process the data. This function
  *               accepts the response as a parameter and
  *               returns the new page content or FALSE to cancel
- *               the page load.
- *
- *    "failure"  Function to process a failed request.
+ *               the page load. null will be passed as the response
+ *               if an error occurred with the request.
  *
  *    [data]     Data to send with request.
  *
@@ -111,6 +110,10 @@ this.Load = function( info ) {
 	
 	if( !info.hasOwnProperty( "process" ) ) {
 		throw "Must specify process.";
+	}
+	
+	if( !info.hasOwnProperty( "post" ) ) {
+		info.post = false;
 	}
 	
 	info.data = info.data || {};
@@ -145,7 +148,7 @@ this.Load = function( info ) {
 				$.get( info.url, info.data );
 				
 	function call_failure() {
-		info.failure();
+		info.process( null );
 		m_loading = false;
 		m_fading_out = false;
 	}

@@ -59,20 +59,10 @@ try {
 		$response->Send( R_NEW );
 	}
 
-	$links = ThoughtLink::FindLinks( $thought, User::AccountID() );
+	$response->CopyLinks(
+		ThoughtLink::FindLinks( $thought, User::AccountID() ) );
 
-	$response->data['links'] = [];
-
-	foreach( $links as $link ) {
-		$a = [ 
-			'dest' => $link->dest,
-			'score' => $link->score,
-			'vote' => $link->vote
-		];
-		$response->data['links'] = $a;
-	}
-
-	Response::SendSimple( R_EXISTS );
+	$response->Send( R_EXISTS );
 } catch( Exception $e ) {
 	Logger::LogException( $e );
 }

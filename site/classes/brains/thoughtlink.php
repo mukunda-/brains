@@ -16,11 +16,11 @@ final class ThoughtLink {
 							 // by Create, or Get with $create=true
 							 // (and it was created.)
 	
-	private function __construct( $source, $dest, $time, $creator = 0
+	private function __construct( $source, $dest, $time, $creator = 0,
 								  $goods = 0, $bads = 0, $vote = null ) {
-		$this->source = $thought1;
-		$this->dest = $thought2;
-		$this->creator = $creator
+		$this->source = $source;
+		$this->dest = $dest;
+		$this->creator = (int)$creator;
 		$this->time = $time;
 		$this->goods = $goods;
 		$this->bads = $bads;
@@ -52,16 +52,16 @@ final class ThoughtLink {
 		// order the thoughts for the db query
 		Thought::Order( $ordered1, $ordered2 );
 		
-		$db = SQLW::Get();
+		$db = \SQLW::Get();
 		$result = 0;
 		if( $account != 0 ) {
 			$result = $db->RunQuery( 
-				"SELECT goods, bads, time, creator, vote FROM Links
-				LEFT JOIN Votes 
-				ON Votes.thought1=Links.thought1
-				AND Votes.thought2=Links.thought2
-				AND Votes.account=$account
-				WHERE thought1=$ordered1->id AND thought2=$ordered2->id" );
+				"SELECT goods, bads, L.time AS time, creator, vote 
+				FROM Links L LEFT JOIN Votes V
+				ON V.thought1=L.thought1
+				AND V.thought2=L.thought2
+				AND V.account=$account
+				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		} else {
 			$result = $db->RunQuery( 
 				"SELECT goods, bads, time, creator FROM Links
@@ -69,7 +69,8 @@ final class ThoughtLink {
 		}
 		
 		$row = $result->fetch_assoc();
-		if( $row === FALSE ) {
+	
+		if( $row === NULL ) {
 			if( $create ) {
 				
 				// create a new link.
@@ -79,8 +80,8 @@ final class ThoughtLink {
 		}
 		
 		$vote = null;
-		if( $account != 0 && !is_null($row[4]) ) {
-			$vote = $row[4] ? TRUE : FALSE; 
+		if( $account != 0 && !is_null($row['vote']) ) {
+			$vote = $row['vote'] ? TRUE : FALSE; 
 		}
 		
 		// return existing link.  
@@ -88,7 +89,7 @@ final class ThoughtLink {
 						  $row['time'], $row['creator'], 
 						  $row['goods'], $row['bads'], $vote ); 
 	 
-		return $result;
+		return $link;
 	}
 	
 	/** ----------------------------------------------------------------------- 
@@ -161,9 +162,10 @@ final class ThoughtLink {
 		
 		$ordered1 = $source;
 		$ordered2 = $dest;
-		Thoughts::Order( $ordered1, $ordered2 );
+		Thought::Order( $ordered1, $ordered2 );
+		
 		$time = time();
-		$db = SQLW::Get();
+		$db = \SQLW::Get();
 		
 		try {
 			$db->RunQuery(
@@ -181,7 +183,7 @@ final class ThoughtLink {
 		// add an upvote.
 		if( $creator != 0 ) {
 			try {
-				if( Vote( $source, $dest, $creator, true ) ) {
+				if( self::Vote( $source, $dest, $creator, true ) ) {
 					
 				} else {
 					// if in some event Vote fails, we just skip the auto vote
@@ -227,7 +229,7 @@ final class ThoughtLink {
 				FOR UPDATE" );
 			
 			$row = $result->fetch_row();
-			if( $row === FALSE ) {
+			if( $row === NULL ) {
 				// catch: link doesn't exist.
 				$db->RunQuery( 'ROLLBACK' );
 				throw new InvalidArgumentException( "Link doesn't exist." );
@@ -315,7 +317,7 @@ final class ThoughtLink {
 	 *                         to the thought given.
 	 */
 	public static function FindLinks( $thought, $accountid = 0 ) {
-		$db = SQLW::Get();
+		$db = \SQLW::Get();
 		
 		// method 1, not sure if this is the right way to do a query like this
 		// and can't properly test unless the table has data in it.
@@ -333,16 +335,16 @@ final class ThoughtLink {
 		// method 2, union the two key queries. safer but may be slower.
 		if( $accountid != 0 ) {
 			$result = $db->RunQuery( 
-				"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
-						 Links.time, creator, vote
+				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
+						 goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
 				AND Links.thought2 = Votes.thought2
 				AND Votes.account = $accountid
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
 				UNION ALL
-				(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
-						Links.time, creator, vote
+				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
+						goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
 				AND Links.thought2 = Votes.thought2
 				AND Votes.account = $accountid
@@ -352,16 +354,16 @@ final class ThoughtLink {
 		} else {
 			// simpler query without account polling
 			$result = $db->RunQuery( 
-				"(SELECT thought2 AS dest, T2.phrase AS dest_phrase, goods, bads, 
-						 Links.time, creator, vote
-				FROM Links 
-				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
+						 goods, bads, Links.time AS time, Links.creator AS creator, null AS vote
+				FROM Links LEFT JOIN Thoughts T2 
+				ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
 				UNION ALL
-				(SELECT thought1 AS dest, T1.phrase AS dest_phrase, goods, bads, 
-						Links.time, creator, vote
-				FROM Links 
-				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
+						goods, bads, Links.time, Links.creator AS creator, null AS vote
+				FROM Links LEFT JOIN Thoughts T1
+				ON T1.id=Links.thought1
 				WHERE Links.thought2 = $thought->id)" 
 			);
 		}
@@ -373,7 +375,7 @@ final class ThoughtLink {
 			
 			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
 			
-			$link = new self( $thought, $dest, $row['creator'],
+			$link = new self( $thought, $dest, $row['time'], $row['creator'],
 							  $row['goods'], $row['bads'], $vote );
 			$list[] = $link;
 		}

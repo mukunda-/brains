@@ -53,7 +53,7 @@ final class Thought {
 	 * For creation, if a user is logged in, the creator will be set to them, 
 	 * otherwise NULL.
 	 *
-	 * @param string $phrase Thought value. Should be Scrubbed.
+	 * @param string $phrase Thought value. Needs to be Scrubbed.
 	 * @param bool   [$create] Create the thought if it doens't exist.
 	 * @return Thought|false Thought instance for the phrase given, or FALSE if it
 	 *                       doesn't exist yet and $create is FALSE.
@@ -63,40 +63,42 @@ final class Thought {
 		// just in case?
 		$phrase_sql = $db->real_escape_string( $phrase );
 		
-		
 		$result = $db->RunQuery( 
-			"SELECT id,creator,time FROM Thoughts WHERE phrase='$phrase_sql'" );
+			"SELECT id,creator,time 
+			FROM Thoughts 
+			WHERE phrase='$phrase_sql'" );
 			
 		if( $result->num_rows != 0 ) {
 			$row = $result->fetch_row();
-			return new self( $row[0], $row[1], $row[2], $phrase );
+			return new self( $row[0], $phrase, $row[1], $row[2] );
 		}
 		
 		// thought doesn't exist, create it.
 		if( !$create ) return FALSE; // or not.
 		
 		$time = time();
-		$creator = UserAuth::LoggedIn() ? UserAuth::AccountID() : 0;
+		$creator = User::AccountID();
 		
-		$db->RunQuery(
-			"INSERT IGNORE INTO Thoughts ( creator, `time`, phrase )
-			VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')" );
-		
-		
-		if( $db->affected_rows != 0 ) {
-			$result = $db->RunQuery( 'SELECT LAST_INSERT_ID()' );
-			$row = $result->fetch_row();
-			return new self( $row[0], $creator, $time, $phrase );
+		try {
+			$db->RunQuery(
+				"INSERT IGNORE INTO Thoughts ( creator, `time`, phrase )
+				VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')" );
+		} catch( SQLException $e ) {
+			if( $e->code == SQLW::ER_DUP_KEY ) {
+				// someone else created the thought before us somehow..
+				$result = $db->RunQuery( 
+					"SELECT id,creator,time FROM Thoughts WHERE phrase='$phrase_sql'" );
+				
+				$row = $result->fetch_row();
+				if( $row === NULL ) throw new Exception( '"something messed up."' );
+				return new self( $row[0], $phrase, $row[1], $row[2] );
+							
+			}
+			throw $e;
 		}
 		
-		// someone else created the thought before us.
-		$result = $db->RunQuery( 
-			"SELECT id,creator,time FROM Thoughts WHERE phrase='$phrase_sql'" );
-		
-		$row = $result->fetch_row();
-		if( $row === FALSE ) throw new Exception( '"something messed up."' );
-		
-		return new self( $row[0], $row[1], $row[2], $phrase );
+		// success.
+		return new self( $db->insert_id, $phrase, $creator, $time );
 	}
 	
 	/** ---------------------------------------------------------------------------
