@@ -104,7 +104,6 @@ function MarkErrorField( id ) {
 
 this.Show    = Show;
 this.Close   = Close;
-this.SetInit = SetInit;
 this.Lock    = Lock;
 this.Unlock  = Unlock;
 this.MarkErrorField = MarkErrorField;

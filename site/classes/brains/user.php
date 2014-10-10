@@ -261,8 +261,7 @@ public static function CheckLogin() {
 	// and then check if they have a saved login
 	$id     = 0;
 	$secret = 0;
-	
-	echo "H1";
+	 
 	if( !self::ParseLoginToken( $id, $secret ) ) return FALSE;
 	
 	$time = time();

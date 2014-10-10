@@ -162,7 +162,7 @@ $( function() {
 		if( m_logged_in ) {
 			brains.Dialog.Show( "profile" );
 		} else {
-			brains.ShowLoginDialog();
+			brains.ShowLoginDialog( "Please log in." );
 		}
 	});
 	
@@ -343,43 +343,57 @@ brains.InitializePostLoad = function() {
  */
 function NewLinkForm_OnSubmit() {
 	if( brains.Loader.IsLoading() ) return false;
-	if( !m_logged_in ) {
-		brains.Dialog.Show( "login" );
+	
+	var show_login = function() {
+		
+		brains.ShowLoginDialog( 
+				"To create a link you need to be logged in.",
+				NewLinkForm_OnSubmit );
 		return false;
-	} else {
-		
-		var failure = function() {
-			alert( "An error occurred. Please try again." );
-			return false;
-		}
-		
-		brains.Loader.Load( {
-			url: "newlink.php",
-			data: {a: m_current_thought, b: $("#newlink").val() },
-			post: true,
-			process: function( response ) {
-				alert( response );
-				
-				if( response === null ) {
-					return failure();
-				}
-				
-				switch( response.status ) {
-					case "error.":
-						return failure();
-					case "login.":
-						
-					case "same.":
-					case "exists.":
-					case "okay.":
-				}
-				if( response.status == "error." ) {
-				} else if( 
-				var html = [];
-				
-			}
-		});
 	}
+	
+	if( !m_logged_in ) {
+		return show_login();
+	}
+	
+		
+	var failure = function() {
+		alert( "An error occurred. Please try again." );
+		return false;
+	}
+	
+	brains.Loader.Load( {
+		url: "newlink.php",
+		data: {a: m_current_thought, b: $("#newlink").val() },
+		post: true,
+		process: function( response ) {
+			alert( response );
+			
+			if( response === null ) {
+				return failure();
+			}
+			
+			switch( response.status ) {
+			case "error.":
+			default:
+				return failure();
+			case "login.":
+				return show_login();
+			case "same.":
+				alert( "You can't make a link to the same thought." );
+				return false;
+			case "exists.":
+			case "okay.":
+			}
+			
+			var html = [];
+			
+			//if( response.status == "error." ) {
+			//} else if( 
+			
+		}
+	});
+	
 	return false;
 }
 

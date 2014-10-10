@@ -9,16 +9,31 @@ namespace Brains;
      a: first target string
      b: second target string
   )
+  
+  Creates thoughts if they don't exist, and then creates a link between them.
+  The link will come with an upvote from the creator
+  
+  RESPONSE "okay." { // A new link was created or an existing link was returned.
+    data: {
+      from: <a>
+      to: <b>
+	  score: score of link
+	  creator: account id of creator
+	  creator_nick: nickname of creator
+	  vote: the user's vote, true=up, false=down, null=neither
+    }
+  } 
+  
 */ 
 
 require_once 'core.php';
 
 // response status codes
-define( 'R_ERROR' , 'error.'  ); // an error occurred.
-define( 'R_LOGIN' , 'login.'  ); // user is not logged in.
-define( 'R_SAME', 'same.' ); // the inputs entered were identical.
-define( 'R_EXISTS', 'exists.' ); // the link already exists.
-define( 'R_OKAY'  , 'okay.'   ); // the link was created.
+define( 'R_ERROR' , 'error.'  ); // (error) an error occurred.
+define( 'R_LOGIN' , 'login.'  ); // (error) user is not logged in.
+define( 'R_SAME'  , 'same.'   ); // (error) the inputs entered were identical.
+//define( 'R_EXISTS', 'exists.' ); // the link already exists.
+define( 'R_OKAY'  , 'okay.'   ); // the link was returned
  
 try {
 	if( !CheckArgsPOST( 'a', 'b' ) ) exit();
@@ -42,18 +57,21 @@ try {
 	$link = ThoughtLink::Get( $thought1, $thought2, User::AccountID(), true );
 	$response->data['score'] = $link->score;
 	$response->data['creator'] = $link->creator;
-	$response->data['creator_nick'] = User::ReadAccount( $link->creator, ['nickname'] )['nickname'];
+	$response->data['creator_nick'] = User::ReadAccount( 
+										$link->creator, 
+										'nickname'
+									  )['nickname'];
+			
 	$response->data['vote'] = $link->vote;
 	
 	if( $link->created ) {
-		$response->Send( R_OKAY );
+		$response->CopyLinks( [] );
 	} else {
 		// add links.
 		$response->CopyLinks(
 			ThoughtLink::FindLinks( $thought2, User::AccountID() ) );
-		
-		$response->Send( R_EXISTS );
 	}
+	$response->Send( R_OKAY );
 	     
 } catch( Exception $e ) {
 	Logger::PrintException( $e );

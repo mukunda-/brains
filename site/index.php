@@ -167,7 +167,7 @@ if( Config::DebugMode() ) {
 		</template>
 		
 		<template id="dialog_login">
-			<div class="desc">To create a link you need to be logged in.</div>
+			<div class="desc" id="dialog_desc">To create a link you need to be logged in.</div>
 			<center>
 				<div id="dialog_error" class="dialog_error"></div>
 				<form id="form_login">
@@ -178,7 +178,7 @@ if( Config::DebugMode() ) {
 					<input type="password" name="password" class="textinput" id="text_password"><br>
 					<input type="checkbox" name="rememberme" id="check_rememberme">
 					<label for="check_rememberme">Remember me</label><br>
-					<input type="submit" class="submitinput" value="Login"> 
+					<input type="submit" class="submitinput" value="Log In"> 
 					<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
 					
 				</form>

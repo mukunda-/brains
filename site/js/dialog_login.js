@@ -68,22 +68,24 @@ function IsValidPassword( string ) {
  *                     Function to call after the user logs
  *                     in or creates an account.
  */
-function ShowLoginDialog( on_login ) {
+function ShowLoginDialog( reason, on_login ) {
 	m_on_login = on_login;
 	brains.Dialog.Show( "login" );
-	InitLoginDialog();
+	InitLoginDialog( reason );
 }
 
 /** ---------------------------------------------------------------------------
  * Initializer for the Login dialog.
  */
-function InitLoginDialog() {
+function InitLoginDialog( reason ) {
 	
 	$("#text_username").focus();
 	$("#button_createaccount").click( function() {
 		brains.Dialog.Show( "createaccount" );
 	});
 	$("#form_login").submit( Login_OnSubmit );
+	
+	$("#dialog_desc").text( reason );
 }
 
 /** ---------------------------------------------------------------------------
@@ -140,6 +142,9 @@ function Login_OnSubmit() {
 				case "okay.":
 					brains.SetLoggedIn( true, username );
 					Close();
+					if( m_on_login ) {
+						m_on_login();
+					}
 					break;
 					
 				default:
@@ -309,6 +314,10 @@ function CreateAccount_OnSubmit() {
 					brains.SetLoggedIn( true, username );
 					Close();
 					brains.SetCaptchaValidated(false);
+					
+					if( m_on_login ) {
+						m_on_login();
+					}
 					break;
 			}
 		})
