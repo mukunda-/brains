@@ -59,7 +59,9 @@ class SQLW extends mysqli {
 				return $function( $this );
 
 			} catch( SQLException $e ) {
-				if( $e->code == SQLERR_DEADLOCK ) {
+				if( $e->code == self::ER_LOCK_DEADLOCK ||
+					$e->code == self::ER_LOCK_WAIT_TIMEOUT ) {
+					
 					// try again
 					continue;
 				}

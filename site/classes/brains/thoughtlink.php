@@ -213,12 +213,17 @@ final class ThoughtLink {
 	 *                         FALSE if something strange happened.
 	 */
 	public static function Vote( $source, $dest, $accountid, $vote ) {
+	
 		
-		Thoughts::Order( $source, $dest );
+		Thought::Order( $source, $dest );
+		$db = \SQLW::Get();
 		
 		$result = $db->DoTransaction( function( $db ) 
 									  use( $source, $dest, 
 									       $accountid, $vote ) {
+										   
+			$voteval = $vote ? 1 : 0;
+			
 			$time = time();	
 			$db->RunQuery( 'START TRANSACTION' );
 			
@@ -239,7 +244,7 @@ final class ThoughtLink {
 			$bads  = $row[1];
 			
 			// add the vote
-			if( $voteval == 1 ) {
+			if( $vote ) {
 				$goods++;
 			} else {
 				$bads++;
@@ -252,7 +257,7 @@ final class ThoughtLink {
 				AND account=$accountid FOR UPDATE" );
 			
 			$row = $result->fetch_assoc();
-			if( $row !== FALSE ) {
+			if( $row !== null ) {
 				// a vote already exists:
 				
 				// reverse original vote, 
@@ -287,11 +292,11 @@ final class ThoughtLink {
 				
 			} else {
 				// TODO abuse prevention ip shit.
-				try {
+				try { 
 					$db->RunQuery( 
 						"INSERT INTO Votes (thought1, thought2, account, time, vote )
 						VALUES ($source->id, $dest->id, $accountid, $time, $voteval )" );
-				} catch( SQLException $e ) {
+				} catch( SQLException $e ) { 
 					if( $e->code == SQL_ER_DUP_KEY ) {
 						$db->RunQuery( 'ROLLBACK' );
 						return FALSE;

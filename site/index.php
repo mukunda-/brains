@@ -162,7 +162,7 @@ if( Config::DebugMode() ) {
 					</form>
 				</center>
 				
-				<script>brains.Dialog.SetInit( brains.Dialog.InitCreateAccountDialog );</script>
+				
 			</div>
 		</template>
 		
@@ -185,7 +185,7 @@ if( Config::DebugMode() ) {
 				<div style="height: 12px"></div>
 				<a href="javascript:;" id="button_createaccount">Create an account</a>
 			</center>
-			<script>brains.Dialog.SetInit( brains.Dialog.InitLoginDialog );</script>
+
 		</template>
 		
 		<template id="dialog_profile">

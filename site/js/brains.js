@@ -10,10 +10,10 @@ var current_button = null;
 
 var m_vertical;
 
-var s_nav;
-var s_navboxes;
-var s_navphrases;
-var s_navarrows;
+//var s_nav;
+//var s_navboxes;
+//var s_navphrases;
+//var s_navarrows;
 
 var m_async = AsyncGroup.Create();
 
@@ -130,12 +130,7 @@ $( function() {
 			AdjustSizes();
 			AdjustThoughtSizes();
 		}, 100 );
-	
-//	$(".thought").mousedown( function( e ) {
-//		current_button = $(this);
-//		$(this).addClass( "held" );
-//	} );
-	
+	 
 	$(window).mouseup( function( e ) {
 		if( current_button != null ) {
 			current_button.removeClass( "held" );
@@ -146,17 +141,7 @@ $( function() {
 	
 		
 	} );
-	
-//	$(".thought .vote").mousedown( function( e ) {
-//		e.stopPropagation();
-//	} );
-	
-//	$(".thought .vote").click( function( e ) {
-//		
-//		e.stopPropagation();
-//	} );
-	
-	
+	 
 	$("#queryform").submit( function() {
 		OnNewQuery();
 		return false;
@@ -177,7 +162,7 @@ $( function() {
 		if( m_logged_in ) {
 			brains.Dialog.Show( "profile" );
 		} else {
-			brains.Dialog.Show( "ca_login" );
+			brains.ShowLoginDialog();
 		}
 	});
 	
@@ -272,7 +257,8 @@ function OnNewQuery() {
 	$("#query").blur();
 	
 	var failure = function() {
-		
+		alert( "An error occurred. Please try again." );
+		return false;
 	}
 	
 	brains.Loader.Load( { 
@@ -281,8 +267,7 @@ function OnNewQuery() {
 		process: function( response ) {
 			
 			if( response === null ) {
-				alert( "An error occurred. Please try again." );
-				return false;
+				return failure();
 			}
 			
 			var html = [];
@@ -302,15 +287,6 @@ function OnNewQuery() {
 		
 	});
 	
-	
-	/*
-	m_async.AddAjax( $.get( "query.php", { "thought": thought } ) )
-		.done( function(data) {
-			$("#content").html( data );
-		})
-		.fail( function( handle ) {
-			if( handle.ag_cancelled ) return;
-		});*/
 	return;
 }
 
@@ -372,12 +348,35 @@ function NewLinkForm_OnSubmit() {
 		return false;
 	} else {
 		
+		var failure = function() {
+			alert( "An error occurred. Please try again." );
+			return false;
+		}
+		
 		brains.Loader.Load( {
 			url: "newlink.php",
 			data: {a: m_current_thought, b: $("#newlink").val() },
 			post: true,
 			process: function( response ) {
 				alert( response );
+				
+				if( response === null ) {
+					return failure();
+				}
+				
+				switch( response.status ) {
+					case "error.":
+						return failure();
+					case "login.":
+						
+					case "same.":
+					case "exists.":
+					case "okay.":
+				}
+				if( response.status == "error." ) {
+				} else if( 
+				var html = [];
+				
 			}
 		});
 	}

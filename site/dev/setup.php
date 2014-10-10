@@ -98,7 +98,7 @@ $db->RunQuery( "
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		fake     BOOL COMMENT 'Fake votes don\'t affect the score.',
-		vote     BOOL COMMENT 'true=upvote, false=downvote',
+		vote     BOOL COMMENT '1=upvote, 0=downvote',
 		PRIMARY KEY( thought1, thought2, account ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
