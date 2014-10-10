@@ -22,7 +22,7 @@ namespace Brains;
     data {
       query: <input string>
     }
-  } 
+  }
   
   RESPONSE "exists." { // The thought exists
     data {

@@ -22,7 +22,7 @@ if( Config::DebugMode() ) {
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<!--<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>-->
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="min/style.min.css" type="text/css">
 		<script src="min/scripts.min.js"></script>
 		 
@@ -147,19 +147,21 @@ if( Config::DebugMode() ) {
 				<center>
 					<div id="dialog_error" class="dialog_error"></div>
 					<form id="form_createaccount">
-						<label>Nickname, what other people will see you as.<br>Doesn't have to be unique.</label><br>
-						<input type="text" class="textinput" id="ca_nickname"><br>
-						<label>Username, what you will use to log in.<br>Has to be unique.</label><br>
-						<input type="text" class="textinput" id="ca_username"><br>
-						<label>Password</label><br>
-						<input type="password" class="textinput" id="ca_password"><br>
-						<label>Re-type Password</label><br>
-						<input type="password" class="textinput" id="ca_password2"><br><br>
+						<label><span class="fieldname">Nickname</span><br><span class="optdesc">What other people will see you as. Doesn't have to be unique. This can be changed later.</span></label><br>
+						<input type="text" class="textinput" id="ca_nickname"><hr>
+						<label><span class="fieldname">Username/E-mail</span><br><span class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username if you don't want to think of something else.</span></label><br>
+						<input type="text" class="textinput" id="ca_username"><hr>
+						<label><span class="fieldname">Password</span><br><span class="optdesc">Don't forget this.</span></label><br>
+						<input type="password" class="textinput" id="ca_password"><hr>
+						<label><span class="fieldname">Re-type Password</span></label><br>
+						<input type="password" class="textinput" id="ca_password2"><hr><br>
 						<div id="ca_captcha"></div>
 						
 						<input type="submit" class="submitinput" value="Create Account">
 						<input type="button" class="submitinput" id="button_cancel" value="Cancel">
 					</form>
+					<div style="height: 12px"></div>
+					<a href="privacy.html" target="_blank">Privacy Policy</a>
 				</center>
 				
 				
@@ -183,7 +185,7 @@ if( Config::DebugMode() ) {
 					
 				</form>
 				<div style="height: 12px"></div>
-				<a href="javascript:;" id="button_createaccount">Create an account</a>
+				<a href="javascript:;" id="button_createaccount">Create an account in 15 seconds</a>
 			</center>
 
 		</template>

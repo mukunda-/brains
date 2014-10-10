@@ -382,11 +382,11 @@ function NewLinkForm_OnSubmit() {
 			case "same.":
 				alert( "You can't make a link to the same thought." );
 				return false;
-			case "exists.":
 			case "okay.":
 			}
 			
 			var html = [];
+			
 			
 			//if( response.status == "error." ) {
 			//} else if( 

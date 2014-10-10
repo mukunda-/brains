@@ -83,6 +83,9 @@ function InitLoginDialog( reason ) {
 	$("#button_createaccount").click( function() {
 		brains.Dialog.Show( "createaccount" );
 	});
+	$("#button_cancel").click( function() {
+		brains.Dialog.Close();
+	});
 	$("#form_login").submit( Login_OnSubmit );
 	
 	$("#dialog_desc").text( reason );

@@ -601,7 +601,14 @@ input {
 	
 	#button_createaccount {
 		
+	}
+	
+	.optdesc {
 		font-size: 90%;
+	}
+	.fieldname {
+		font-weight: 700;
+
 	}
 }
 
@@ -619,6 +626,10 @@ input {
 	
 .dialog_createaccount .dialog_error {
 	margin-bottom: 16px;
+}
+.dialog_createaccount hr {
+	border:none;
+	border-bottom: 1px solid rgba( #000, 0.50 );
 }
 
 #dialogtemplates  {
