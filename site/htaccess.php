@@ -4,7 +4,7 @@ namespace Brains;
 
 if( !file_exists( '.htaccess' ) ) {
 
-	$apath = $config->AbsPath();
+	$apath = GetDocumentRoot();
 	file_put_contents( '.htaccess',
 	
 "
