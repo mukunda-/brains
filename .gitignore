@@ -9,3 +9,4 @@ site/private/sql_login.php
 site/private/recaptchakeys.php
 site/private/sql_login_init.php
 site/private/recaptcha_keys_init.php
+site/.htaccess
