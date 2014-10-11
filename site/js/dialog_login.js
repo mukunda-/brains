@@ -81,7 +81,8 @@ function InitLoginDialog( reason ) {
 	
 	$("#text_username").focus();
 	$("#button_createaccount").click( function() {
-		brains.Dialog.Show( "createaccount" );
+		brains.Dialog.Show( "createaccount"  );
+		InitCreateAccountDialog();
 	});
 	$("#button_cancel").click( function() {
 		brains.Dialog.Close();

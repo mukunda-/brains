@@ -169,8 +169,12 @@ this.Load = function( info ) {
 			}
 			
 			data = info.process( data );
-			if( data === false ) return; // page load cancelled.
-										 // (usually because of an error.)
+			if( data === false ) {	
+				m_loading = false;
+				m_fading_out = false;
+				return; // page load cancelled.
+						// (usually because of an error.)
+			}
 			m_page_content = data;
 			output = $( '#content' );
 			output.removeClass( 'visible' ); // fade out

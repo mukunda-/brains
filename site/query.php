@@ -18,13 +18,7 @@ namespace Brains;
   
   query doesn't create links or thoughts. newlink does.
   
-  RESPONSE "new." { // The thought doesn't exist yet
-    data {
-      query: <input string>
-    }
-  }
-  
-  RESPONSE "exists." { // The thought exists
+  RESPONSE "okay." { // normal response
     data {
 	  query: <input string>
 	  links[
@@ -40,8 +34,7 @@ namespace Brains;
 require_once 'core.php'; 
   
 define( 'R_ERROR', 'error.' ); // an error occurred.
-define( 'R_NEW', 'new.' ); // the thought is new and no links exist yet.
-define( 'R_EXISTS', 'exists.' ); // the thought exists and may have links.
+define( 'R_OKAY', 'okay.' ); // a thought was returned
 
 try {
 
@@ -56,13 +49,14 @@ try {
 	$response->data['query'] = $thought_string;
 
 	if( $thought === FALSE ) {
-		$response->Send( R_NEW );
+		$response->CopyLinks( [] );
+		$response->Send( R_OKAY );
 	}
-
+	
 	$response->CopyLinks(
 		ThoughtLink::FindLinks( $thought, User::AccountID() ) );
-
-	$response->Send( R_EXISTS );
+	
+	$response->Send( R_OKAY );
 } catch( Exception $e ) {
 	Logger::LogException( $e );
 }

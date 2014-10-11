@@ -16,6 +16,8 @@ final class ThoughtLink {
 							 // by Create, or Get with $create=true
 							 // (and it was created.)
 	
+	const BASE_SCORE = 25;
+	
 	private function __construct( $source, $dest, $time, $creator = 0,
 								  $goods = 0, $bads = 0, $vote = null ) {
 		$this->source = $source;
@@ -103,17 +105,20 @@ final class ThoughtLink {
 	 */
 	public static function ComputeScore( $goods, $bads ) {	
 		$total = $goods+$bads;
-		if( $total == 0 ) return 50;
+		if( $total == 0 ) return self::BASE_SCORE;
 		$r = (float)Config::$SCORERAMPCONST;
 		
 		$a = min( $total / $r, 1.0 );
 		
-		$sc = round(50.0 * (1.0-$a) + ($goods*99/$total) * $a);
-		if( $sc == 99 ) { // legendary always needs at least 100 votes.
+		$sc = round( (float)self::BASE_SCORE * (1.0-$a) + ($goods*99.0/$total) * $a );
+		
+		if( $sc == 99 ) { 
+			// legendary always needs at least 100 votes.
 			if( $r < 100 ) {
 				return 98;
 			}
 		}
+		return $sc;
 	}
 	
 	/** -----------------------------------------------------------------------

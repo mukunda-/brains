@@ -21,7 +21,7 @@ var m_logged_in;
 var m_username;
 var m_captcha_validated;
 
-var m_current_thought;
+var m_current_thought = null;
 
 var s_thoughts;
 var s_votebuttons;
@@ -115,6 +115,17 @@ function AdjustNewLinkInputSize() {
 		newlink.width( width );
 }
 
+function FilterThoughtKeys( e ) {
+	if( (e.which >= 65 && e.which <= 90)  // A-Z
+		|| (e.which >= 97 && e.which <= 122) // a-z
+		|| e.which <= 32 ) { // space and control characters
+		
+		return true;
+	}
+	
+	return false;
+}
+
 $( function() {
 	// content initialization. 
 	
@@ -138,25 +149,16 @@ $( function() {
 		
 	} );
 	$(".thought").click( function( e ) {
-	
 		
-	} );
+		
+	});
 	 
 	$("#queryform").submit( function() {
 		OnNewQuery();
 		return false;
 	});
 	
-	$("#queryform").keypress( function( e ) {
-		if( (e.which >= 65 && e.which <= 90)  // A-Z
-			|| (e.which >= 97 && e.which <= 122) // a-z
-			|| e.which <= 32 ) { // space and control characters
-			
-			return true;
-		}
-		
-		return false;
-	});
+	$("#queryform").keypress( FilterThoughtKeys );
 	
 	$("#user").click( function( e ) {
 		if( m_logged_in ) {
@@ -170,14 +172,15 @@ $( function() {
 });
 
 /** ---------------------------------------------------------------------------
- * Content generator for a "new" thought page.
+ * Content generator for the newlink block.
  *
- * @param array out Output buffer.
+ * @param string query The current query. eg if the user searches for "asdf"
+ *                     or visits a link to "asdf" the query is "asdf".
  * @param object data Data from response.
  */
-function PageContent_NewThought( out, data ) {
+function PageContent_NewLink( out, query ) {
 	
-	out.push( '<h2>What does "' + data.query + '" make you think of?</h2>' );
+	out.push( '<h2>What does "' + query + '" make you think of?</h2>' );
 	out.push( '<div class="newlink">' );
 	out.push(    '<form id="newlinkform">' );
 	out.push(       '<input type="text" autocomplete="off" id="newlink" maxlength="20">' );
@@ -204,81 +207,96 @@ function BiasScore( score, vote ) {
 }
 
 /** ---------------------------------------------------------------------------
- * Content generator for an existing thought. Appends links to the new
- * thought content.
+ * Content generator for the "links" block.
  *
- * @param array out Output buffer.
+ * @param array links out Output buffer.
  * @param object data Data from response.
  */
-function PageContent_ExistingThought( out, data ) {
-	
-	PageContent_NewThought( out, data );
+function PageContent_Links( out, links ) { 
 
+	if( links.length == 0 ) return; // no links made yet.
+	
 	out.push( '<h2>What other people thought of:</h2>' );
 	out.push( '<div id="links">' );
 	
-		for( var i = 0; i < data.links.length; i++ ) {
-			var score = data.links[i].score;
-			score = BiasScore( score, data.links[i].vote );
-			out.push( '<div class="thought" data-dest="'+ data.links[i].dest 
-					+'" data-score="'+ data.links[i].score +'">' );
+		for( var i = 0; i < links.length; i++ ) {
+			var score = links[i].score;
+			score = BiasScore( score, links[i].vote );
+			out.push( '<div class="thought" data-dest="'+ links[i].dest 
+					+'" data-score="'+ links[i].score +'">' );
 				out.push( '<div class="score">'+ score +'</div>' );
 				
 				var voteclass = "vote up";
-				if( data.links[i].vote === true ) voteclass += " selected";
+				if( links[i].vote === true ) voteclass += " selected";
 				
 				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
 				
 				voteclass = "vote down";
-				if( data.links[i].vote === false ) voteclass += " selected";
+				if( links[i].vote === false ) voteclass += " selected";
 				
 				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
-				out.push( '<span>'+ data.links[i].dest +'</span>' );
+				out.push( '<span>'+ links[i].dest +'</span>' );
 			out.push( '</div>' );
 		}
 
 	out.push( '</div>' );
 }
 
+/** ---------------------------------------------------------------------------
+ * Sanitize a thought string, for passing to
+ * and rejecting invalid data.
+ *
+ * @param string input Input string from the user.
+ * @param function on_invalid Optional function to call if the input was invalid.
+ * @param function on_empty   Optional function to call if the input was empty.
+ * @return mixed Sanitized thought string OR the response from one of the 
+ *                  callbacks if they are triggered, or FALSE if the 
+ *                  callback wasn't set.
+ */
+function SanitizeThought( input, on_invalid, on_empty ) {
+	input = input.trim();
+	if( input == "" ) {
+		if( on_empty ) return on_empty();
+		return false;
+	}
+	input = input.toLowerCase();
+	if( !input.match( /^[a-z ]+$/ ) ) {	
+		if( on_invalid ) return on_invalid();
+		return false;
+	}
+	return input;
+}
 
 /** ---------------------------------------------------------------------------
- * Handler for the main query box
+ * Called when the main query box form is submitted.
  */
 function OnNewQuery() {
 	if( brains.Loader.IsLoading() ) return;
 	
-	var thought = $("#query").val().trim();
-	if( thought == "" ) return;
-	thought = thought.toLowerCase();
-	if( !thought.match( /^[a-z ]+$/ ) ) {	
+	function invalid() {
 		alert( "Query must contain letters and spaces only." );
-		return;
-	}
-	$("#query").blur();
-	
-	var failure = function() {
-		alert( "An error occurred. Please try again." );
 		return false;
 	}
 	
+	thought = SanitizeThought( $("#query").val(), invalid );
+	if( thought === false ) return;
+	
+	$("#query").blur();
+
 	brains.Loader.Load( { 
 		url: "query.php", 
 		data: { "input": thought }, 
 		process: function( response ) {
 			
-			if( response === null ) {
-				return failure();
+			if( response === null || response.status != "okay." ) {
+				alert( "An error occurred. Please try again." );
+				return false;
 			}
 			
 			var html = [];
 			
-			if( response.status == "error." ) {
-				return failure();
-			} else if( response.status == "new." ) {
-				PageContent_NewThought( html, response.data );
-			} else if( response.status == "exists." ) {
-				PageContent_ExistingThought( html, response.data );
-			}
+			PageContent_NewLink( html, response.data.query );
+			PageContent_Links( html, response.data.links );
 			
 			m_current_thought = response.data.query;
 			
@@ -306,10 +324,13 @@ brains.InitializePostLoad = function() {
 	var newlink = $( "#newlink" );
 	if( newlink.length ) {
 		
-		newlink.focus()
-			.keydown( function() {
+		newlink.focus();
+		
+		newlink.keydown( function() {
 				setTimeout( AdjustNewLinkInputSize, 0 );
-			} );
+			});
+			
+		newlink.keypress( FilterThoughtKeys );
 			
 		$("#newlinkform").submit( NewLinkForm_OnSubmit );
 		
@@ -328,6 +349,23 @@ brains.InitializePostLoad = function() {
 		s_votebuttons = s_thoughts.children( ".vote" );
 		s_votebuttons.mousedown( function( e ) {
 			e.stopPropagation();
+			
+			element = $(this);
+			if( element.hasClass( "selected" ) ) {
+				// already selected.
+				return false;
+			}
+			parent = element.parent();
+			parent.children( ".vote" ).removeClass( "selected" );
+			element.addClass( "selected" );
+			
+			/*
+			if( element.hasClass( "up" ) ) {
+				// vote up
+			} else {
+				// vote down
+			}
+			*/
 		});
 		
 		s_votebuttons.click( function( e ) {
@@ -336,6 +374,7 @@ brains.InitializePostLoad = function() {
 		
 		
 	}
+	 
 }
 
 /** ---------------------------------------------------------------------------
@@ -344,27 +383,55 @@ brains.InitializePostLoad = function() {
 function NewLinkForm_OnSubmit() {
 	if( brains.Loader.IsLoading() ) return false;
 	
+	function invalid() {
+		alert( "Thought must contain letters and spaces only." );
+		return false;
+	}
+	
+	var input = SanitizeThought( $("#newlink").val(), invalid );
+	if( input === false ) return false;
+	
+	FollowLink( input );
+	return false;
+}
+
+/** ---------------------------------------------------------------------------
+ * Follow a link. Called by the new link form, or by clicking on an
+ * existing link button.
+ *
+ * @param string input The next thought to jump to.
+ */
+function FollowLink( input ) {
+	if( brains.Loader.IsLoading() ) return;
+	
+	if( m_current_thought == null ||
+		m_current_thought == "" ) return;
+	
+	if( input == m_current_thought ) {
+		alert( "You can't make a link to the same thought." );
+		return;
+	}
+	
 	var show_login = function() {
 		
 		brains.ShowLoginDialog( 
 				"To create a link you need to be logged in.",
 				NewLinkForm_OnSubmit );
-		return false;
 	}
 	
 	if( !m_logged_in ) {
-		return show_login();
+		show_login();
+		return;
 	}
 	
 		
 	var failure = function() {
-		alert( "An error occurred. Please try again." );
-		return false;
+		alert( "An error occurred. Please try again." ); 
 	}
 	
 	brains.Loader.Load( {
 		url: "newlink.php",
-		data: {a: m_current_thought, b: $("#newlink").val() },
+		data: { a: m_current_thought, b: input },
 		post: true,
 		process: function( response ) {
 			alert( response );
@@ -376,9 +443,11 @@ function NewLinkForm_OnSubmit() {
 			switch( response.status ) {
 			case "error.":
 			default:
-				return failure();
+				failure();
+				return;
 			case "login.":
-				return show_login();
+				show_login();
+				return;
 			case "same.":
 				alert( "You can't make a link to the same thought." );
 				return false;
@@ -387,9 +456,12 @@ function NewLinkForm_OnSubmit() {
 			
 			var html = [];
 			
+			PageContent_NewLink( html, response.data.to );
+			PageContent_Links( html, response.data.links );
 			
-			//if( response.status == "error." ) {
-			//} else if( 
+			m_current_thought = response.data.to;
+			
+			return html.join( "" );
 			
 		}
 	});

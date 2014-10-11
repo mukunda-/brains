@@ -11,14 +11,17 @@ final class Thought {
 	public $creator;
 	public $time;
 	public $phrase;
+	public $created = false; // if this was just now created.
 	const MAXLEN = 20;
 	
 	public function __construct( $id, $phrase, 
-								 $creator = null, $time = null ) {
+								 $creator = null, $time = null,
+								 $created = false ) {
 		$this->id = $id;
 		$this->phrase = $phrase;
 		$this->creator = $creator;
 		$this->time = $time;
+		$this->created = $created;
 	}
 		
 	/** -----------------------------------------------------------------------
@@ -98,7 +101,7 @@ final class Thought {
 		}
 		
 		// success.
-		return new self( $db->insert_id, $phrase, $creator, $time );
+		return new self( $db->insert_id, $phrase, $creator, $time, true );
 	}
 	
 	/** ---------------------------------------------------------------------------

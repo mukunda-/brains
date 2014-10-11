@@ -64,13 +64,15 @@ try {
 			
 	$response->data['vote'] = $link->vote;
 	
-	if( $link->created ) {
+	if( $thought2->created ) {
 		$response->CopyLinks( [] );
 	} else {
 		// add links.
 		$response->CopyLinks(
 			ThoughtLink::FindLinks( $thought2, User::AccountID() ) );
 	}
+	
+
 	$response->Send( R_OKAY );
 	     
 } catch( Exception $e ) {
