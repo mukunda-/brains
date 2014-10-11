@@ -1,4 +1,0 @@
-
-Options +FollowSymLinks
-RewriteEngine On
-RewriteRule ^([0-9a-z]+)$ /brains/site/ [L,QSA] 
