@@ -150,6 +150,8 @@ input {
 		vertical-align: middle;
 		width: 64px;
 		text-align: center;
+		
+		
 	}
 //	}
 	
@@ -334,9 +336,17 @@ input {
 		font-size: 16px;
 		font-weight: 700;
 		width: 15px;
-		text-align:center;
-		line-height:46px;
+		text-align: center;
+		line-height: 46px;
 		padding: 0px;
+		
+		&.up {
+			color: #67ac1c;
+		}
+		
+		&.down {
+			color: #c52c20;
+		}
 	}
 	
 	&.held .score {

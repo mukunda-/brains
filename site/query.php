@@ -53,6 +53,8 @@ try {
 		$response->Send( R_OKAY );
 	}
 	
+	User::CheckLogin();
+	
 	$response->CopyLinks(
 		ThoughtLink::FindLinks( $thought, User::AccountID() ) );
 	

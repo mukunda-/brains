@@ -22,13 +22,13 @@ try {
 		
 		if( !CheckArgsPOST( 'username', 'password', 'nickname' ) ) {
 			
-			exit( R_ERROR );
+			exit();
 		}
 		
 		Captcha::Validate();
 		
 		if( !Captcha::Valid() ) {
-			exit( R_CAPTCHA );
+			Response::SendSimple( R_CAPTCHA );
 		}
 		
 		$result = User::CreateAccount( 
@@ -37,31 +37,32 @@ try {
 						$_POST['nickname'] );
 		
 		if( $result == 'exists' ) {
-			exit( R_EXISTS );
+			Response::SendSimple( R_EXISTS );
 		} else if( $result != 'okay' ) {
-			exit( R_ERROR );
+			Response::SendSimple( R_ERROR );
 		}
-		
-		exit( R_OKAY );
 		
 	} else {
 		// login
-		if( !CheckArgsPOST( 'username', 'password' ) ) exit( R_ERROR );
+		if( !CheckArgsPOST( 'username', 'password' ) ) exit();
 		
 		if( !User::LogIn( $_POST['username'], 
 							  $_POST['password'],
 							  isset($_POST['remember']) ) ) {
-							  
-			exit( R_INVALID );
+			
+			Response::SendSimple( R_INVALID );
 		}
-		
-		exit( R_OKAY );
 	}
+	
+	$response = new Response();
+	$response->data['username'] = username;
+	$response->data['accountid'] = User::AccountID();
+	$response->Send( R_OKAY );
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );
 }
 
-exit( R_ERROR );
+Response::SendSimple( R_ERROR );
 
 ?>

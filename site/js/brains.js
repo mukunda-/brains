@@ -18,6 +18,7 @@ var m_vertical;
 var m_async = AsyncGroup.Create();
 
 var m_logged_in;
+var m_account;
 var m_username;
 var m_captcha_validated;
 
@@ -86,10 +87,11 @@ $(window).resize( function() {
  */
 $(window).keydown( function(e) {
 
+/*
 	// make escape close the dialog box.
 	if( e.keyCode == 27 ) {
 		brains.Dialog.Close();
-	}
+	}*/
 	return true;
 });
 
@@ -168,15 +170,22 @@ $( function() {
 		}
 	});
 	
+	$("#overlay").click( function() {
+		brains.Dialog.Close();
+	});
+	$("#dialog").click( function( e) {
+		e.stopPropagation();
+	});
+	
 	//brains.Dialog.Show( "login" );
 });
 
 /** ---------------------------------------------------------------------------
  * Content generator for the newlink block.
  *
+ * @param array out Output html array.
  * @param string query The current query. eg if the user searches for "asdf"
  *                     or visits a link to "asdf" the query is "asdf".
- * @param object data Data from response.
  */
 function PageContent_NewLink( out, query ) {
 	
@@ -187,6 +196,25 @@ function PageContent_NewLink( out, query ) {
 	out.push(    '</form>' );
 	out.push( '</div>' );
 	
+}
+
+/** ---------------------------------------------------------------------------
+ * Content generator for the discovery block.
+ *
+ * @param array out Output html array.
+ * @param object data Data from response.
+ */
+function PageContent_LastLink( out, data ) {
+	var nick = data.creator == m_account ? 
+			'<span class="creator owner">you' :
+			'<span class="creator other">'+ data.creator_nick;
+	out.push( '<div class="discovery" id="discovery">' );
+	out.push(   '<div class="score">'+ data.score +'</div>' );
+	out.push(   '<div class="link">'+ data.from 
+				+' <div class="arrow"></div> '+ data.to +'</div>' );
+	out.push(   '<div class="creator">discovered by '+ nick
+				+'</span></div>' );
+	out.push( '</div>' );
 }
 
 /** ---------------------------------------------------------------------------
@@ -209,8 +237,8 @@ function BiasScore( score, vote ) {
 /** ---------------------------------------------------------------------------
  * Content generator for the "links" block.
  *
+ * @param array out Output html array.
  * @param array links out Output buffer.
- * @param object data Data from response.
  */
 function PageContent_Links( out, links ) { 
 
@@ -224,9 +252,14 @@ function PageContent_Links( out, links ) {
 			score = BiasScore( score, links[i].vote );
 			out.push( '<div class="thought" data-dest="'+ links[i].dest 
 					+'" data-score="'+ links[i].score +'">' );
-				out.push( '<div class="score">'+ score +'</div>' );
+					
+					
+				var voteclass = "score";
+				if( links[i].vote === true ) voteclass += " up";
+				if( links[i].vote === false ) voteclass += " down";
+				out.push( '<div class="'+voteclass+'">'+ score +'</div>' );
 				
-				var voteclass = "vote up";
+				voteclass = "vote up";
 				if( links[i].vote === true ) voteclass += " selected";
 				
 				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
@@ -317,6 +350,47 @@ brains.InitializePreLoad = function() {
 }
 
 /** ---------------------------------------------------------------------------
+ * Cast a vote on a thought.
+ *
+ * @param Element DOM element that holds the thought. Should have
+ *                the class "thought"
+ * @param bool vote Vote to apply, true for upvote, false for downvote.
+ */
+function VoteThought( element, vote ) {
+	if( !m_logged_in ) {
+		brains.ShowLoginDialog( "To vote on links you need to be logged in." );
+		return;
+	}
+	var sel = vote ? element.children( ".vote.up" ) : 
+				     element.children( ".vote.down" );
+	
+	if( sel.hasClass( "selected" ) ) return;
+	
+	element.children( ".vote" ).removeClass( "selected" );
+	sel.addClass( "selected" );
+	
+	var score = element.data( "score" );
+	score = BiasScore( score, vote );
+	element.children( ".score" ).text( score )
+		   .removeClass( vote ? "down" : "up" )
+		   .addClass( vote ? "up" : "down" );
+	
+	$.post( "votelink.php", 
+		{ t1: m_current_thought, 
+		  t2: element.data( "dest" ),
+		  vote: vote ? "good" : "bad" } )
+		.done( function( data ) {
+			alert(data); // DEBUG
+			// just care about the login response, to invalidate
+			// the user's login.
+			if( data == "login." ) {
+				brains.SetLoggedIn( false );
+			}
+		});
+	
+}
+
+/** ---------------------------------------------------------------------------
  * Called after the content is filled with a new page.
  *
  */
@@ -344,28 +418,16 @@ brains.InitializePostLoad = function() {
 		
 		s_thoughts.click( function( e ) {
 			// follow link.
+			FollowLink( $(this).data( "dest"), "maybe"  );
+			
 		} );
 		
 		s_votebuttons = s_thoughts.children( ".vote" );
 		s_votebuttons.mousedown( function( e ) {
 			e.stopPropagation();
 			
-			element = $(this);
-			if( element.hasClass( "selected" ) ) {
-				// already selected.
-				return false;
-			}
-			parent = element.parent();
-			parent.children( ".vote" ).removeClass( "selected" );
-			element.addClass( "selected" );
+			VoteThought( $(this).parent(), $(this).hasClass( "up" ) );
 			
-			/*
-			if( element.hasClass( "up" ) ) {
-				// vote up
-			} else {
-				// vote down
-			}
-			*/
 		});
 		
 		s_votebuttons.click( function( e ) {
@@ -374,7 +436,7 @@ brains.InitializePostLoad = function() {
 		
 		
 	}
-	 
+	AdjustSizes();
 }
 
 /** ---------------------------------------------------------------------------
@@ -391,7 +453,7 @@ function NewLinkForm_OnSubmit() {
 	var input = SanitizeThought( $("#newlink").val(), invalid );
 	if( input === false ) return false;
 	
-	FollowLink( input );
+	FollowLink( input, "yes" );
 	return false;
 }
 
@@ -400,8 +462,13 @@ function NewLinkForm_OnSubmit() {
  * existing link button.
  *
  * @param string input The next thought to jump to.
+ * @param string vote For existing links:
+ *                    "yes" = give an upvote.
+ *                    "no" = do not upvote.
+ *                    "maybe" = give an upvote only if a vote has not
+ *                              been given yet.
  */
-function FollowLink( input ) {
+function FollowLink( input, vote ) {
 	if( brains.Loader.IsLoading() ) return;
 	
 	if( m_current_thought == null ||
@@ -430,8 +497,8 @@ function FollowLink( input ) {
 	}
 	
 	brains.Loader.Load( {
-		url: "newlink.php",
-		data: { a: m_current_thought, b: input },
+		url: "link.php",
+		data: { a: m_current_thought, b: input, vote: vote },
 		post: true,
 		process: function( response ) {
 			alert( response );
@@ -446,6 +513,7 @@ function FollowLink( input ) {
 				failure();
 				return;
 			case "login.":
+				brains.SetLoggedIn( false );
 				show_login();
 				return;
 			case "same.":
@@ -456,6 +524,7 @@ function FollowLink( input ) {
 			
 			var html = [];
 			
+			PageContent_LastLink( html, response.data );
 			PageContent_NewLink( html, response.data.to );
 			PageContent_Links( html, response.data.links );
 			
@@ -475,12 +544,14 @@ function FollowLink( input ) {
  * @param bool value Value of logged in state.
  * @param string username The username they are logged in with.
  */
-brains.SetLoggedIn = function( value, username ) {
+brains.SetLoggedIn = function( value, username, account ) {
 	m_logged_in = value;
 	if( value ) {
 		m_username = username;
+		m_account = account;
 	} else {
 		m_username = "";
+		m_account = 0;
 	}
 }
 
@@ -512,5 +583,6 @@ brains.IsCaptchaValidated = function() {
 //-----------------------------------------------------------------------------
 
 brains.OnNewQuery = OnNewQuery;
+brains.AdjustSizes = AdjustSizes;
 
 } )();

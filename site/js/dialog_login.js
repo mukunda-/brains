@@ -138,23 +138,31 @@ function Login_OnSubmit() {
 		.done( function( data ) {
 			Unlock();
 			alert(data);
-			switch( data ) {
+			try {
+				if( data == "" ) throw "No data.";
+				data = JSON.parse( data );
 				
-				case "invalid.":
-					ShowError( "Invalid username or password." );
-					break;
-				case "okay.":
-					brains.SetLoggedIn( true, username );
-					Close();
-					if( m_on_login ) {
-						m_on_login();
-					}
-					break;
+				switch( data.status ) {
 					
-				default:
-				case "error.":
-					ShowError( "An error occurred, please try again later." );
-					break;
+					case "invalid.":
+						ShowError( "Invalid username or password." );
+						break;
+					case "okay.":
+						brains.SetLoggedIn( true, data.username, 
+						                          data.accountid );
+						Close();
+						if( m_on_login ) {
+							m_on_login();
+						}
+						break;
+						
+					default:
+					case "error.":
+						throw "Error.";
+				}
+			} catch( err ) {
+				ShowError( "An error occurred. Please try again later." );
+				return;
 			}
 		})
 		.fail( function() {
@@ -296,33 +304,44 @@ function CreateAccount_OnSubmit() {
 		.done( function( data ) {
 			Unlock();
 			alert(data);
-			switch( data ) {
-				case "error.":
-					ShowError( "An error occurred. Please try again later." );
-					break;
-				case "captcha.":
-					if( brains.IsCaptchaValidated() ) {
-						brains.SetCaptchaValidated( false );
-						ShowError( "Please fill out the CAPTCHA." );
-					} else {
-						ShowError( "Invalid CAPTCHA please try again." );
-					}
-					ShowCaptcha( true );
-					break;
-				case "exists.":
-					$("#ca_captcha").html("");
-					ShowError( "That username is already taken." );
-					MarkErrorField( "ca_username" );
-					break;
-				case "okay.":
-					brains.SetLoggedIn( true, username );
-					Close();
-					brains.SetCaptchaValidated(false);
-					
-					if( m_on_login ) {
-						m_on_login();
-					}
-					break;
+			
+			try {
+				if( data == "" ) throw "No data.";
+				data = JSON.parse( data );
+			
+				switch( data.status ) { 
+					case "error.":
+					default:
+						throw "Error.";
+					case "captcha.":
+						if( brains.IsCaptchaValidated() ) {
+							brains.SetCaptchaValidated( false );
+							ShowError( "Please fill out the CAPTCHA." );
+						} else {
+							ShowError( "Invalid CAPTCHA please try again." );
+						}
+						ShowCaptcha( true );
+						break;
+					case "exists.":
+						$("#ca_captcha").html("");
+						ShowError( "That username is already taken." );
+						MarkErrorField( "ca_username" );
+						break;
+					case "okay.":
+						brains.SetLoggedIn( true, data.username, 
+						                          data.accountid );
+						Close();
+						brains.SetCaptchaValidated(false);
+						
+						if( m_on_login ) {
+							m_on_login();
+						}
+						break;
+				}
+			
+			} catch( err ) {
+				ShowError( "An error occurred. Please try again later." );
+				return;
 			}
 		})
 		.fail( function() {

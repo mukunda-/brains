@@ -28,7 +28,7 @@ if( Config::DebugMode() ) {
 		 
 		<?php
 			if( User::LoggedIn() ) {
-				echo '<script>brains.SetLoggedIn( true, \''.User::GetUsername().'\' );</script>';
+				echo '<script>brains.SetLoggedIn( true, "'.User::GetUsername().'", '.User::AccountID().' );</script>';
 			}
 			
 			if( Captcha::Valid() ) {

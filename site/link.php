@@ -3,20 +3,24 @@
 namespace Brains;
 
 /*
-  newlink.php
+  link.php
   
   POST (
      a: first target string
      b: second target string
+	 [vote]: when visiting an existing link:
+	       "no": dont give upvote to link. 
+	       "yes": give upvote to link.
+	       "maybe": give upvote only if the vote is not currently set.
   )
   
-  Creates thoughts if they don't exist, and then creates a link between them.
-  The link will come with an upvote from the creator
+  Creates thoughts if they don't exist, and then creates a link between them if
+  it doesn't exist. The link will come with an upvote from the creator.
   
   RESPONSE "okay." { // A new link was created or an existing link was returned.
     data: {
-      from: <a>
-      to: <b>
+      from: <a> (scrubbed)
+      to: <b> (scrubbed)
 	  score: score of link
 	  creator: account id of creator
 	  creator_nick: nickname of creator
@@ -38,6 +42,8 @@ define( 'R_OKAY'  , 'okay.'   ); // the link was returned
 try {
 	if( !CheckArgsPOST( 'a', 'b' ) ) exit();
 	
+	$votemode = isset( $_POST['vote'] ) ? $_POST['vote'] : "no";
+	
 	$thought1 = Thought::Scrub( $_POST['a'] );
 	if( $thought1 === FALSE ) exit();
 	$thought2 = Thought::Scrub( $_POST['b'] );
@@ -55,23 +61,30 @@ try {
 	$response->data['to'] = $thought2->phrase;
 	
 	$link = ThoughtLink::Get( $thought1, $thought2, User::AccountID(), true );
-	$response->data['score'] = $link->score;
 	$response->data['creator'] = $link->creator;
 	$response->data['creator_nick'] = User::ReadAccount( 
 										$link->creator, 
 										'nickname'
 									  )['nickname'];
 			
-	$response->data['vote'] = $link->vote;
 	
 	if( $thought2->created ) {
 		$response->CopyLinks( [] );
 	} else {
+		if( ($votemode == "yes" && $link->vote !== TRUE)
+			|| ($votemode == "maybe" && $link->vote === null) ) {
+			
+			$link->Upvote();
+		}
+		
 		// add links.
 		$response->CopyLinks(
 			ThoughtLink::FindLinks( $thought2, User::AccountID() ) );
+		
 	}
 	
+	$response->data['score'] = $link->score;
+	$response->data['vote'] = $link->vote;
 
 	$response->Send( R_OKAY );
 	     

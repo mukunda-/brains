@@ -27,7 +27,17 @@ final class ThoughtLink {
 		$this->goods = $goods;
 		$this->bads = $bads;
 		$this->vote = $vote;
-		$this->score = self::ComputeScore( $goods, $bads );
+		$this->UpdateScore();
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Update the $score variable from the $goods and $bads.
+	 *
+	 * @return int Current score.
+	 */
+	public function UpdateScore() {
+		$this->score = self::ComputeScore( $this->goods, $this->bads );
+		return $this->score;
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -270,11 +280,11 @@ final class ThoughtLink {
 				// matches the current request.
 				if( !is_null($row['vote']) ) {
 					if( $row['vote'] == $voteval ) {
-						$sql->safequery( 'ROLLBACK' );
+						$db->RunQuery( 'ROLLBACK' );
 						return TRUE;
 					}
 					
-					if( $row[0] == 1 ) {
+					if( $row['vote'] == 1 ) {
 						$goods--;
 					} else {
 						$bads--;
@@ -318,6 +328,52 @@ final class ThoughtLink {
 	}
 	
 	/** -----------------------------------------------------------------------
+	 * Upvote or downvote a link. These functions must only be used on links
+	 * that were looked up using the same account ID as the person logged in.
+	 *
+	 * and the user must be logged in. this function might randomly fail, but
+	 * it fails silently.
+	 *
+	 * Called via Upvote() or Downvote().
+	 */
+	private function Ivote( $vote ) {
+		if( $this->vote === $vote ) {
+			return; // already done.
+		}
+		
+		// and update database.
+		try {
+			self::Vote( $this->source, $this->dest, User::AccountID(), $vote );
+		} catch( SQLException $e ) {
+			Logger::PrintException( $e );
+			return;
+		}
+		
+		// reverse vote
+		if( $this->vote === true ) {
+			$this->goods--;
+		} else if( $this->vote === false ) {
+			$this->bads--;
+		}
+		
+		$this->vote = $vote;
+		
+		// add vote
+		if( $vote ) {
+			$this->goods++;
+		} else {
+			$this->bads++;
+		}
+		
+		// update $score
+		$this->UpdateScore();
+		
+	}
+	
+	public function Upvote() { $this->Ivote( true ); }
+	public function Downvote() { $this->Ivote( false ); }
+	
+	/** -----------------------------------------------------------------------
 	 * Find links that are connected to a thought.
 	 *
 	 * @param Thought $thought Thought to search for.
@@ -341,7 +397,7 @@ final class ThoughtLink {
 			WHERE Links.thought1=$thought->id 
 			OR    Links.thought2=$thought->id" );
 		*/
-		
+	
 		// method 2, union the two key queries. safer but may be slower.
 		if( $accountid != 0 ) {
 			$result = $db->RunQuery( 
