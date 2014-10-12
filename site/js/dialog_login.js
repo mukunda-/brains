@@ -148,8 +148,8 @@ function Login_OnSubmit() {
 						ShowError( "Invalid username or password." );
 						break;
 					case "okay.":
-						brains.SetLoggedIn( true, data.username, 
-						                          data.accountid );
+						brains.SetLoggedIn( true, data.data.username, 
+						                          data.data.accountid );
 						Close();
 						if( m_on_login ) {
 							m_on_login();
@@ -328,8 +328,8 @@ function CreateAccount_OnSubmit() {
 						MarkErrorField( "ca_username" );
 						break;
 					case "okay.":
-						brains.SetLoggedIn( true, data.username, 
-						                          data.accountid );
+						brains.SetLoggedIn( true, data.data.username, 
+						                          data.data.accountid );
 						Close();
 						brains.SetCaptchaValidated(false);
 						

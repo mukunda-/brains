@@ -25,8 +25,9 @@ try {
 			exit();
 		}
 		
+		// if they didn't submit a captcha and the session is not
+		// currently validated by one, ask them for one.
 		Captcha::Validate();
-		
 		if( !Captcha::Valid() ) {
 			Response::SendSimple( R_CAPTCHA );
 		}
@@ -55,7 +56,7 @@ try {
 	}
 	
 	$response = new Response();
-	$response->data['username'] = username;
+	$response->data['username'] = User::GetUsername();
 	$response->data['accountid'] = User::AccountID();
 	$response->Send( R_OKAY );
 	

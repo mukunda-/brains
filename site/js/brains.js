@@ -199,6 +199,20 @@ function PageContent_NewLink( out, query ) {
 }
 
 /** ---------------------------------------------------------------------------
+ * Get the CSS class name for the score field according to a score.
+ *
+ * @param int score 0-99.
+ */
+function ScoreRank( score ) {
+	if( score < 25 ) return "rank_cancer";
+	if( score < 60 ) return "rank_poop";
+	if( score < 80 ) return "rank_ok";
+	if( score < 90 ) return "rank_good";
+	if( score < 99 ) return "rank_great";
+	return "rank_god";
+}
+
+/** ---------------------------------------------------------------------------
  * Content generator for the discovery block.
  *
  * @param array out Output html array.
@@ -206,10 +220,11 @@ function PageContent_NewLink( out, query ) {
  */
 function PageContent_LastLink( out, data ) {
 	var nick = data.creator == m_account ? 
-			'<span class="creator owner">you' :
-			'<span class="creator other">'+ data.creator_nick;
+			'<span class="nick owner">you' :
+			'<span class="nick other">'+ data.creator_nick;
+	var rank = ScoreRank( data.score );
 	out.push( '<div class="discovery" id="discovery">' );
-	out.push(   '<div class="score">'+ data.score +'</div>' );
+	out.push(   '<div class="score '+rank+'">'+ data.score +'</div>' );
 	out.push(   '<div class="link">'+ data.from 
 				+' <div class="arrow"></div> '+ data.to +'</div>' );
 	out.push(   '<div class="creator">discovered by '+ nick
@@ -417,16 +432,18 @@ brains.InitializePostLoad = function() {
 		});
 		
 		s_thoughts.click( function( e ) {
-			// follow link.
-			FollowLink( $(this).data( "dest"), "maybe"  );
-			
+			// follow link. use query mode if not logged in.
+			alert('ho');
+			FollowLink( $(this).data( "dest"), "soft" );
 		} );
 		
 		s_votebuttons = s_thoughts.children( ".vote" );
 		s_votebuttons.mousedown( function( e ) {
 			e.stopPropagation();
 			
-			VoteThought( $(this).parent(), $(this).hasClass( "up" ) );
+			if( e.which == 1 ) {
+				VoteThought( $(this).parent(), $(this).hasClass( "up" ) );
+			}
 			
 		});
 		
@@ -453,7 +470,7 @@ function NewLinkForm_OnSubmit() {
 	var input = SanitizeThought( $("#newlink").val(), invalid );
 	if( input === false ) return false;
 	
-	FollowLink( input, "yes" );
+	FollowLink( input, "new" );
 	return false;
 }
 
@@ -462,13 +479,13 @@ function NewLinkForm_OnSubmit() {
  * existing link button.
  *
  * @param string input The next thought to jump to.
- * @param string vote For existing links:
- *                    "yes" = give an upvote.
- *                    "no" = do not upvote.
- *                    "maybe" = give an upvote only if a vote has not
- *                              been given yet.
+ * @param string method Method to use:
+ *         "query": dont create links, query only. doesnt require login.
+ *	       "new": create missing links and give an upvote. requires login.
+ *	       "soft": dont create, and only give upvote only if the user 
+ *                 hasnt voted yet.
  */
-function FollowLink( input, vote ) {
+function FollowLink( input, method ) {
 	if( brains.Loader.IsLoading() ) return;
 	
 	if( m_current_thought == null ||
@@ -486,7 +503,7 @@ function FollowLink( input, vote ) {
 				NewLinkForm_OnSubmit );
 	}
 	
-	if( !m_logged_in ) {
+	if( !m_logged_in && method == "new" ) {
 		show_login();
 		return;
 	}
@@ -498,7 +515,7 @@ function FollowLink( input, vote ) {
 	
 	brains.Loader.Load( {
 		url: "link.php",
-		data: { a: m_current_thought, b: input, vote: vote },
+		data: { a: m_current_thought, b: input, method: method },
 		post: true,
 		process: function( response ) {
 			alert( response );
@@ -520,6 +537,11 @@ function FollowLink( input, vote ) {
 				alert( "You can't make a link to the same thought." );
 				return false;
 			case "okay.":
+			}
+			
+			if( response.data.logged_in == false && m_logged_in ) {
+				
+				brains.SetLoggedIn( false );
 			}
 			
 			var html = [];
