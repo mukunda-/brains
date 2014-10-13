@@ -89,7 +89,11 @@ function InitLoginDialog( reason ) {
 	});
 	$("#form_login").submit( Login_OnSubmit );
 	
-	$("#dialog_desc").text( reason );
+	if( reason != "" ) {
+		$("#dialog_desc").text( reason );
+	} else {
+		$("#dialog_desc").remove();
+	}
 }
 
 /** ---------------------------------------------------------------------------

@@ -18,12 +18,15 @@ if( Config::DebugMode() ) {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta charset="UTF-8">
 		<link rel="shortcut icon" href="/favicon.png">
-		
+
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+		<link rel="stylesheet" href="min/style.min.css" type="text/css">
+
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<!--<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>-->
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="min/style.min.css" type="text/css">
 		<script src="min/scripts.min.js"></script>
 		 
 		<?php
@@ -103,10 +106,13 @@ if( Config::DebugMode() ) {
 			echo '<form autocomplete="off" id="queryform">';
 			echo '<input id="query" maxlength="20" >';
 			echo '</form>';
-			$svg = new \SVG( 'img/person.svg' );
-			$svg->SetID( 'user' );
-			$svg->Output();
-		 
+	//		$svg = new \SVG( 'img/gear-2.svg' );
+	//		$svg->SetID( 'user' );
+	//		$svg->Output();
+			echo '<div id="user">';
+				echo '<span></span>';
+				echo '<i class="icon fa fa-sign-in" id="user"></i>';
+			echo '</div>';
 		echo '</div>';
 		
 		?>
@@ -174,7 +180,7 @@ if( Config::DebugMode() ) {
 				<div id="dialog_error" class="dialog_error"></div>
 				<form id="form_login">
 					
-					<label>Username</label><br>
+					<label>Username/E-mail</label><br>
 					<input type="text" name="username" class="textinput" id="text_username"><br>
 					<label>Password</label><br>
 					<input type="password" name="password" class="textinput" id="text_password"><br>

@@ -1,0 +1,107 @@
+
+#top {
+	background-color: $cl_white;
+	//opacity: 0.1; 
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: $topbar_height;
+	padding: 8px 0px;
+	@include light-box-shadow;
+	//box-shadow: 0px 0px 8px rgba(0,0,0,0.2);
+	text-align:center;
+	#logo {
+		// todo: the sliding offscreen borks firefox
+		// when zooming
+		
+		width: 120px;
+		height: 48px;
+	 
+		fill: #333;
+					
+		position: fixed;
+		left: 4%;
+		transition: left 0.5s,
+					fill 0.25s;
+		top:7px;
+		display: inline-block;
+		cursor: pointer;
+		
+		
+		@media (max-width:470px) {
+			left: -200px;
+			
+		}
+	}
+	
+	#logo:hover {
+		fill: $cl_hl;
+	}
+
+	#query {
+		font: {
+			family: 'Open Sans Condensed';
+			size: 24px;
+			weight: 700;
+		}
+		background: none;
+		border: none;
+		position:relative;
+		top: 5px;
+		display: inline-block;
+		width: 150px;
+		text-align:center;
+		min-height: 34px;
+		border-bottom: 1px dotted rgba($cl_black,0.25);
+		outline: none;
+	}
+	
+	#user {
+		position: absolute;
+		right: 44px;
+		top: ($topbar_height + 16) / 2 - 16;
+		//width: 32px;
+		height: 32px;
+		color: #333;
+		transition: color 0.25s, top 0.25s, width 0.25s, height 0.25s, font-size 0.25s;
+		vertical-align: middle;
+		line-height: 34px;
+		
+		cursor: pointer;
+		
+		
+		.icon {
+			color:inherit;
+			font-size: 24px;
+			//position: absolute;
+			right: -30px;
+			top: 0px;
+		}
+		
+		span {
+		//	position: relative;
+		//	top: 3px;
+			transition: opacity 0.5s;
+			@media (max-width:500px) {
+				display: none;
+			}
+		}
+		
+		@media (max-width:500px) {
+		//	top: ($topbar_height + 16) / 2 - 8;
+			
+	//		height: 16px;
+	//		font-size: 18px;
+			
+			
+		}
+	}
+	#user:hover {
+		color: $cl_hl;
+	}
+//	#user:active {
+//		transition: color 0s, top 0.25s, width 0.25s, height 0.25s, font-size 0.25s;
+//		fill: darken($cl_hl,25%);
+//	}
+}

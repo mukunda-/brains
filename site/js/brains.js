@@ -72,6 +72,8 @@ function AdjustSizes() {
 	// i cannot believe this isn't feasible with css
 	disc.children(".score").css( "top", ((disc.height() + 5) / 2 - 17) + "px" );
 	//$("#view").height( $(window).height() - 48 + "px" );
+	
+	$("#dialog").css( "max-width", (width - 48) + "px" );
 }
 
 
@@ -128,57 +130,6 @@ function FilterThoughtKeys( e ) {
 	return false;
 }
 
-$( function() {
-	// content initialization. 
-	
-	AdjustNewLinkInputSize();
-	
-	AdjustSizes();
-	AdjustThoughtSizes();
-	
-	
-	setTimeout(  // god i fucking hate the web.
-		function () {
-			
-			AdjustSizes();
-			AdjustThoughtSizes();
-		}, 100 );
-	 
-	$(window).mouseup( function( e ) {
-		if( current_button != null ) {
-			current_button.removeClass( "held" );
-		}
-		
-	} );
-	$(".thought").click( function( e ) {
-		
-		
-	});
-	 
-	$("#queryform").submit( function() {
-		OnNewQuery();
-		return false;
-	});
-	
-	$("#queryform").keypress( FilterThoughtKeys );
-	
-	$("#user").click( function( e ) {
-		if( m_logged_in ) {
-			brains.Dialog.Show( "profile" );
-		} else {
-			brains.ShowLoginDialog( "Please log in." );
-		}
-	});
-	
-	$("#overlay").click( function() {
-		brains.Dialog.Close();
-	});
-	$("#dialog").click( function( e) {
-		e.stopPropagation();
-	});
-	
-	//brains.Dialog.Show( "login" );
-});
 
 /** ---------------------------------------------------------------------------
  * Content generator for the newlink block.
@@ -569,11 +520,31 @@ function FollowLink( input, method ) {
 brains.SetLoggedIn = function( value, username, account ) {
 	m_logged_in = value;
 	if( value ) {
+		
 		m_username = username;
 		m_account = account;
 	} else {
 		m_username = "";
 		m_account = 0;
+	}
+	UpdateUserBlock();
+}
+
+/** ---------------------------------------------------------------------------
+ * Update the HTML for the #user block with their username and adjust the
+ * icon accordingly.
+ */
+function UpdateUserBlock() {
+	var icon = $("#user").children( ".icon" )
+	icon.removeClass( "fa-sign-in" )
+		.removeClass( "fa-cog" )
+		
+	if( m_logged_in ) {
+		icon.addClass( "fa-cog" );
+		$("#user").children( "span" ).text( m_username );
+	} else {
+		icon.addClass( "fa-sign-in" );
+		$("#user").children( "span" ).text( "" );
 	}
 }
 
@@ -601,6 +572,61 @@ brains.SetCaptchaValidated = function( value ) {
 brains.IsCaptchaValidated = function() {
 	return m_captcha_validated;
 }
+
+//-----------------------------------------------------------------------------
+$( function() {
+	// content initialization. 
+	
+	AdjustNewLinkInputSize();
+	
+	AdjustSizes();
+	AdjustThoughtSizes();
+	
+	
+	setTimeout(  // god i fucking hate the web.
+		function () {
+			
+			AdjustSizes();
+			AdjustThoughtSizes();
+		}, 100 );
+	 
+	$(window).mouseup( function( e ) {
+		if( current_button != null ) {
+			current_button.removeClass( "held" );
+		}
+		
+	} );
+	$(".thought").click( function( e ) {
+		
+		
+	});
+	 
+	$("#queryform").submit( function() {
+		OnNewQuery();
+		return false;
+	});
+	
+	$("#queryform").keypress( FilterThoughtKeys );
+	
+	$("#user").click( function( e ) {
+		if( m_logged_in ) {
+			brains.Dialog.Show( "profile" );
+		} else {
+			brains.ShowLoginDialog( "" );
+		}
+	});
+	
+	$("#overlay").click( function() {
+		brains.Dialog.Close();
+	});
+	$("#dialog").click( function( e) {
+		e.stopPropagation();
+	});
+	
+	//brains.Dialog.Show( "login" );
+	
+	UpdateUserBlock();
+});
 
 //-----------------------------------------------------------------------------
 
