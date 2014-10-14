@@ -219,6 +219,7 @@ function CreateAccount_OnSubmit() {
 	$.post( "login.php", post )
 		.done( function( data ) {
 			brains.Dialog.Unlock();
+			
 			alert(data);
 			
 			try {
