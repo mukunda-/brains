@@ -6,6 +6,10 @@
 
 var m_profile_data = null;
 
+// a little something to save the poor soul who types a long bio
+// that gets erased because the login session expired.
+var m_edit_cache = null;
+
 var m_loader = AsyncGroup.Create();
 
 /** ---------------------------------------------------------------------------
@@ -119,18 +123,68 @@ function InitEditProfileDialog() {
 	$("#button_save").click( OnEditProfileSave );
 	$("#button_cancel").click( OnEditProfileClose );
 	
-	$("#text_nickname").val( m_profile_data.nickname );
-	$("#text_realname").val( m_profile_data.realname );
-	$("#text_website").val( m_profile_data.website );
-	$("#text_bio").text( m_profile_data.bio );
+	if( m_edit_cache === null ) {
+		$("#text_nickname").val( m_profile_data.nickname );
+		$("#text_realname").val( m_profile_data.realname );
+		$("#text_website").val( m_profile_data.website );
+		$("#text_bio").text( m_profile_data.bio );
+	} else {
+		// simple and effective.
+		$("#text_nickname").val( m_edit_cache.nickname );
+		$("#text_realname").val( m_edit_cache.realname );
+		$("#text_website").val( m_edit_cache.website );
+		$("#text_bio").text( m_edit_cache.bio );
+	}
 }
 
 //-----------------------------------------------------------------------------
 function OnEditProfileSave() {
 	// validate input.
+	var nickname = brains.ReadDialogField( "text_nickname", "nickname" );
+	var realname = brains.ReadDialogField( "text_realname", "realname" );
+	var website = brains.ReadDialogField( "text_website", "website" );
+	var bio = brains.ReadDialogField( "text_bio", "bio" );
+	if( nick === false || realname === false || 
+	    website === false || bio === false ) return;
 	
+	var post = {
+		nickname: nick, 
+		realname: realname, 
+		website: website, 
+		bio: bio,
+		ctoken: brains.CToken()
+	};
+	
+	m_edit_cache = post; 
 	
 	brains.Dialog.Lock();
+	$.post( "editprofile.php", post )
+		.done( function( data ) {
+			brains.Dialog.Unlock();
+			try {
+				if( data == "" ) throw "No data.";
+				data = JSON.parse( data );
+				switch( data.status ) {
+					case "login.":
+						brains.SetLoggedIn( false );
+						brains.ShowLoginDialog( "Your session expired." );
+						return;
+					case "okay.":
+						ShowProfileDialog( m_account, true );
+						return;
+					default:
+					case "error.":
+						brains.Dialog.Unlock();
+						throw "Error.";
+				}
+			} catch( err ) {
+				ShowError( "An error occurred. Please try again." );
+			}
+		})
+		.fail( function() {
+			brains.Dialog.Unlock();
+			ShowError( "An error occurred. Please try again." );
+		})
 }
 
 //-----------------------------------------------------------------------------

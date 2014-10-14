@@ -71,6 +71,9 @@ public static function SetLoggedIn( $account_id,
 		$_SESSION['account_username'] = $username;
 		$_SESSION['account_nickname'] = $nickname;
 		
+		$ctoken = Garbage::Produce( 24 );
+		setcookie( "ctoken", $ctoken, time() + 60*60*24*90, GetDocumentRoot() );
+		
 	} else {
 		self::$logged_in = false;
 		self::$account_id = 0;
@@ -243,16 +246,26 @@ public static function ParseLoginToken( &$id, &$secret ) {
 /** ---------------------------------------------------------------------------
  * Check if a user is logged in, and try to log them in if they aren't.
  *
+ * @param string $ctoken CSRF token.
  * @return int|false Account ID or FALSE if they are not logged in 
  *                   and do not have a valid login token.
  */
-public static function CheckLogin() {
+public static function CheckLogin( $ctoken ) {
 	if( self::$logged_in ) {
 		return self::$account_id;
 	}
+	
+	if( !isset( $_COOKIE['ctoken'] ) ) return FALSE;
+	
+	if( $_COOKIE['ctoken'] != $ctoken ) {
+		// csrf attack :o
+		return FALSE;
+	}
+	
 	// first check if they are logged in via their session.
 	OpenSession();
 	if( isset($_SESSION['account_id']) ) {
+		
 		self::$logged_in = true;
 		self::$account_id = $_SESSION['account_id'];
 		return $_SESSION['account_id'];
@@ -464,6 +477,36 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	Captcha::Reset();
 	
 	return 'okay';
+}
+
+/** ---------------------------------------------------------------------------
+ * Edit the user's profile. The user must be logged in.
+ *
+ * @param string $nickname New nickname. Cannot be empty.
+ * @param string $realname New real name.
+ * @param string $website New website.
+ * @param string $bio New bio.
+ * @throws SQLException if a database error occurs.
+ */
+public static function EditProfile( $nickname, $realname, $website, $bio ) {
+	if( !LoggedIn() ) throw new Exception( "not logged in." );
+	$db = \SQLW::Get();
+	
+	$nickname = trim($nickname);
+	$realname = trim($realname);
+	$website = trim($website);
+	$bio = trim($bio);
+	
+	if( $nickname == "" ) throw new Exception( "nickname cannot be empty." );
+	$nickname = $db->real_escape_string( $nickname );
+	$realname = $db->real_escape_string( $realname );
+	$website = $db->real_escape_string( $website );
+	$bio = $db->real_escape_string( $bio );
+	
+	$db->RunQuery( "UPDATE Accounts 
+					SET nickname='$nickname', realname='$realname',
+					website='$website', bio='$bio'
+					WHERE id=".self::AccountID() );
 }
  
 } // class User

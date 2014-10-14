@@ -5,6 +5,7 @@ namespace Brains;
 /*
   votelink - upvotes or downvotes a link
   POST (
+     ctoken: login token
      t1, t2: thoughts that form the link.
 	 vote: "good" for upvote or "bad" for downvote
   )
@@ -19,7 +20,7 @@ define( 'R_LOGIN', 'login.' ); // user needs to log in
 define( 'R_OKAY', 'okay.' ); // vote was added or updated.
 
 try {
-	if( !CheckArgsPOST( 't1', 't2', 'vote' ) ) exit( R_ERROR );
+	if( !CheckArgsPOST( 'ctoken', 't1', 't2', 'vote' ) ) exit( R_ERROR );
 	
 	if( $_POST['vote'] == 'good' ) {
 		$votevalue = true;
@@ -29,7 +30,7 @@ try {
 		exit( R_ERROR );
 	}
 	
-	if( !User::CheckLogin() ) exit( R_LOGIN );
+	if( !User::CheckLogin( $_POST['ctoken'] ) ) exit( R_LOGIN );
 	
 	// scrub and catch invalid input
 	$thought1 = Thought::Scrub( $_POST['t1'] );

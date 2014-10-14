@@ -2,9 +2,22 @@
 
 namespace Brains;
 
-// login.php
-// used to log in a user or create an account
-//
+/*
+  login.php
+  
+  POST (
+    create: 
+	  username
+	  password
+	  nickname
+	-----------
+	  username
+	  password
+	  [rememberme]
+  )
+  
+  log in a user or create an account
+*/
 
 require_once 'core.php';
 

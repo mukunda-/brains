@@ -2,10 +2,10 @@
  * Copyright 2014 Mukunda Johnson
  */
 
-(function() { window.brains = window.brains || {};
+brains.Dialog = new function() { 
 
-brains.Dialog = this;
-var m_dialog = this;
+console.log(this);
+  
 var m_locked = false;
   
 /** ---------------------------------------------------------------------------
@@ -57,6 +57,7 @@ function SetInit( f ) {
  *
  * Must be unlocked later with Unlock().
  */
+ 
 function Lock() {
 	if( m_locked ) return;
 	m_locked = true;
@@ -110,4 +111,4 @@ this.Unlock  = Unlock;
 this.MarkErrorField = MarkErrorField;
 this.ShowError = ShowError;
 
-})();
+};

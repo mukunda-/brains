@@ -26,12 +26,21 @@ function Fubar( password, salt ) {
 	
 	// recommended 15000+ iterations for 2014 :(
 	for( var i = 0; i < 100; i++ ) { 
+	
+		// heh heh. this oughta throw off them GPUs
+		if( i == 3 ) {
+			product += "potato";
+		} else if( i == 29 ) {
+			product += "gerbil";
+		} else if( i == 71 ) {
+			product += "fluff";
+		}
 		product = Sha256.hash( product + salt );
 		// salty
 	}
 	
 	// version
-	product = "$1" + product;
+	product = "$2" + product;
 	return product;
 }
 
@@ -82,7 +91,7 @@ function Login_OnSubmit() {
 	
 	password = Fubar( password, username );
 	
-	Lock();
+	brains.Dialog.Lock();
 	
 	post = {
 		'username': username,
@@ -95,7 +104,7 @@ function Login_OnSubmit() {
 
 	$.post( "login.php", post )
 		.done( function( data ) {
-			Unlock();
+			brains.Dialog.Unlock();
 			alert(data);
 			try {
 				if( data == "" ) throw "No data.";
@@ -125,7 +134,7 @@ function Login_OnSubmit() {
 			}
 		})
 		.fail( function() {
-			Unlock();
+			brains.Dialog.Unlock();
 			ShowError( "An error occurred, please try again later." );
 		});
 	return false;
@@ -233,11 +242,11 @@ function CreateAccount_OnSubmit() {
 		post.recaptcha_challenge_field = $("#recaptcha_challenge_field").val();
 	}
 	
-	Lock();
+	brains.Dialog.Lock();
 	
 	$.post( "login.php", post )
 		.done( function( data ) {
-			Unlock();
+			brains.Dialog.Unlock();
 			alert(data);
 			
 			try {
@@ -281,7 +290,7 @@ function CreateAccount_OnSubmit() {
 		})
 		.fail( function() {
 			
-			Unlock();
+			brains.Dialog.Unlock();
 			ShowError( "An error occurred, please try again later." );
 		});
 	

@@ -157,13 +157,13 @@ if( Config::DebugMode() ) {
 				<center>
 					<div id="dialog_error" class="dialog_error"></div>
 					<form id="form_createaccount">
-						<label><span class="fieldname">Nickname</span><br><span class="optdesc">What other people will see you as. This can be changed later.</span></label><br>
+						<div class="fieldname">Nickname</div><div class="optdesc">What other people will see you as. This can be changed later.</div>
 						<input type="text" class="textinput" id="ca_nickname"><hr>
-						<label><span class="fieldname">Username/E-mail</span><br><span class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username if you don't want to think of something else.</span></label><br>
+						<div class="fieldname">Username/E-mail</div><div class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username.</div>
 						<input type="text" class="textinput" id="ca_username"><hr>
-						<label><span class="fieldname">Password</span><br><span class="optdesc">Don't forget this.</span></label><br>
+						<div class="fieldname">Password</div><div class="optdesc">Don't forget this.</div>
 						<input type="password" class="textinput" id="ca_password"><hr>
-						<label><span class="fieldname">Re-type Password</span></label><br>
+						<div class="fieldname">Re-type Password</div>
 						<input type="password" class="textinput" id="ca_password2"><hr><br>
 						<div id="ca_captcha"></div>
 						
@@ -225,6 +225,7 @@ if( Config::DebugMode() ) {
 		<template id="dialog_editprofile">
 			<div class="desc" id="dialog_desc">Edit profile</div>
 			
+			<center><div id="dialog_error" class="dialog_error"></div></center>
 			<label>Nickname:</label><br>
 			<input type="text" name="nickname" class="textinput" id="text_nickname"><br>
 			

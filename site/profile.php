@@ -48,6 +48,10 @@ try {
 		Response::SendSimple( R_INVALID );
 	}
 	
+	if( $info['realname'] === null ) $info['realname'] = "";
+	if( $info['website'] === null ) $info['website'] = "";
+	if( $info['bio'] === null ) $info['bio'] = "";
+	
 	$response = new Response();
 	$response->data['id'] = $account;
 	$response->data['nickname'] = $info['nickname'];

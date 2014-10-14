@@ -71,9 +71,8 @@
 		border-radius: 8px;
 		@include light-box-shadow;
 		padding: 4px 8px;
-			border: 2px solid #ccc;
+		border: 2px solid #ccc;
 		max-width: 85%;
-		
 		&:focus {
 			border-color: $cl_hl; //2px solid #159;
 		}
@@ -93,6 +92,7 @@
 	
 	.optdesc {
 		font-size: 90%;
+		padding-bottom: 4px;
 	}
 	.fieldname {
 		font-weight: 700;

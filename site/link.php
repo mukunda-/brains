@@ -6,6 +6,7 @@ namespace Brains;
   link.php
   
   POST (
+	 ctoken: login token
      a: first target string
      b: second target string
 	 method: Method to use
@@ -51,7 +52,7 @@ $methods = [ 'query' => METHOD_QUERY,
  
 try {
 	// validate input
-	if( !CheckArgsPOST( 'a', 'b', 'method' ) ) exit();
+	if( !CheckArgsPOST( 'ctoken', 'a', 'b', 'method' ) ) exit();
 	if( !isset( $methods[ $_POST['method'] ] ) ) exit();
 	$method = $methods[ $_POST['method'] ];
 	
@@ -60,7 +61,7 @@ try {
 	$thought2 = Thought::Scrub( $_POST['b'] );
 	if( $thought2 === FALSE ) exit();
 	
-	User::CheckLogin();
+	User::CheckLogin( $_POST['ctoken'] );
 	if( !User::LoggedIn() ) {
 		if( $method == METHOD_NEW ) {
 			

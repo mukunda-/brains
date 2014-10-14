@@ -342,7 +342,8 @@ function VoteThought( element, vote ) {
 		   .addClass( vote ? "up" : "down" );
 	
 	$.post( "votelink.php", 
-		{ t1: m_current_thought, 
+		{ ctoken: CToken(),
+		  t1: m_current_thought, 
 		  t2: element.data( "dest" ),
 		  vote: vote ? "good" : "bad" } )
 		.done( function( data ) {
@@ -466,7 +467,12 @@ function FollowLink( input, method ) {
 	
 	brains.Loader.Load( {
 		url: "link.php",
-		data: { a: m_current_thought, b: input, method: method },
+		data: { 
+			ctoken: CToken(), 
+			a: m_current_thought, 
+			b: input, 
+			method: method 
+		},
 		post: true,
 		process: function( response ) {
 			alert( response );
@@ -546,6 +552,26 @@ function UpdateUserBlock() {
 		icon.addClass( "fa-sign-in" );
 		$("#user").children( "span" ).text( "" );
 	}
+}
+
+/*! QuirksMode.org readCookie() */
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+/** ---------------------------------------------------------------------------
+ * Read the ctoken cookie. 
+ */
+function CToken() {
+	var token = readCookie( "ctoken" );
+	return token === null ? "" : token;
 }
 
 /** ---------------------------------------------------------------------------
@@ -639,5 +665,6 @@ $( function() {
 
 brains.OnNewQuery = OnNewQuery;
 brains.AdjustSizes = AdjustSizes;
+brains.CToken = CToken();
 
 } )();
