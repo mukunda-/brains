@@ -325,7 +325,7 @@ brains.InitializePreLoad = function() {
  */
 function VoteThought( element, vote ) {
 	if( !m_logged_in ) {
-		brains.ShowLoginDialog( "To vote on links you need to be logged in." );
+		brains.ShowLoginDialog( "To vote on links you need to be signed in." );
 		return;
 	}
 	var sel = vote ? element.children( ".vote.up" ) : 
@@ -452,7 +452,7 @@ function FollowLink( input, method ) {
 	var show_login = function() {
 		
 		brains.ShowLoginDialog( 
-				"To create a link you need to be logged in.",
+				"To create a link you need to be signed in.",
 				NewLinkForm_OnSubmit );
 	}
 	

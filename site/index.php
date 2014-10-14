@@ -201,6 +201,7 @@ if( Config::DebugMode() ) {
 					
 				</form>
 				<div style="height: 12px"></div>
+				<a href="javascript:;" id="button_lostpassword">Forgot your password?</a><br>
 				<a href="javascript:;" id="button_createaccount">Create an account in 15 seconds</a>
 			</center>
 
@@ -265,6 +266,23 @@ if( Config::DebugMode() ) {
 					<div class="fieldname">Re-type Password</div>
 					<input type="password" class="textinput" id="cp_password2" autocomplete="off"><hr>
 					<input type="submit" class="submitinput" value="Change Password">
+					<input type="button" class="submitinput" id="button_cancel" value="Cancel">
+				</form>
+			</center>
+		</template>
+		
+		<template id="dialog_lostpassword">
+			<div class="title">Forgot your password?</div>
+			<div style="margin-bottom:16px">If you signed up with an e-mail as your username, you can sign in with a special ticket and then change your password. 
+			If you didn't sign up with an e-mail address, you're best option is to remember harder or make a new account.</div>
+			<center><div id="dialog_error" class="dialog_error"></div></center>
+			<center>
+				<div id="dialog_error" class="dialog_error"></div>
+				<form id="form_lostpassword">
+					<div class="fieldname">E-mail</div>
+					<input type="text" class="textinput" id="lp_email"><br>
+					
+					<input type="submit" class="submitinput" value="Send Ticket">
 					<input type="button" class="submitinput" id="button_cancel" value="Cancel">
 				</form>
 			</center>

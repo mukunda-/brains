@@ -29,7 +29,7 @@ function Soup( recipe, seasoning ) {
 			soup += "potato"; // more potato
 		} else if( soup[1] == "5" ) {
 			soup += "black pepper"; // more black pepper
-		} else if( soup[1] == "6" ) {
+		} else if( soup[7] == "6" ) {
 			soup += "SALT"; // more salt
 		} else if( soup[13] == "9" ) {
 			soup += "carrots"; // more carrots
@@ -44,7 +44,7 @@ function Soup( recipe, seasoning ) {
 		} else if( soup[5] == "2" ) {
 			soup = "asafoetida" + soup; //  the dried latex exuded from the rhizome or tap root of several species of Ferula, a perennial herb that grows 1 to 1.5 m tall
 		} else if( soup[0] == "3" ) {
-			soup += "cilantro"; // coriander leaves
+			soup += "cilantro"; // leaves with exotic flavor
 		}
 		
 		if( soup[0] == "4" ) {

@@ -34,6 +34,10 @@ function InitLoginDialog( reason ) {
 	$("#button_cancel").click( function() {
 		brains.Dialog.Close();
 	});
+	$("#button_lostpassword").click( function() {
+		brains.Dialog.Show( "lostpassword" );
+		InitLostPasswordDialog();
+	});
 	$("#form_login").submit( Login_OnSubmit );
 	
 	if( reason != "" ) {
@@ -269,6 +273,22 @@ function CreateAccount_OnSubmit() {
 	return false;
 }
 
+/** ---------------------------------------------------------------------------
+ * The lost password dialog, for sending password reset requests.
+ */
+function InitLostPasswordDialog() {
+	$("#form_lostpassword").submit( function() {	
+		OnLostPasswordSubmit();
+		return false;
+	});
+	$("#button_cancel").click( function() {
+		brains.Dialog.Close();
+	});
+}
+
+function OnLostPasswordSubmit() {
+	
+}
 
 brains.ShowLoginDialog = ShowLoginDialog;
 
