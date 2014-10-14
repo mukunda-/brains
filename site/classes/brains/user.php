@@ -559,7 +559,7 @@ public static function ChangePassword( $current, $new ) {
 	}
 	
 	$new = password_hash( $new, PASSWORD_DEFAULT );
-	WriteAccount( self::AccountID(), [ 'password' => $new ] );
+	self::WriteAccount( self::AccountID(), [ 'password' => $new ] );
 	
 	return TRUE;
 }

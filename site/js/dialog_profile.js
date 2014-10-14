@@ -197,11 +197,13 @@ function InitEditProfileDialog() {
 function OnEditProfileSave() {
 	// validate input.
 	var nickname = brains.ReadDialogField( "text_nickname", "nickname" );
+	if( nickname === false ) return;
 	var realname = brains.ReadDialogField( "text_realname", "realname" );
+	if( realname === false ) return;
 	var website = brains.ReadDialogField( "text_website", "website" );
+	if( website === false ) return;
 	var bio = brains.ReadDialogField( "text_bio", "bio" );
-	if( nickname === false || realname === false || 
-	    website === false || bio === false ) return;
+	if( bio === false ) return;
 	
 	var post = {
 		nickname: nickname, 
@@ -280,8 +282,9 @@ function InitChangePasswordDialog() {
  */
 function OnChangePasswordSubmit() {
 	var current = brains.ReadDialogField( "cp_current", "password" );
+	if( current === false ) return;
 	var desired = brains.ReadDialogField( "cp_password", "password" );
-	if( current === false || desired === false ) return;
+	if( desired === false ) return;
 	var verify = $("#cp_password2").val();
 		
 	if( verify != desired ) {
@@ -292,9 +295,9 @@ function OnChangePasswordSubmit() {
 		brains.Dialog.MarkErrorField( "cp_password2" );
 		return;
 	}
-	
+
 	current = Soup( current, brains.GetUsername() );
-	desired = Soup( current, brains.GetUsername() );
+	desired = Soup( desired, brains.GetUsername() );
 	 
 	brains.Dialog.Lock();
 	$.post( "changepassword.php", {
@@ -311,10 +314,14 @@ function OnChangePasswordSubmit() {
 				brains.Dialog.Close();
 				return;
 			case "invalid.":
-				alert( "The password you entered didn't match your current password." );
+				
+				$("#cp_current").val("");
+				brains.Dialog.ShowError( "That wasn't your current password." );
+				brains.Dialog.MarkErrorField( "cp_current" );
 				return;
 			case "okay.":
 				alert( "Your password has been updated." );
+				brains.Dialog.Close();
 				return;
 			default:
 			case "error.":
