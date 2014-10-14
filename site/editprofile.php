@@ -19,10 +19,13 @@
   
 */
 
+namespace Brains;
+
+require_once 'core.php';
+
 define( 'R_ERROR', 'error.' );  
 define( 'R_LOGIN', 'login.' ); 
 define( 'R_OKAY', 'okay.' ); 
-
 
 try {
 	if( !CheckArgsPOST( 'ctoken', 'nickname', 'realname', 
@@ -34,6 +37,8 @@ try {
 	
 	User::EditProfile( $_POST['nickname'], $_POST['realname'], 
 					   $_POST['website'], $_POST['bio'] );
+	
+	Response::SendSimple( R_OKAY );
 	
 } catch( Exception $e ) {
 	Logger::PrintException( $e );

@@ -44,10 +44,20 @@ public static function LoggedIn() {
 }
 
 /** ---------------------------------------------------------------------------
+ * Generate a new ctoken
+ */
+private static function RefreshCToken() {
+	$ctoken = Garbage::Produce( 24 );
+	setcookie( "ctoken", $ctoken, 
+			   time() + 60*60*24*90, GetDocumentRoot() );
+	$_COOKIE['ctoken'] = $ctoken;
+}
+
+/** ---------------------------------------------------------------------------
  * Set if the current session is logged in.
  *
- * @param int $account_id Account ID to associate with the session, or 0 to
- *                        set a logged out state.
+ * @param int $account_id  Account ID to associate with the session, or 0 to
+ *                         set a logged out state.
  * @param string $username Username of the user, leave null to query the db
  *                         for it.
  * @param string $nickname Nickname of the user, leave null to query the db
@@ -71,12 +81,13 @@ public static function SetLoggedIn( $account_id,
 		$_SESSION['account_username'] = $username;
 		$_SESSION['account_nickname'] = $nickname;
 		
-		$ctoken = Garbage::Produce( 24 );
-		setcookie( "ctoken", $ctoken, time() + 60*60*24*90, GetDocumentRoot() );
-		
+		if( !isset( $_COOKIE['ctoken'] ) ) {
+			self::RefreshCToken();
+		}
 	} else {
 		self::$logged_in = false;
 		self::$account_id = 0;
+		setcookie( "ctoken", "", 0, GetDocumentRoot() );
 		if( isset( $_SESSION['account_id'] ) ) {
 			unset( $_SESSION['account_id'] );
 		}
@@ -197,7 +208,7 @@ public static function ReadAccount( $id, $fields ) {
 public static function WriteAccount( $id, $fields ) {
 	$db = \SQLW::Get();
 	
-	$set = array();
+	$set = [];
 	foreach( $fields as $key => $value ) {
 		if( !isset( self::$account_field_types[$key] ) ) {
 			throw new InvalidArgumentException( "$key is not a valid field." );
@@ -206,7 +217,7 @@ public static function WriteAccount( $id, $fields ) {
 		$type = self::$account_field_types[$key];
 		if( $type == self::FIELD_STRING ) {
 			
-			$set[] = "$key='" + $db->real_escape_string( $value ) + "'";
+			$set[] = "$key='" . $db->real_escape_string( $value ) . "'";
 		} else {
 			$value = (int)$value;
 			$set[] = "$key=$value";
@@ -214,13 +225,13 @@ public static function WriteAccount( $id, $fields ) {
 		
 	}
 	if( empty( $set ) ) return;
-	
-	$result = $db->RunQuery( 	
+	 
+	$db->RunQuery( 	
 		"UPDATE Accounts
 		SET ". implode( ',' , $set ) . "
 		WHERE id = $id" );
 	
-	if( $result->affected_rows == 0 ) {
+	if( $db->affected_rows == 0 ) {
 		throw new InvalidAccountException( $id );
 	}
 }
@@ -257,9 +268,14 @@ public static function CheckLogin( $ctoken ) {
 	
 	if( !isset( $_COOKIE['ctoken'] ) ) return FALSE;
 	
-	if( $_COOKIE['ctoken'] != $ctoken ) {
-		// csrf attack :o
-		return FALSE;
+	if( $ctoken !== FALSE ) {
+		if( $_COOKIE['ctoken'] != $ctoken ) {
+			// csrf attack :o
+			return FALSE;
+		}
+	} else {
+		// bypass check from non-request login
+		
 	}
 	
 	// first check if they are logged in via their session.
@@ -294,6 +310,7 @@ public static function CheckLogin( $ctoken ) {
 		return FALSE;
 	}
 	 
+	self::RefreshCToken(); // new session refresh
 	self::SetLoggedIn( (int)$row['account'], null, null );
  
 	return self::$account_id;
@@ -489,7 +506,7 @@ public static function CreateAccount( $username, $password, $nickname ) {
  * @throws SQLException if a database error occurs.
  */
 public static function EditProfile( $nickname, $realname, $website, $bio ) {
-	if( !LoggedIn() ) throw new Exception( "not logged in." );
+	if( !User::LoggedIn() ) throw new Exception( "not logged in." );
 	$db = \SQLW::Get();
 	
 	$nickname = trim($nickname);
@@ -503,10 +520,12 @@ public static function EditProfile( $nickname, $realname, $website, $bio ) {
 	$website = $db->real_escape_string( $website );
 	$bio = $db->real_escape_string( $bio );
 	
-	$db->RunQuery( "UPDATE Accounts 
-					SET nickname='$nickname', realname='$realname',
-					website='$website', bio='$bio'
-					WHERE id=".self::AccountID() );
+	self::WriteAccount( self::AccountID(), [
+			'nickname' => $nickname, 
+			'name' => $realname, 
+			'website' => $website, 
+			'bio' => $bio 
+	]);
 }
  
 } // class User

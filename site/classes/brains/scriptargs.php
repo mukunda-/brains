@@ -2,7 +2,7 @@
 
 namespace Brains;
 
-class ScriptArgsException extends Exception {}
+class ScriptArgsException extends \Exception {}
 
 /** 
  * Utility class to validate arguments from a request.

@@ -18,8 +18,7 @@ var m_vertical;
 var m_async = AsyncGroup.Create();
 
 var m_logged_in;
-var m_account;
-var m_username;
+var m_userdata;
 var m_captcha_validated;
 
 var m_current_thought = null;
@@ -35,7 +34,6 @@ var s_votebuttons;
 function AdjustThoughtSize() {
 	var e = $(this);
 	var length = $("#magicbox2").text( e.text() ).innerWidth();
-	console.log( "ajs - " + length );
 	if( length < 240 ) {
 			
 	} else {
@@ -119,6 +117,9 @@ function AdjustNewLinkInputSize() {
 		newlink.width( width );
 }
 
+/** ---------------------------------------------------------------------------
+ * Filter certain keypresses from a thought field.
+ */
 function FilterThoughtKeys( e ) {
 	if( (e.which >= 65 && e.which <= 90)  // A-Z
 		|| (e.which >= 97 && e.which <= 122) // a-z
@@ -170,7 +171,7 @@ function ScoreRank( score ) {
  * @param object data Data from response.
  */
 function PageContent_LastLink( out, data ) {
-	var nick = data.creator == m_account ? 
+	var nick = data.creator == brains.GetAccountID() ? 
 			'<span class="nick owner">you' :
 			'<span class="nick other">'+ data.creator_nick;
 	var rank = ScoreRank( data.score );
@@ -521,18 +522,28 @@ function FollowLink( input, method ) {
  * Set the logged in state.
  *
  * @param bool value Value of logged in state.
- * @param string username The username they are logged in with.
+ * @param object userdata Basic account information for the session.
+ *                 "account": Account ID
+ *                 "username": Username
+ *                 "nickname": Nickname
  */
-brains.SetLoggedIn = function( value, username, account ) {
+brains.SetLoggedIn = function( value, userdata ) {
 	m_logged_in = value;
 	if( value ) {
-		
-		m_username = username;
-		m_account = account;
+		m_userdata = userdata;
 	} else {
-		m_username = "";
-		m_account = 0;
+		m_userdata = null;
 	}
+	UpdateUserBlock();
+}
+
+/** ---------------------------------------------------------------------------
+ * Change the user's nickname (visually only)
+ *
+ * @param string nickname New nickname.
+ */
+brains.SetNickname = function( nickname ) {
+	m_userdata.nickname = nickname;
 	UpdateUserBlock();
 }
 
@@ -547,7 +558,7 @@ function UpdateUserBlock() {
 		
 	if( m_logged_in ) {
 		icon.addClass( "fa-cog" );
-		$("#user").children( "span" ).text( m_username );
+		$("#user").children( "span" ).text( m_userdata.nickname );
 	} else {
 		icon.addClass( "fa-sign-in" );
 		$("#user").children( "span" ).text( "" );
@@ -587,7 +598,7 @@ brains.LoggedIn = function() {
  * Returns active account ID or 0 if not logged in.
  */
 brains.GetAccountID = function() {
-	return m_logged_in ? m_account : 0;
+	return m_logged_in ? m_userdata.account : 0;
 }
 
 /** ---------------------------------------------------------------------------
@@ -643,7 +654,7 @@ $( function() {
 	
 	$("#user").click( function( e ) {
 		if( m_logged_in ) {
-			brains.ShowProfileDialog( m_account, true );
+			brains.ShowProfileDialog( m_userdata.account, true );
 		} else {
 			brains.ShowLoginDialog( "" );
 		}
@@ -665,6 +676,6 @@ $( function() {
 
 brains.OnNewQuery = OnNewQuery;
 brains.AdjustSizes = AdjustSizes;
-brains.CToken = CToken();
+brains.CToken = CToken;
 
 } )();

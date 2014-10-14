@@ -6,7 +6,7 @@ date_default_timezone_set( 'America/Chicago' );
 
 require_once 'core.php';
 
-User::CheckLogin();
+User::CheckLogin( FALSE );
 
 if( Config::DebugMode() ) {
 	require_once 'dev/build.php';
@@ -32,8 +32,14 @@ if( Config::DebugMode() ) {
 		<?php
 			echo '<script>';
 			if( User::LoggedIn() ) {
+			
+				$login_data = [ 
+					'account'  => User::AccountID(), 
+					'username' => User::GetUsername(), 
+					'nickname' => User::GetNickname() 
+				];
 				
-				echo 'brains.SetLoggedIn( true, '.json_encode(User::GetUsername()).', '.User::AccountID().' ); ';
+				echo 'brains.SetLoggedIn( true, '.json_encode( $login_data ).' ); ';
 				 
 			}
 			

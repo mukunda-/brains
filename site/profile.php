@@ -48,7 +48,7 @@ try {
 		Response::SendSimple( R_INVALID );
 	}
 	
-	if( $info['realname'] === null ) $info['realname'] = "";
+	if( $info['name'] === null ) $info['name'] = "";
 	if( $info['website'] === null ) $info['website'] = "";
 	if( $info['bio'] === null ) $info['bio'] = "";
 	

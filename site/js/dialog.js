@@ -1,12 +1,11 @@
 /*!
  * Copyright 2014 Mukunda Johnson
  */
-
 brains.Dialog = new function() { 
-
-console.log(this);
   
 var m_locked = false;
+
+var m_locked_selection;
   
 /** ---------------------------------------------------------------------------
  * Show the dialog box.
@@ -56,14 +55,16 @@ function SetInit( f ) {
  * Lock the dialog box, preventing interaction until a process has completed.
  *
  * Must be unlocked later with Unlock().
- */
- 
+ */ 
 function Lock() {
 	if( m_locked ) return;
 	m_locked = true;
 	dialog = $("#dialog");
-	dialog.find( "input" ).attr( "disabled", "disabled" );
-	
+	m_locked_selection = dialog.find( 
+		"input:enabled, textarea:enabled, button:enabled" )
+		.attr( "disabled", "disabled" );
+		
+	//.attr( "disabled", "disabled" );
 } 
 
 /** ---------------------------------------------------------------------------
@@ -72,8 +73,8 @@ function Lock() {
 function Unlock() {
 	if( !m_locked ) return;
 	m_locked = false;
-	dialog = $("#dialog");
-	dialog.find( "input" ).removeAttr( "disabled" );
+	
+	m_locked_selection.removeAttr( "disabled" );
 	
 } 
 

@@ -16,22 +16,29 @@ var m_loader = AsyncGroup.Create();
  * Show the profile dialog
  *
  * @param int account ID of account to show profile for.
+ * @param string Nickname Nickname to show, or undefined for unknown.
+ * @param object preloaded Preloaded data, or undefined for unknown.
  */
-function ShowProfileDialog( account, self ) {
+function ShowProfileDialog( account, nickname, preloaded ) {
 	brains.Dialog.Show( "profile" );
-	InitProfileDialog( account, self );
+	InitProfileDialog( account, nickname, preloaded );
 }
 
 /** ---------------------------------------------------------------------------
  * Hook stuff and load the content.
  */
-function InitProfileDialog( account, self ) {
-	$("#dialog_desc").text( self ? "Your profile" : "Profile for ..." );
+function InitProfileDialog( account, nickname, preloaded ) {
+	$("#dialog_desc").text( self ? 
+			"Your profile" : 
+			"Profile for " + isSet( nickname ) ? nickname : "..." );
+			
 	$("#profile_button_close").click( OnClickedCloseButton );
 	$("#profile_button_edit").click( OnClickedEditButton );
 	
 	function on_fail() {
-		$("#dialog").children( ".profile_content_loading_text" ).text( "error. please try again later." );
+		$("#dialog")
+			.children( ".profile_content_loading_text" )
+			.text( "error. please try again later." );
 	}
 	
 	m_loader.AddAjax( $.get( "profile.php", { account: account } ) )
@@ -144,11 +151,11 @@ function OnEditProfileSave() {
 	var realname = brains.ReadDialogField( "text_realname", "realname" );
 	var website = brains.ReadDialogField( "text_website", "website" );
 	var bio = brains.ReadDialogField( "text_bio", "bio" );
-	if( nick === false || realname === false || 
+	if( nickname === false || realname === false || 
 	    website === false || bio === false ) return;
 	
 	var post = {
-		nickname: nick, 
+		nickname: nickname, 
 		realname: realname, 
 		website: website, 
 		bio: bio,
@@ -164,13 +171,17 @@ function OnEditProfileSave() {
 			try {
 				if( data == "" ) throw "No data.";
 				data = JSON.parse( data );
+				alert(data.status);
+				
 				switch( data.status ) {
 					case "login.":
 						brains.SetLoggedIn( false );
 						brains.ShowLoginDialog( "Your session expired." );
 						return;
 					case "okay.":
-						ShowProfileDialog( m_account, true );
+						ShowProfileDialog( brains.GetAccountID(), true );
+						brains.SetNickname( nickname );
+						m_edit_cache = null; 
 						return;
 					default:
 					case "error.":
@@ -178,12 +189,12 @@ function OnEditProfileSave() {
 						throw "Error.";
 				}
 			} catch( err ) {
-				ShowError( "An error occurred. Please try again." );
+				brains.Dialog.ShowError( "An error occurred. Please try again." );
 			}
 		})
 		.fail( function() {
 			brains.Dialog.Unlock();
-			ShowError( "An error occurred. Please try again." );
+			brains.Dialog.ShowError( "An error occurred. Please try again." );
 		})
 }
 

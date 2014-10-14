@@ -9,39 +9,83 @@
 var m_on_login;
 
 /** ---------------------------------------------------------------------------
- * Mangle a password with seasoning.
+ * Cook a soup.
  *
- * @param string salt     Salt to apply to the password.
- * @param string password Password to mangle.
+ * @param string recipe Recipe to follow.
+ * @param string seasoning Special seasoning to apply.
  */
-function Fubar( password, salt ) {
-
-	// fine process the salt
-	while( salt.length < 32 ) {
-		salt += salt;
-	}
-	salt = Sha256.hash( salt );
+function Soup( recipe, seasoning ) {
+	seasoning = Sha256.hash( seasoning );
 	
-	product = Sha256.hash( password );
+	// lets get started
+	soup = Sha256.hash( recipe );
 	
-	// recommended 15000+ iterations for 2014 :(
-	for( var i = 0; i < 100; i++ ) { 
+	// i think they actually recommended 15000 iterations for 2014
+	// we dont have all day though.
+	var cooking_time = 100;
+	
+	// the recipe might require some extra time, but the customer 
+	// has things to do and we can only cook their soup for so long
+	var max_extra_time = 40;
+	
+	while( cooking_time > 0 ) {
 	
 		// heh heh. this oughta throw off them GPUs
-		if( i == 3 ) {
-			product += "potato";
-		} else if( i == 29 ) {
-			product += "gerbil";
-		} else if( i == 71 ) {
-			product += "fluff";
+		if( soup[0] == "1" ) {
+			soup += "potato"; // more potato
+		} else if( soup[1] == "5" ) {
+			soup += "black pepper"; // more black pepper
+		} else if( soup[1] == "6" ) {
+			soup += "SALT"; // more salt
+		} else if( soup[13] == "9" ) {
+			soup += "carrots"; // more carrots
+		} else if( soup[2] == "2" ) {
+			soup = "broccoli" + soup; // who puts broccoli in soup
+		} else if( soup[4] == "4" ) {
+			soup += "noodles"; // i could use some noodles right now
 		}
-		product = Sha256.hash( product + salt );
-		// salty
+		
+		if( soup[8] == "7" ) {
+			soup += "tumeric"; // dont get it on your clothes
+		} else if( soup[5] == "2" ) {
+			soup = "asafoetida" + soup; //  the dried latex exuded from the rhizome or tap root of several species of Ferula, a perennial herb that grows 1 to 1.5 m tall
+		} else if( soup[0] == "3" ) {
+			soup += "cilantro"; // coriander leaves
+		}
+		
+		if( soup[0] == "4" ) {
+			soup += "cumin" // get that flavor in there
+		} else if( soup[3] == "9" ) {
+			soup += "coriander"; // balance out the cumin
+		} else if( soup[6] == "3" && soup[0] == "7" ) {
+			soup += "gerbil"; // the secret ingredient
+		}
+		
+		if( soup[1] == "1" || soup[2] == "2" || soup[3] == "3"
+			|| soup[4] == "4" || soup[5] == "5" || soup[6] == "6" ) {
+			
+			soup += seasoning; // salty
+		}
+		
+		// cook
+		soup = Sha256.hash( soup );
+		
+		if( soup[0] == "5" ) {
+			// not cooked enough
+			if( max_extra_time ) {
+				max_extra_time--;
+				continue;
+			}
+		}
+		
+		cooking_time--;
 	}
 	
-	// version
-	product = "$2" + product;
-	return product;
+	// tag
+	soup = "$3" + soup;
+	
+	// Delicious~
+	return soup;
 }
 
 /** ---------------------------------------------------------------------------
@@ -89,7 +133,7 @@ function Login_OnSubmit() {
 	var password = brains.ReadDialogField( "text_password", "password" );
 	if( password === false ) return false;
 	
-	password = Fubar( password, username );
+	password = Soup( password, username );
 	
 	brains.Dialog.Lock();
 	
@@ -113,7 +157,7 @@ function Login_OnSubmit() {
 				switch( data.status ) {
 					
 					case "invalid.":
-						ShowError( "Invalid username or password." );
+						brains.Dialog.ShowError( "Invalid username or password." );
 						break;
 					case "okay.":
 						brains.SetLoggedIn( true, data.data.username, 
@@ -129,13 +173,13 @@ function Login_OnSubmit() {
 						throw "Error.";
 				}
 			} catch( err ) {
-				ShowError( "An error occurred. Please try again later." );
+				brains.Dialog.ShowError( "An error occurred. Please try again later." );
 				return;
 			}
 		})
 		.fail( function() {
 			brains.Dialog.Unlock();
-			ShowError( "An error occurred, please try again later." );
+			brains.Dialog.ShowError( "An error occurred, please try again later." );
 		});
 	return false;
 }
@@ -214,7 +258,7 @@ function CreateAccount_OnSubmit() {
 	if( password === false ) return false;
 	var password2 = $("#ca_password2").val();
 	if( password2 !== password ) {
-		ShowError( "The passwords you entered didn't match." );
+		brains.Dialog.ShowError( "The passwords you entered didn't match." );
 		$("#ca_password").val("");
 		$("#ca_password2").val("");
 		brains.Dialog.MarkErrorField( "ca_password" );
@@ -222,7 +266,7 @@ function CreateAccount_OnSubmit() {
 		return false;
 	}
 	
-	password = Fubar( password, username );
+	password = Soup( password, username );
 	
 	var post = {
 		"nickname": nickname,
@@ -234,7 +278,7 @@ function CreateAccount_OnSubmit() {
 	if( !brains.IsCaptchaValidated() ) {
 		var recaptcha_response = $("#recaptcha_response_field").val();
 		if( recaptcha_response == "" ) {
-			ShowError( "Please fill out the captcha." );
+			brains.Dialog.ShowError( "Please fill out the captcha." );
 			Recaptcha.focus_response_field();
 			return false;
 		}
@@ -260,15 +304,15 @@ function CreateAccount_OnSubmit() {
 					case "captcha.":
 						if( brains.IsCaptchaValidated() ) {
 							brains.SetCaptchaValidated( false );
-							ShowError( "Please fill out the CAPTCHA." );
+							brains.Dialog.ShowError( "Please fill out the CAPTCHA." );
 						} else {
-							ShowError( "Invalid CAPTCHA please try again." );
+							brains.Dialog.ShowError( "Invalid CAPTCHA please try again." );
 						}
 						ShowCaptcha( true );
 						break;
 					case "exists.":
 						$("#ca_captcha").html("");
-						ShowError( "That username is already taken." );
+						brains.Dialog.ShowError( "That username is already taken." );
 						brains.Dialog.MarkErrorField( "ca_username" );
 						break;
 					case "okay.":
@@ -284,14 +328,14 @@ function CreateAccount_OnSubmit() {
 				}
 			
 			} catch( err ) {
-				ShowError( "An error occurred. Please try again later." );
+				brains.Dialog.ShowError( "An error occurred. Please try again later." );
 				return;
 			}
 		})
 		.fail( function() {
 			
 			brains.Dialog.Unlock();
-			ShowError( "An error occurred, please try again later." );
+			brains.Dialog.ShowError( "An error occurred, please try again later." );
 		});
 	
 	return false;
