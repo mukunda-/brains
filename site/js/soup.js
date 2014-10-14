@@ -5,7 +5,7 @@
 /** ---------------------------------------------------------------------------
  * Cook a soup.
  *
- * @param string recipe Recipe to follow.
+ * @param string recipe    Recipe to follow.
  * @param string seasoning Special seasoning to apply.
  */
 function Soup( recipe, seasoning ) {
