@@ -186,7 +186,7 @@ final class ThoughtLink {
 			$db->RunQuery(
 				"INSERT INTO Links (thought1, thought2, time, creator )
 				VALUES ( $ordered1->id, $ordered2->id, $time, $creator )" );
-		} catch( SQLException $e ) {
+		} catch( \SQLException $e ) {
 			if( $e->code == 2601 ) { // 2601: duplicate key.
 				return FALSE;
 			}
@@ -204,7 +204,7 @@ final class ThoughtLink {
 					// if in some event Vote fails, we just skip the auto vote
 					$vote = null;
 				}
-			} catch( SQLException $e ) {
+			} catch( \SQLException $e ) {
 				// such robust
 				$vote = null;
 			}
@@ -311,7 +311,7 @@ final class ThoughtLink {
 					$db->RunQuery( 
 						"INSERT INTO Votes (thought1, thought2, account, time, vote )
 						VALUES ($source->id, $dest->id, $accountid, $time, $voteval )" );
-				} catch( SQLException $e ) { 
+				} catch( \SQLException $e ) { 
 					if( $e->code == SQL_ER_DUP_KEY ) {
 						$db->RunQuery( 'ROLLBACK' );
 						return FALSE;
@@ -344,7 +344,7 @@ final class ThoughtLink {
 		// and update database.
 		try {
 			self::Vote( $this->source, $this->dest, User::AccountID(), $vote );
-		} catch( SQLException $e ) {
+		} catch( \SQLException $e ) {
 			Logger::PrintException( $e );
 			return;
 		}

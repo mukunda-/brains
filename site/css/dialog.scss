@@ -121,6 +121,14 @@
 		font-size: 70%;
 		padding: 16px;
 	}
+	
+	.view_profile_button {
+		@media (max-width:370px) {
+			display:block;
+			width:60%;
+			
+		}
+	}
 }
 
 #dialog_error {

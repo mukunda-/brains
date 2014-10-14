@@ -67,7 +67,7 @@ try {
 	$response->data['perfects'] = $info['perfectlinks'];
 	$response->Send( R_OKAY );
 	
-} catch( Exception $e ) {
+} catch( \Exception $e ) {
 	Logger::PrintException( $e );
 }
 

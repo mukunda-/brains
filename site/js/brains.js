@@ -547,6 +547,7 @@ brains.SetNickname = function( nickname ) {
 	UpdateUserBlock();
 }
 
+
 /** ---------------------------------------------------------------------------
  * Update the HTML for the #user block with their username and adjust the
  * icon accordingly.
@@ -599,6 +600,13 @@ brains.LoggedIn = function() {
  */
 brains.GetAccountID = function() {
 	return m_logged_in ? m_userdata.account : 0;
+}
+
+/** ---------------------------------------------------------------------------
+ * Get the user's username or "" if not logged in.
+ */
+brains.GetUsername = function() {
+	return m_logged_in ? m_userdata.username : "";
 }
 
 /** ---------------------------------------------------------------------------

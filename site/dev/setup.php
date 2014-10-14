@@ -1,5 +1,7 @@
 <?php
 
+namespace Brains;
+
 chdir('..');
 
 require_once 'core.php';
@@ -56,7 +58,7 @@ $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS LoginTokens (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		account INT UNSIGNED NOT NULL COMMENT 'Account ID that this token is for.', 
-		secret  BINARY(16) NOT NULL   COMMENT 'Hashed secret code.',
+		secret  VARCHAR(255) NOT NULL COMMENT 'Hashed secret code.',
 		expires INT UNSIGNED          COMMENT 'Unixtime of expiry.'
 	) 
 	ENGINE = InnoDB

@@ -86,7 +86,7 @@ final class Thought {
 			$db->RunQuery(
 				"INSERT IGNORE INTO Thoughts ( creator, `time`, phrase )
 				VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')" );
-		} catch( SQLException $e ) {
+		} catch( \SQLException $e ) {
 			if( $e->code == SQLW::ER_DUP_KEY ) {
 				// someone else created the thought before us somehow..
 				$result = $db->RunQuery( 

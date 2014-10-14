@@ -118,7 +118,7 @@ try {
 	$response->data['logged_in'] = User::LoggedIn();
 	$response->Send( R_OKAY );
 	 
-} catch( Exception $e ) {
+} catch( \Exception $e ) {
 	Logger::PrintException( $e );
 }
 

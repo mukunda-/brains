@@ -71,9 +71,10 @@ try {
 	$response = new Response();
 	$response->data['username'] = User::GetUsername();
 	$response->data['accountid'] = User::AccountID();
+	$response->data['nickname'] = User::GetNickname();
 	$response->Send( R_OKAY );
 	
-} catch( Exception $e ) {
+} catch( \Exception $e ) {
 	Logger::PrintException( $e );
 }
 

@@ -164,13 +164,13 @@ if( Config::DebugMode() ) {
 					<div id="dialog_error" class="dialog_error"></div>
 					<form id="form_createaccount">
 						<div class="fieldname">Nickname</div><div class="optdesc">What other people will see you as. This can be changed later.</div>
-						<input type="text" class="textinput" id="ca_nickname"><hr>
+						<input type="text" class="textinput" id="ca_nickname" autocomplete="off"><hr>
 						<div class="fieldname">Username/E-mail</div><div class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username.</div>
-						<input type="text" class="textinput" id="ca_username"><hr>
+						<input type="text" class="textinput" id="ca_username" autocomplete="off"><hr>
 						<div class="fieldname">Password</div><div class="optdesc">Don't forget this.</div>
-						<input type="password" class="textinput" id="ca_password"><hr>
+						<input type="password" class="textinput" id="ca_password" autocomplete="off"><hr>
 						<div class="fieldname">Re-type Password</div>
-						<input type="password" class="textinput" id="ca_password2"><hr><br>
+						<input type="password" class="textinput" id="ca_password2" autocomplete="off"><hr><br>
 						<div id="ca_captcha"></div>
 						
 						<input type="submit" class="submitinput" value="Create Account">
@@ -220,10 +220,11 @@ if( Config::DebugMode() ) {
 			</div>
 			<div class="profile_content_loading_text">loading...</div>
 			<center>
-				<button id="profile_button_close">Okay</button> 
+				<button id="profile_button_close" class="view_profile_button">Okay</button> 
 				<span id="profile_selfbuttons" class="hidden">
-					<button id="profile_button_edit">Edit</button>
-					<button id="profile_button_chgpassword">Change password</button>
+					<button id="profile_button_edit" class="view_profile_button">Edit</button>
+					<button id="profile_button_chgpassword" class="view_profile_button">Change password</button>
+					<button id="profile_button_signout" class="view_profile_button">Sign Out</button>
 				</span>
 			</center>
 		</template>
@@ -249,6 +250,24 @@ if( Config::DebugMode() ) {
 				<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
 			</center>
 			</form>
+		</template>
+		
+		<template id="dialog_chgpassword">
+			<div class="desc" id="dialog_desc">Change your password</div>
+			
+			<center>
+				<div id="dialog_error" class="dialog_error"></div>
+				<form id="form_chgpassword">
+					<div class="fieldname">Current password</div>
+					<input type="password" class="textinput" id="cp_current" autocomplete="off"><hr>
+					<div class="fieldname">New Password</div>
+					<input type="password" class="textinput" id="cp_password" autocomplete="off"><hr>
+					<div class="fieldname">Re-type Password</div>
+					<input type="password" class="textinput" id="cp_password2" autocomplete="off"><hr>
+					<input type="submit" class="submitinput" value="Change Password">
+					<input type="button" class="submitinput" id="button_cancel" value="Cancel">
+				</form>
+			</center>
 		</template>
 	</body>
 </html>

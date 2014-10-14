@@ -3,7 +3,7 @@
 /** ---------------------------------------------------------------------------
  * Exception thrown from MySQLW::RunQuery
  */
-class SQLException extends Exception {
+class SQLException extends \Exception {
 	public $code; // mysqli errno
 	
 	public function __construct( $errno, $error ) {	

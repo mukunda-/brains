@@ -59,7 +59,7 @@ try {
 		ThoughtLink::FindLinks( $thought, User::AccountID() ) );
 	
 	$response->Send( R_OKAY );
-} catch( Exception $e ) {
+} catch( \Exception $e ) {
 	Logger::LogException( $e );
 }
 

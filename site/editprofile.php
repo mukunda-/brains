@@ -40,7 +40,7 @@ try {
 	
 	Response::SendSimple( R_OKAY );
 	
-} catch( Exception $e ) {
+} catch( \Exception $e ) {
 	Logger::PrintException( $e );
 }
 

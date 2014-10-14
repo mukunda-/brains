@@ -1,13 +1,16 @@
 /*!
  * Copyright 2014 Mukunda Johnson
  */
- 
+
+// dialogs for viewing profile, editing profile, and changing password 
 (function() { window.brains = window.brains || {};
 
 var m_profile_data = null;
 
 // a little something to save the poor soul who types a long bio
 // that gets erased because the login session expired.
+// this gets set before the request to save the profile, and if the 
+// save fails, it is used to populate the edit profile dialog later on.
 var m_edit_cache = null;
 
 var m_loader = AsyncGroup.Create();
@@ -26,6 +29,8 @@ function ShowProfileDialog( account, nickname, preloaded ) {
 
 /** ---------------------------------------------------------------------------
  * Hook stuff and load the content.
+ *
+ * params are forwarded from ShowProfileDialog.
  */
 function InitProfileDialog( account, nickname, preloaded ) {
 	$("#dialog_desc").text( self ? 
@@ -34,6 +39,8 @@ function InitProfileDialog( account, nickname, preloaded ) {
 			
 	$("#profile_button_close").click( OnClickedCloseButton );
 	$("#profile_button_edit").click( OnClickedEditButton );
+	$("#profile_button_chgpassword").click( OnClickedPasswordButton );
+	$("#profile_button_signout").click( OnClickedSignOut );
 	
 	function on_fail() {
 		$("#dialog")
@@ -41,24 +48,29 @@ function InitProfileDialog( account, nickname, preloaded ) {
 			.text( "error. please try again later." );
 	}
 	
-	m_loader.AddAjax( $.get( "profile.php", { account: account } ) )
-		
-		.done( function( response ) {
-			alert(response);
-			try {
-				if( response == "" ) throw "no data.";
-				response = JSON.parse( response );
-				if( response.status != "okay." ) throw "error.";
-				
-				OutputProfileContent( response.data );
-				
-			} catch( err ) {
-				on_fail();
-			}
-		}).fail( function() {
-			on_fail();
-		});
+	if( !preloaded ) {
 	
+		m_loader.AddAjax( $.get( "profile.php", { account: account } ) )
+			
+			.done( function( response ) {
+				alert(response);
+				try {
+					if( response == "" ) throw "no data.";
+					response = JSON.parse( response );
+					if( response.status != "okay." ) throw "error.";
+					
+					OutputProfileContent( response.data );
+					
+				} catch( err ) {
+					on_fail();
+				}
+			}).fail( function() {
+				on_fail();
+			});
+	} else {
+		OutputProfileContent( preloaded );
+			
+	}
 //	if( self ) {
 //		$("#profile_editbutton").removeClass( "hidden" );
 //	}
@@ -101,7 +113,7 @@ function OutputProfileContent( data ) {
 		html.push( ProfileEntryTemplate( "Perfect links discovered:", data.perfects ) );
 	}
 	if( data.bio != "" ) {
-		html.push( ProfileEntryTemplate( "Bio", data.bio ) );
+		html.push( ProfileEntryTemplate( "Bio", "<br>" + data.bio ) );
 	}
 	
 	target.html( html.join("") );
@@ -113,19 +125,54 @@ function OutputProfileContent( data ) {
 	}
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Callback for when the Okay button is pressed in the View Profile dialog.
+ */
 function OnClickedCloseButton() {
 	m_loader.ClearAll();
 	brains.Dialog.Close();
 }
 
-//-----------------------------------------------------------------------------
+
+/** ---------------------------------------------------------------------------
+ * Callback for when the Edit button is pressed in the View Profile dialog.
+ */
 function OnClickedEditButton() {
 	brains.Dialog.Show( "editprofile" );
 	InitEditProfileDialog();
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Callback for when the Change Password button is pressed in the 
+ * View Profile dialog.
+ */
+function OnClickedPasswordButton() {
+	brains.Dialog.Show( "chgpassword" );
+	InitChangePasswordDialog();
+}
+
+/** ---------------------------------------------------------------------------
+ * When the user presses Sign Out
+ */
+function OnClickedSignOut() {
+	brains.Dialog.Lock();
+	$.get( "logout.php" )
+		.done( function( data ) {
+			
+			brains.Dialog.Unlock();
+			if( data == "" ) { // if data != "" then an error occurred.
+				brains.SetLoggedIn( false );
+				brains.Dialog.Close();
+			}
+		})
+		.fail( function() {
+			brains.Dialog.Unlock();
+		});
+}
+
+/** ---------------------------------------------------------------------------
+ * Initializer for the Edit Profile dialog.
+ */
 function InitEditProfileDialog() {
 	$("#button_save").click( OnEditProfileSave );
 	$("#button_cancel").click( OnEditProfileClose );
@@ -144,7 +191,9 @@ function InitEditProfileDialog() {
 	}
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Callback for when the Save button is clicked in the Edit Profile dialog.
+ */
 function OnEditProfileSave() {
 	// validate input.
 	var nickname = brains.ReadDialogField( "text_nickname", "nickname" );
@@ -179,7 +228,16 @@ function OnEditProfileSave() {
 						brains.ShowLoginDialog( "Your session expired." );
 						return;
 					case "okay.":
-						ShowProfileDialog( brains.GetAccountID(), true );
+						ShowProfileDialog( brains.GetAccountID(), nickname, { 
+								id: brains.GetAccountID(),
+								nickname: nickname, 
+								realname: realname, 
+								website: website, 
+								bio: bio, links: 
+								m_profile_data.links, 
+								strongs: m_profile_data.strongs, 
+								perfects: m_profile_data.perfects 
+							});
 						brains.SetNickname( nickname );
 						m_edit_cache = null; 
 						return;
@@ -198,8 +256,83 @@ function OnEditProfileSave() {
 		})
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Callback for when Cancel is clicked in the edit profile dialog.
+ */
 function OnEditProfileClose() {
+	brains.Dialog.Close();
+}
+
+/** ---------------------------------------------------------------------------
+ * Initializer for the Change Password dialog.
+ */
+function InitChangePasswordDialog() {
+	$("#form_chgpassword").submit( function() {
+		OnChangePasswordSubmit();
+		return false;
+	});
+	
+	$("#button_cancel").click( OnChangePasswordCancel );
+}
+
+/** ---------------------------------------------------------------------------
+ * Callback for when "Change Password" is clicked, or the form is submitted.
+ */
+function OnChangePasswordSubmit() {
+	var current = brains.ReadDialogField( "cp_current", "password" );
+	var desired = brains.ReadDialogField( "cp_password", "password" );
+	if( current === false || desired === false ) return;
+	var verify = $("#cp_password2").val();
+		
+	if( verify != desired ) {
+		brains.Dialog.ShowError( "The passwords you entered didn't match." );
+		$("#cp_password").val("");
+		$("#cp_password2").val("");
+		brains.Dialog.MarkErrorField( "cp_password" );
+		brains.Dialog.MarkErrorField( "cp_password2" );
+		return;
+	}
+	
+	current = Soup( current, brains.GetUsername() );
+	desired = Soup( current, brains.GetUsername() );
+	 
+	brains.Dialog.Lock();
+	$.post( "changepassword.php", {
+					ctoken: brains.CToken(),
+					current: current,
+					"new": desired })		
+		.done( function( data ) {
+			brains.Dialog.Unlock();
+			alert(data);
+			switch( data ) {
+			case "login.":
+				brains.SetLoggedIn( false );
+				alert( "Your session expired. Cannot change password." );
+				brains.Dialog.Close();
+				return;
+			case "invalid.":
+				alert( "The password you entered didn't match your current password." );
+				return;
+			case "okay.":
+				alert( "Your password has been updated." );
+				return;
+			default:
+			case "error.":
+				alert( "An error occurred. Please try again later." );
+				return;
+			}
+		})
+		.fail( function() {
+			brains.Dialog.Unlock();
+			alert( "An error occurred. Please try again later." );
+			return;
+		});
+}
+
+/** ---------------------------------------------------------------------------
+ * Callback for when Cancel is clicked in the change password dialog.
+ */
+function OnChangePasswordCancel() {
 	brains.Dialog.Close();
 }
 

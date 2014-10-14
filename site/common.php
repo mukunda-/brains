@@ -65,7 +65,7 @@ function OpenSession() {
 		$_SESSION['sessionkey'] != $_COOKIE['sessionkey'] ) {
 
 		// reset session.
-		$_SESSION = array();
+		$_SESSION = [];
 		$key = Garbage::Produce( 16 );
 		$_SESSION['sessionkey'] = $key;
 		setcookie( "sessionkey", $key, 

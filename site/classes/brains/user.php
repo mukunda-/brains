@@ -87,7 +87,7 @@ public static function SetLoggedIn( $account_id,
 	} else {
 		self::$logged_in = false;
 		self::$account_id = 0;
-		setcookie( "ctoken", "", 0, GetDocumentRoot() );
+		self::DeleteLoginToken();
 		if( isset( $_SESSION['account_id'] ) ) {
 			unset( $_SESSION['account_id'] );
 		}
@@ -248,8 +248,8 @@ public static function ParseLoginToken( &$id, &$secret ) {
 	$a = $_COOKIE['login'];
 	$split = strpos($a,'/');
 	if( $split === FALSE ) return FALSE;
-	$id = intval( substring( $a, 0, $split ) );
-	$secret = substring( $a, $split +1 );
+	$id = intval( substr( $a, 0, $split ) );
+	$secret = substr( $a, $split +1 );
 	if( $id == 0 ) return FALSE;
 	return TRUE;
 }
@@ -306,7 +306,7 @@ public static function CheckLogin( $ctoken ) {
 		// and tempban ip if they accumulate.
 		
 		// clear saved login cookie
-		setcookie( "login", 0, 0, $config->AbsPath() );
+		setcookie( "login", 0, 0, GetDocumentRoot() );
 		return FALSE;
 	}
 	 
@@ -366,9 +366,9 @@ private static function CreateLoginToken() {
 	$secret = Garbage::Produce( 32 );
 	$id = self::$account_id;
 	
-	$secrethash = password_hash($secret);
+	$secrethash = password_hash( $secret, PASSWORD_DEFAULT );
 	if( $secrethash === FALSE ) return; // failure
-	$expires = time() + \Config::$AUTHTOKEN_DURATION;
+	$expires = time() + Config::$AUTHTOKEN_DURATION;
 	
 	$db->RunQuery( 
 		"INSERT INTO LoginTokens (account, secret, expires)
@@ -378,8 +378,18 @@ private static function CreateLoginToken() {
 	$row = $result->fetch_row();
 	
 	setcookie( "login", $row[0] . '/' . $secret, 
-		$expires, $config->AbsPath(), $config->SecureMode() );
+		$expires, GetDocumentRoot(), Config::SecureMode() );
 	
+}
+
+/** ---------------------------------------------------------------------------
+ * Remove the login token cookie. Doesn't delete the token in the database
+ * but who cares.
+ *
+ * A scheduled task should clean up expired tokens.
+ */
+private static function DeleteLoginToken() {
+	setcookie( "login", "", 0, GetDocumentRoot() );
 }
 
 /** ---------------------------------------------------------------------------
@@ -481,7 +491,7 @@ public static function CreateAccount( $username, $password, $nickname ) {
 		
 		
 		
-	} catch ( SQLException $e ) {
+	} catch ( \SQLException $e ) {
 		$db->RunQuery( 'ROLLBACK' );
 		throw $e;
 	}
@@ -506,7 +516,7 @@ public static function CreateAccount( $username, $password, $nickname ) {
  * @throws SQLException if a database error occurs.
  */
 public static function EditProfile( $nickname, $realname, $website, $bio ) {
-	if( !User::LoggedIn() ) throw new Exception( "not logged in." );
+	if( !User::LoggedIn() ) throw new \Exception( "not logged in." );
 	$db = \SQLW::Get();
 	
 	$nickname = trim($nickname);
@@ -514,7 +524,8 @@ public static function EditProfile( $nickname, $realname, $website, $bio ) {
 	$website = trim($website);
 	$bio = trim($bio);
 	
-	if( $nickname == "" ) throw new Exception( "nickname cannot be empty." );
+	if( $nickname == "" ) throw new \Exception( "nickname cannot be empty." );
+	$_SESSION['account_nickname'] = $nickname;
 	$nickname = $db->real_escape_string( $nickname );
 	$realname = $db->real_escape_string( $realname );
 	$website = $db->real_escape_string( $website );
@@ -526,6 +537,31 @@ public static function EditProfile( $nickname, $realname, $website, $bio ) {
 			'website' => $website, 
 			'bio' => $bio 
 	]);
+}
+
+/** ---------------------------------------------------------------------------
+ * Change the user's password. The user must be logged in.
+ *
+ * @param string $current The user's current password.
+ * @param string $new     The desired password.
+ * @return bool  TRUE if the password was changed, FALSE if the $current did
+ *               not match the user's current password.
+ */
+public static function ChangePassword( $current, $new ) {
+	if( !User::LoggedIn() ) throw new \Exception( "not logged in." );
+	if( $new == "" ) throw new \Exception( "password cannot be empty" );
+	
+	$db = \SQLW::Get(); 
+	
+	$password = self::ReadAccount( self::AccountID(), 'password' )['password'];
+	if( !password_verify( $current, $password ) ) {
+		return FALSE;
+	}
+	
+	$new = password_hash( $new, PASSWORD_DEFAULT );
+	WriteAccount( self::AccountID(), [ 'password' => $new ] );
+	
+	return TRUE;
 }
  
 } // class User

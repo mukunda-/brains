@@ -160,9 +160,13 @@ function Login_OnSubmit() {
 						brains.Dialog.ShowError( "Invalid username or password." );
 						break;
 					case "okay.":
-						brains.SetLoggedIn( true, data.data.username, 
-						                          data.data.accountid );
-						Close();
+						brains.SetLoggedIn( true, {
+								account: data.data.accountid,
+								nickname: data.data.nickname,
+								username: data.data.username 
+						});
+							
+						brains.Dialog.Close();
 						if( m_on_login ) {
 							m_on_login();
 						}
@@ -316,9 +320,13 @@ function CreateAccount_OnSubmit() {
 						brains.Dialog.MarkErrorField( "ca_username" );
 						break;
 					case "okay.":
-						brains.SetLoggedIn( true, data.data.username, 
-						                          data.data.accountid );
-						Close();
+						brains.SetLoggedIn( true, { 
+								account: data.data.accountid,
+								nickname: data.data.nickname,
+								username: data.data.username 
+						});
+							
+						brains.Dialog.Close();
 						brains.SetCaptchaValidated(false);
 						
 						if( m_on_login ) {
