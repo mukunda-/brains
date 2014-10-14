@@ -558,6 +558,13 @@ brains.LoggedIn = function() {
 }
 
 /** ---------------------------------------------------------------------------
+ * Returns active account ID or 0 if not logged in.
+ */
+brains.GetAccountID = function() {
+	return m_logged_in ? m_account : 0;
+}
+
+/** ---------------------------------------------------------------------------
  * Set whether or not the session is validated by a captcha.
  *
  * @return bool New value of the state.
@@ -610,7 +617,7 @@ $( function() {
 	
 	$("#user").click( function( e ) {
 		if( m_logged_in ) {
-			brains.Dialog.Show( "profile" );
+			brains.ShowProfileDialog( m_account, true );
 		} else {
 			brains.ShowLoginDialog( "" );
 		}

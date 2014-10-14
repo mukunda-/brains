@@ -300,8 +300,8 @@ public static function LogIn( $username, $password, $remember ) {
 	$a = (int)$remember;
 
 	$username = trim($username);
-	if( !self::IsNormalString( $username ) ) return FALSE;
-	if( !self::IsValidPassword( $password ) ) return FALSE;
+	if( $username == "" || strlen( $username ) > 255 ) return FALSE;
+	if( $password == "" ) return FALSE;
 	
 	$user_hash = self::HashUsername( $username );
 	$user_safe = $db->real_escape_string( $username );
@@ -361,9 +361,10 @@ private static function CreateLoginToken() {
  * @param  string $string Input to test.
  * @return bool           TRUE if valid.
  */
+ /*
 private static function IsNormalString( $string ) {
 	return preg_match( '/^[a-zA-Z0-9 _+=~,.@#-]+$/', $string );
-}
+}*/
 
 /** ---------------------------------------------------------------------------
  * Tests if a given string is valid for a password field.
@@ -374,9 +375,10 @@ private static function IsNormalString( $string ) {
  * @param  string $string Input to test.
  * @return bool           TRUE if valid.
  */
+ /*
 private static function IsValidPassword( $string ) {
 	return preg_match( '/^[\\x20-\\x7E]+$/', $string );
-}
+}*/
 
 /** ---------------------------------------------------------------------------
  * Create a new account.
@@ -395,14 +397,16 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	$db = \SQLW::Get();
 	
 	$username = trim($username);
-	if( !self::IsNormalString( $username ) ) {
+	if( strlen( $username ) > 255 || $username == "" ) {// !self::IsNormalString( $username ) ) {
 		return 'error';
 	}
-	if( !self::IsValidPassword( $password ) ) {
+	
+	if( $password == "" ) {// !self::IsValidPassword( $password ) ) {
 		return 'error';
 	}
+	
 	$nickname = trim($nickname);
-	if( !self::IsNormalString( $nickname ) ) {
+	if( $nickname == "" || strlen($nickname) > 64 ) {
 		return 'error';
 	} 
 	

@@ -100,6 +100,7 @@ function MarkErrorField( id ) {
 		.focus();
 }
 
+//-----------------------------------------------------------------------------
 // exposure:
 
 this.Show    = Show;

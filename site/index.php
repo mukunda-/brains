@@ -30,13 +30,17 @@ if( Config::DebugMode() ) {
 		<script src="min/scripts.min.js"></script>
 		 
 		<?php
+			echo '<script>';
 			if( User::LoggedIn() ) {
-				echo '<script>brains.SetLoggedIn( true, "'.User::GetUsername().'", '.User::AccountID().' );</script>';
+				
+				echo 'brains.SetLoggedIn( true, '.json_encode(User::GetUsername()).', '.User::AccountID().' ); ';
+				 
 			}
 			
 			if( Captcha::Valid() ) {
-				echo '<script>brains.SetCaptchaValidated( true );</script>';
+				echo 'brains.SetCaptchaValidated( true ); ';
 			}
+			echo '</script>';
 		?>
 		 
 		<title>brains</title>
@@ -153,7 +157,7 @@ if( Config::DebugMode() ) {
 				<center>
 					<div id="dialog_error" class="dialog_error"></div>
 					<form id="form_createaccount">
-						<label><span class="fieldname">Nickname</span><br><span class="optdesc">What other people will see you as. Doesn't have to be unique. This can be changed later.</span></label><br>
+						<label><span class="fieldname">Nickname</span><br><span class="optdesc">What other people will see you as. This can be changed later.</span></label><br>
 						<input type="text" class="textinput" id="ca_nickname"><hr>
 						<label><span class="fieldname">Username/E-mail</span><br><span class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username if you don't want to think of something else.</span></label><br>
 						<input type="text" class="textinput" id="ca_username"><hr>
@@ -197,11 +201,47 @@ if( Config::DebugMode() ) {
 		</template>
 		
 		<template id="dialog_profile">
-			<div class="desc" id='dialog_desc'>Profile for ...</div>
+			<div class="desc" id="dialog_desc">Profile for ...</div>
+			
+			<div class="profile_content">
+			<!--	<div class="profile_entry" id="profile_nickname">Nickname: <span></span></div>
+				<div class="profile_entry" id="profile_realname">Real name: <span></span></div>
+				<div class="profile_entry" id="profile_website">Website: <span></span></div>
+				<div class="profile_entry" id="profile_links">Links discovered: <span></span></div>
+				<div class="profile_entry" id="profile_stronglinks">Strong links: <span></span></div>
+				<div class="profile_entry" id="profile_perfectlinks">Perfect links: <span></span> </div>
+				<div class="profile_entry" id="profile_bio">Bio: <span></span></div> -->
+			</div>
+			<div class="profile_content_loading_text">loading...</div>
 			<center>
-				<div id="profile_email"></div>
-				<div id="profile_bio"></div>
+				<button id="profile_button_close">Okay</button> 
+				<span id="profile_selfbuttons" class="hidden">
+					<button id="profile_button_edit">Edit</button>
+					<button id="profile_button_chgpassword">Change password</button>
+				</span>
 			</center>
+		</template>
+		
+		<template id="dialog_editprofile">
+			<div class="desc" id="dialog_desc">Edit profile</div>
+			
+			<label>Nickname:</label><br>
+			<input type="text" name="nickname" class="textinput" id="text_nickname"><br>
+			
+			<label>Real name:</label><br>
+			<input type="text" name="realname" class="textinput" id="text_realname"><br>
+			
+			<label>Website:</label><br>
+			<input type="text" name="website" class="textinput" id="text_website"><br>
+			
+			<label>Bio:</label><br>
+			<textarea name="bio" class="textinput" id="text_bio"></textarea>
+				
+			<center>
+				<input type="button" class="submitinput" id="button_save" value="Save"> 
+				<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
+			</center>
+			</form>
 		</template>
 	</body>
 </html>

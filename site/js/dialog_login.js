@@ -36,32 +36,6 @@ function Fubar( password, salt ) {
 }
 
 /** ---------------------------------------------------------------------------
- * Tests if a given string is a valid "Normal" string.
- *
- * This is for testing for a valid username or nickname, basically doesn't
- * allow certain special characters.
- *
- * @param  string string Input to test.
- * @return bool           TRUE if valid.
- */
-function IsNormalString( string ) {
-	return string.match( /^[a-zA-Z0-9 _+=~,.@#-]+$/ );
-}
-
-/** ---------------------------------------------------------------------------
- * Tests if a given string is valid for a password field.
- *
- * Allows any "real" ascii character, not control codes or characters values
- * past 126.
- *
- * @param  string string Input to test.
- * @return bool          TRUE if valid.
- */
-function IsValidPassword( string ) {
-	return string.match( /^[\x20-\x7E]+$/ );
-}
-
-/** ---------------------------------------------------------------------------
  * Show the login dialog box.
  *
  * @param function() on_login 
@@ -101,29 +75,10 @@ function InitLoginDialog( reason ) {
  */
 function Login_OnSubmit() {
 
-	var username = $("#text_username").val();
-	var password = $("#text_password").val();
-	username = username.trim();
-	if( username == "" ) {
-		ShowError( "Username cannot be blank." );
-		MarkErrorField( "ca_username" );
-		return false;
-	}
-	if( !IsNormalString( username ) ) {
-		ShowError( "Username is not valid." );
-		MarkErrorField( "ca_username" );
-		return false;
-	}
-	if( password == "" ) {
-		ShowError( "Password cannot be blank." );
-		MarkErrorField( "ca_password" );
-		return false;
-	}
-	if( !IsValidPassword( password ) ) {
-		ShowError( "Password is not valid." );
-		MarkErrorField( "ca_password" );
-		return false;
-	}
+	var username = brains.ReadDialogField( "text_username", "username" );
+	if( username === false ) return false;
+	var password = brains.ReadDialogField( "text_password", "password" );
+	if( password === false ) return false;
 	
 	password = Fubar( password, username );
 	
@@ -185,6 +140,9 @@ function InitCreateAccountDialog() {
 		ShowCaptcha();
 	}
 	$("#form_createaccount").submit( CreateAccount_OnSubmit );
+	$("#button_cancel").click( function() {
+		brains.Dialog.Close();
+	});
 }
 
 /** ---------------------------------------------------------------------------
@@ -233,52 +191,25 @@ function ShowCaptcha( focus ) {
 	}
 }
 
-/** --------------------------------------------------------------------------- 
- * Read a field from the dialog with trimming and validation.
- *
- * @param int id      ID of element to read
- * @param string name Friendly name to display in errors.
- * @param bool password Default=false, treat as password, allows additional
- *                    characters and doesn't trim whitespace.
- */
-function ReadField( id, name, password ) {
-	if( !isSet(password) ) password = false;
-	var value = $("#"+id).val();
-	if( !password ) value = value.trim();
-	
-	if( value == "" ) {
-		ShowError( name + " cannot be blank." );
-		MarkErrorField( id );
-		return false;
-	}
-	
-	var valid = password ? IsValidPassword( value ) : IsNormalString( value );
-	if( !valid ) {
-		ShowError( name + " contains invalid characters." );
-		MarkErrorField( id );
-		return false;
-	}
-	return value;
-}
 
 /** --------------------------------------------------------------------------- 
  * Callback for #form_createaccount.submit
  */
 function CreateAccount_OnSubmit() {
 	
-	var nickname = ReadField( "ca_nickname", "Nickname" );
+	var nickname = brains.ReadDialogField( "ca_nickname", "nickname" );
 	if( nickname === false ) return false;
-	var username = ReadField( "ca_username", "Username" );
+	var username = brains.ReadDialogField( "ca_username", "username" );
 	if( username === false ) return false; 
-	var password = ReadField( "ca_password", "Password", false, true );
+	var password = brains.ReadDialogField( "ca_password", "password" );
 	if( password === false ) return false;
 	var password2 = $("#ca_password2").val();
 	if( password2 !== password ) {
 		ShowError( "The passwords you entered didn't match." );
 		$("#ca_password").val("");
 		$("#ca_password2").val("");
-		MarkErrorField( "ca_password" );
-		MarkErrorField( "ca_password2" );
+		brains.Dialog.MarkErrorField( "ca_password" );
+		brains.Dialog.MarkErrorField( "ca_password2" );
 		return false;
 	}
 	
@@ -329,7 +260,7 @@ function CreateAccount_OnSubmit() {
 					case "exists.":
 						$("#ca_captcha").html("");
 						ShowError( "That username is already taken." );
-						MarkErrorField( "ca_username" );
+						brains.Dialog.MarkErrorField( "ca_username" );
 						break;
 					case "okay.":
 						brains.SetLoggedIn( true, data.data.username, 

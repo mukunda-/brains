@@ -98,6 +98,29 @@
 		font-weight: 700;
 
 	}
+	
+	.profile_entry {
+		padding: 4px;
+		//border-bottom: 16px solid rgba( #000, 0.05 );
+	}
+	.profile_entry:nth-child(even) {
+		background-color: rgba( #000, 0.03 );
+	}
+	
+	#profile_selfbuttons.hidden {
+		display:none;
+		
+	}
+	/*
+	.profile_content_wrapper.loading {
+		display:none;
+	}*/
+	
+	.profile_content_loading_text {
+		text-align:center;
+		font-size: 70%;
+		padding: 16px;
+	}
 }
 
 #dialog_error {
