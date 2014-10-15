@@ -47,17 +47,6 @@ body {
 	overflow:hidden;
 }
 
-/*
-#view {
-	position: fixed;
-	top: $topbar_height;
-	
-	padding: 6px;
-//	height: 100%;
-width: 100%;
-	overflow: scroll;
-}*/
-
 input ,button { 
 	font: {
 		family: 'Open Sans Condensed';
@@ -92,33 +81,6 @@ input ,button {
 }
 
 @import "discovery";
-
-.newlink {
-	
-	background-color: $cl_white;
-	border-radius: 16px;
-	@include light-box-shadow;
-	padding: 14px 40px 16px;
-	width: auto;
-	margin:auto;
-	display: inline-block;
-	
-	input {	
-		text-align: center;
-		font-size: 28px;
-		min-width: 150px;
-		max-width: 200px;
-		width: 100px;
-		background: none;
-		border: none;
-		border-bottom: 1px dotted rgba($cl_black,0.25);
-		outline: none;
-	}
-	form {
-		margin: 0px;
-	}
-}
-
-
+@import "newlink";
 @import "topbar";
 @import "dialog";
