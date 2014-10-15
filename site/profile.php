@@ -41,7 +41,7 @@ try {
 	$account = $_GET['account'];
 	
 	$info = User::ReadAccount( $account, [ 'nickname', 'name', 'website',
-											'bio', 'linksmade', 'stronglinks',
+											'bio', 'goodlinks', 'stronglinks',
 											'perfectlinks' ] );
 											
 	if( $info === FALSE ) {
@@ -62,7 +62,8 @@ try {
 	$response->data['website_html'] = htmlspecialchars($info['website']);
 	$response->data['bio'] = $info['bio'];
 	$response->data['bio_html'] = htmlspecialchars($info['bio']);
-	$response->data['links'] = $info['linksmade'];
+	//$response->data['links'] = $info['linksmade'];
+	$response->data['goods'] = $info['goodlinks'];
 	$response->data['strongs'] = $info['stronglinks'];
 	$response->data['perfects'] = $info['perfectlinks'];
 	$response->Send( R_OKAY );

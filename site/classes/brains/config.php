@@ -35,6 +35,11 @@ final class Config {
 	// number of votes needed for a score to have a real value.
 	public static $SCORERAMPCONST = 50; //
 	
+	// time that is required before a link can be voted on by the same ip again.
+	public static $VOTELOCK_TIME = 14400; //60*60*4
+	
+	public static $LOGIN_TICKET_EXPIRY = 600; // 10 minutes.
+	
 	public static function init() {
 		// absolute path to site directory
 		// ie /brains/site/

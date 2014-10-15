@@ -25,6 +25,7 @@ public static function init() {
 		'website'      => self::FIELD_STRING,
 		'bio'          => self::FIELD_STRING,
 		'linksmade'    => self::FIELD_INT,
+		'goodlinks'    => self::FIELD_INT,
 		'stronglinks'  => self::FIELD_INT,
 		'perfectlinks' => self::FIELD_INT,
 		'banned'       => self::FIELD_INT,
@@ -95,6 +96,29 @@ public static function SetLoggedIn( $account_id,
 }
 
 /** ---------------------------------------------------------------------------
+ * Add a "good" link to the account statistics.
+ *
+ * @param int $account_id Account to affect.
+ * @param int $rank       Rank stat to increment, 1=GOOD, 2=STRONG, 3=PERFECT
+ */
+public static function AddLinkStat( $account_id, $rank ) {
+	if( $rank == 0 ) {
+		$set = "linksmade=linksmade+1";
+	} else if( $rank == 1 ) {
+		$set = "goodlinks=goodlinks+1";
+	} else if( $rank == 2 ) {
+		$set = "stronglinks=stronglinks+1";
+	} else if( $rank == 3 ) {
+		$set = "perfectlinks=perfectlinks+1";
+	}
+	$db = \SQLW::Get();
+	$db->RunQuery( 
+		"UPDATE Accounts SET $set
+		WHERE id=$account_id" );
+		
+}
+
+/** ---------------------------------------------------------------------------
  * Get the user's Username
  *
  * @return string|false Username or FALSE if the user is not logged in.
@@ -143,7 +167,7 @@ public static function HashUsername( $username ) {
  * @return int              Matching Account ID, or 0 if no match.
  */
 public static function GetAccountIDFromUsername( $username ) {
-	$hash = HashUsername( $username );
+	$hash = self::HashUsername( $username );
 	$db = \SQLW::Get();
 	$username_sql = $db->real_escape_string( $username );
 	$result = $db->RunQuery( 
@@ -562,6 +586,20 @@ public static function ChangePassword( $current, $new ) {
 	self::WriteAccount( self::AccountID(), [ 'password' => $new ] );
 	
 	return TRUE;
+}
+
+public static function MakeLoginTicket( $account ) {
+	$db = \SQLW::Get();
+	
+	$code = Garbage::Produce( 60 );
+	$expires = time() + Config::$LOGIN_TICKET_EXPIRY;
+	
+	$db->RunQuery( 
+		"INSERT INTO LoginTickets 
+		(account, code, expires)
+		VALUES ($account, '$code', $expires)" );
+		
+	return [ "id" => $db->insert_id, "code" => $code ];
 }
  
 } // class User

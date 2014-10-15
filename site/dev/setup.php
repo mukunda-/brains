@@ -19,11 +19,13 @@ function DropTable( $name ) {
 
 if( $droptables ) {
 	DropTable( 'LoginTokens' );
+	DropTable( 'LoginTickets' );
 	DropTable( 'Votes' );
 	DropTable( 'Links' );
 	DropTable( 'Thoughts' );
 	DropTable( 'Accounts' ); 
 	DropTable( 'VoteLocks' );
+	
 }
 
 
@@ -118,7 +120,7 @@ $db->RunQuery( "
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		ip       VARBINARY(16) NOT NULL COMMENT 'IP address used.',
-		expires  INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		expires  INT UNSIGNED NOT NULL COMMENT 'Unixtime of expiry.',
 		
 		PRIMARY KEY( thought1, thought2, ip )
 	)
@@ -126,4 +128,15 @@ $db->RunQuery( "
 	COMMENT = 'Hold recent vote information for abuse prevention.'
 	" );
 	
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS LoginTickets (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		account INT NOT NULL COMMENT 'Account that this will log in to.',
+		code VARCHAR(64) COMMENT 'Secret code that must be provided.',
+		expires INT UNSIGNED NOT NULL COMMENT 'Unixtime of expiry.'
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Login tickets for accounts with lost passwords.'
+");
+
 ?>

@@ -286,7 +286,46 @@ function InitLostPasswordDialog() {
 }
 
 function OnLostPasswordSubmit() {
+	username = $("#lp_email").val();
+	if( username == "" ) {
+		return;
+	}
 	
+	// server does the Real validation
+	if( !username.match(/^.*@.*\..*$/) ) {
+		brains.Dialog.MarkErrorField( "lp_email" );
+		brains.Dialog.ShowError( "That is not a valid e-mail address." );
+		return;
+	}
+	
+	brains.Dialog.Lock();
+	
+	$.post( "loginticket.php", { username: username } )
+		.done( function( data ) {
+			alert(data);
+			brains.Dialog.Unlock();
+			try {
+				if( data == "" ) throw "no data";
+				if( data == 'no.' ) { 
+					brains.Dialog.MarkErrorField( "lp_email" );
+					brains.Dialog.ShowError( "That is not a valid e-mail address." );
+					return;
+				}
+				
+				if( data != 'okay.' ) {
+					throw 'error';
+				}
+				
+				alert( "An e-mail has been sent." );
+			} catch (err) {
+				console.log( err );
+				brains.Dialog.ShowError( "An error occurred, please try again later." );
+			}
+		})
+		.fail( function( data ) {
+			brains.Dialog.Unlock();
+			brains.Dialog.ShowError( "An error occurred, please try again later." );
+		});
 }
 
 brains.ShowLoginDialog = ShowLoginDialog;

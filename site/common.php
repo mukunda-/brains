@@ -13,6 +13,11 @@ function Swap( &$a, &$b ) {
 	$b = $c;
 }
 
+//-----------------------------------------------------------------------------
+function GetIPHex() {
+	return bin2hex(inet_pton( $_SERVER['REMOTE_ADDR'] ));
+}
+
 /** ---------------------------------------------------------------------------
  * Check if a list of args are present in a POST request.
  *

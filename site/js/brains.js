@@ -160,7 +160,7 @@ function ScoreRank( score ) {
 	if( score < 60 ) return "rank_poop";
 	if( score < 80 ) return "rank_ok";
 	if( score < 95 ) return "rank_good";
-	if( score < 99 ) return "rank_great";
+	if( score < 99 ) return "rank_great" ;
 	return "rank_god";
 }
 
