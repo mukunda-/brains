@@ -1,0 +1,34 @@
+
+#magicbox {
+	// for nav text
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	display: none;
+	font-size: 32px;
+	white-space: nowrap;
+    visibility: hidden;
+}
+
+#magicbox2 {
+	// for thought text
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	display: none;
+	font-size: 24px;
+	white-space: nowrap;
+    visibility: hidden;
+	
+}
+
+#magicbox3 {
+	// for compose text	
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	display: none;
+	font-size: 28px;
+	white-space: nowrap;
+    visibility: hidden;
+}

@@ -1,0 +1,87 @@
+
+.discovery {
+	position: relative;
+	background-color: $cl_white;
+	border-radius: 16px;
+	@include light-box-shadow;
+	padding: 0px 64px 5px;
+	//width: 400px;
+	display: inline-block;
+	
+	/* FUCK. THE. WEB.
+	.scorebox {
+		position: absolute;
+		width: 64px;
+		height: 100%;
+		left: 0px;
+		top: 0px;
+		display: table; */
+	.score {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		display: block;
+		font-size: 24px;
+		font-weight: bold;
+		vertical-align: middle;
+		width: 64px;
+		text-align: center;
+		
+		&.rank_cancer {
+			color:red;
+		}
+
+		&.rank_poop {
+			color:#8d3e17;
+		}
+
+		&.rank_ok {
+			color: #308c8d;
+		}
+
+		&.rank_good {
+			color: #1bb826;
+		}
+
+		&.rank_great {
+			color: #243bc8;
+		}
+		&.rank_god {
+			color: #e58100;
+		}
+
+	}
+//	}
+	
+	.link {
+		
+		font-size: 28px;
+		
+		@media (max-width:500px) {
+			font-size: 20px;
+			
+		}
+		
+		.arrow {
+			width: 16px;
+			height: 16px;
+			background: transparent url('../img/arrow.svg') no-repeat left top;
+			background-size: cover;
+			display: inline-block;
+			vertical-align: middle;
+		}
+	}
+	.creator {
+		font-size: 16px;
+		
+		.nick {
+			&.owner {
+				font-weight: 700;
+				color: #444;
+			}
+			
+			&.other {
+			}
+		}
+	}
+}

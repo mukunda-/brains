@@ -1,0 +1,81 @@
+/* REMOVED.
+.navigator {
+	text-align: center;
+	
+	font-size: 32px;
+	line-height: 0px;
+	margin-top: 24px;
+	.box {
+		display: inline-block;
+		width: 240px; 
+		padding: 10px 30px;
+		height: 80px;
+		background-color: $cl_white;
+		border-radius: 16px;
+		@include light-box-shadow;
+		position: relative;
+		text-align:center;
+		//margin-left: 8px;
+		
+		
+		//.wrap {
+		//	display:table;
+		//	width: 200px;
+		//	height: 100%;
+		//	table-layout:fixed;
+				
+			.phrase {
+				//display: table-cell;
+				//height: 100%;
+				//width: 50px;
+				//vertical-align: middle;
+				//word-wrap: break-word;
+				line-height: 0px;
+				position: absolute;
+				width: 100%;
+				top: 0px;
+				left: 0px;
+				
+				&.placeholder {
+					left: auto;
+					width: 80%;
+					border-bottom: 1px dotted $cl_black;
+				}
+			}
+			
+			.phraseinput {
+				text-align:center;
+				font-size: 32px;
+				position: absolute;
+				width: 80%;
+				top: 0px;
+				left:0px;
+				background-color: transparent;
+				border: none;
+				border-bottom: 1px dotted $cl_black;
+			}
+		//}
+		//&:first-child {
+		//	margin-left: 0px;
+		//}
+	}
+	
+	&.vertical .box {
+		display: block;
+		margin: auto;
+	//	margin-top: 8px;
+	}
+	
+	.arrow {
+		width: 16px;
+		height: 16px;
+		display:inline-block;
+		background: transparent url('../img/arrow.png');
+		vertical-align:top;
+		position: relative;
+	}
+	
+	&.vertical .arrow {
+		background-position: -16px 0px;
+	}
+}*/
