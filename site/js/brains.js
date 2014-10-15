@@ -173,7 +173,8 @@ function ScoreRank( score ) {
 function PageContent_LastLink( out, data ) {
 	var nick = data.creator == brains.GetAccountID() ? 
 			'<span class="nick owner">you' :
-			'<span class="nick other">'+ data.creator_nick;
+			'<span class="nick other" data-account="'+data.creator+'">'+ data.creator_nick;
+			
 	var rank = ScoreRank( data.score );
 	out.push( '<div class="discovery" id="discovery">' );
 	out.push(   '<div class="score '+rank+'">'+ data.score +'</div>' );
@@ -348,7 +349,7 @@ function VoteThought( element, vote ) {
 		  t2: element.data( "dest" ),
 		  vote: vote ? "good" : "bad" } )
 		.done( function( data ) {
-			alert(data); // DEBUG
+		 
 			// just care about the login response, to invalidate
 			// the user's login.
 			if( data == "login." ) {
@@ -379,14 +380,15 @@ brains.InitializePostLoad = function() {
 		s_thoughts = $("#links").children( ".thought" );
 		
 		s_thoughts.mousedown( function( e ) {
-			
+			if( brains.Loader.IsLoading() ) return;
 			current_button = $(this);
 			$(this).addClass( "held" );
 		});
 		
 		s_thoughts.click( function( e ) {
+			if( brains.Loader.IsLoading() ) return;
 			// follow link. use query mode if not logged in.
-			alert('ho');
+			
 			FollowLink( $(this).data( "dest"), "soft" );
 		} );
 		
@@ -394,6 +396,7 @@ brains.InitializePostLoad = function() {
 		s_votebuttons.mousedown( function( e ) {
 			e.stopPropagation();
 			
+			if( brains.Loader.IsLoading() ) return;
 			if( e.which == 1 ) {
 				VoteThought( $(this).parent(), $(this).hasClass( "up" ) );
 			}
@@ -402,9 +405,19 @@ brains.InitializePostLoad = function() {
 		
 		s_votebuttons.click( function( e ) {
 			e.stopPropagation();
-		});
-		
-		
+		}); 
+	}
+	var discovery = $("#discovery");
+	if( discovery.length ) {
+		var creatorlink = discovery.find( "span.nick.other" );
+		if( creatorlink.length ) {
+			creatorlink.click( function() {
+			
+				brains.ShowProfileDialog( 
+					creatorlink.data( "account" ), 
+					creatorlink.text() );
+			});
+		}
 	}
 	AdjustSizes();
 }
@@ -476,8 +489,7 @@ function FollowLink( input, method ) {
 		},
 		post: true,
 		process: function( response ) {
-			alert( response );
-			
+			 
 			if( response === null ) {
 				return failure();
 			}

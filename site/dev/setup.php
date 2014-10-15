@@ -23,6 +23,7 @@ if( $droptables ) {
 	DropTable( 'Links' );
 	DropTable( 'Thoughts' );
 	DropTable( 'Accounts' ); 
+	DropTable( 'VoteLocks' );
 }
 
 
@@ -39,11 +40,13 @@ $db->RunQuery( "
 		website      VARCHAR(128) COMMENT 'Optional website address.',
 		bio          VARCHAR(32000) COMMENT 'Optional biography.',
 		linksmade    INT UNSIGNED NOT NULL DEFAULT 0 
-		             COMMENT 'Normal links made.',
+		             COMMENT 'Links created.',
+		goodlinks    INT UNSIGNED NOT NULL DEFAULT 0 
+		             COMMENT 'Links above score 60.',
 		stronglinks  INT UNSIGNED NOT NULL DEFAULT 0 
-		             COMMENT 'Strong links made.',
+		             COMMENT 'Links above score 90.',
 		perfectlinks INT UNSIGNED NOT NULL DEFAULT 0 
-		             COMMENT 'Perfect links made.',
+		             COMMENT 'Perfect score links.',
 		banned       BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Account is suspended.',
 		bantime      INT NOT NULL DEFAULT 0 COMMENT 'Time of suspension.',
 		banreason    VARCHAR(512) COMMENT 'Reason for suspension.',
@@ -84,6 +87,7 @@ $db->RunQuery( "
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = nobody/admin',
+		rank	 TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rank achieved, 0=normal, 1=good, 2=strong, 3=perfect',
 		PRIMARY KEY( thought1, thought2 ),
 		INDEX USING BTREE( thought2 ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -110,11 +114,11 @@ $db->RunQuery( "
 	" );
 	
 $db->RunQuery( "
-	CREATE TABLE IF NOT EXISTS RecentVotes (
+	CREATE TABLE IF NOT EXISTS VoteLocks (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		ip       VARBINARY(16) NOT NULL COMMENT 'IP address used.',
-		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		expires  INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		
 		PRIMARY KEY( thought1, thought2, ip )
 	)

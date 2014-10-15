@@ -33,9 +33,10 @@ function ShowProfileDialog( account, nickname, preloaded ) {
  * params are forwarded from ShowProfileDialog.
  */
 function InitProfileDialog( account, nickname, preloaded ) {
-	$("#dialog_desc").text( self ? 
+	
+	$("#dialog_desc").text( (account == brains.GetAccountID()) ? 
 			"Your profile" : 
-			"Profile for " + isSet( nickname ) ? nickname : "..." );
+			"Profile for " + (isSet( nickname ) ? nickname : "...") );
 			
 	$("#profile_button_close").click( OnClickedCloseButton );
 	$("#profile_button_edit").click( OnClickedEditButton );
@@ -53,7 +54,7 @@ function InitProfileDialog( account, nickname, preloaded ) {
 		m_loader.AddAjax( $.get( "profile.php", { account: account } ) )
 			
 			.done( function( response ) {
-				alert(response);
+				 
 				try {
 					if( response == "" ) throw "no data.";
 					response = JSON.parse( response );
@@ -107,10 +108,10 @@ function OutputProfileContent( data ) {
 	if( data.website != "" ) {
 		html.push( ProfileEntryTemplate( "Website", data.website ) );
 	}
-	html.push( ProfileEntryTemplate( "Links discovered", data.links ) );
+	html.push( ProfileEntryTemplate( "Good links discovered", data.goods ) );
 	html.push( ProfileEntryTemplate( "Strong links discovered", data.strongs ) );
 	if( data.perfects != 0 ) {
-		html.push( ProfileEntryTemplate( "Perfect links discovered:", data.perfects ) );
+		html.push( ProfileEntryTemplate( "Perfect links discovered", data.perfects ) );
 	}
 	if( data.bio != "" ) {
 		html.push( ProfileEntryTemplate( "Bio", "<br>" + data.bio ) );
@@ -221,8 +222,7 @@ function OnEditProfileSave() {
 			brains.Dialog.Unlock();
 			try {
 				if( data == "" ) throw "No data.";
-				data = JSON.parse( data );
-				alert(data.status);
+				data = JSON.parse( data ); 
 				
 				switch( data.status ) {
 					case "login.":
@@ -306,7 +306,7 @@ function OnChangePasswordSubmit() {
 					"new": desired })		
 		.done( function( data ) {
 			brains.Dialog.Unlock();
-			alert(data);
+		 
 			switch( data ) {
 			case "login.":
 				brains.SetLoggedIn( false );

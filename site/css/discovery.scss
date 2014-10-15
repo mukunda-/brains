@@ -47,7 +47,8 @@
 			color: #243bc8;
 		}
 		&.rank_god {
-			color: #e58100;
+			color: #ff9e15;
+			text-shadow: 0px 0px 3px #fff;
 		}
 
 	}
@@ -74,13 +75,20 @@
 	.creator {
 		font-size: 16px;
 		
+		color: #444;
 		.nick {
 			&.owner {
 				font-weight: 700;
-				color: #444;
+				//color: #444;
 			}
 			
 			&.other {
+				cursor: pointer;
+				color: #777;
+				
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 		}
 	}

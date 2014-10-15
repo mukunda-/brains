@@ -105,7 +105,7 @@ this.Load = function( info ) {
 	}
 	
 	if( !info.hasOwnProperty( "delay" ) ) {
-		info.delay = 500;
+		info.delay = 100;
 	}	
 	
 	if( !info.hasOwnProperty( "process" ) ) {
@@ -156,7 +156,7 @@ this.Load = function( info ) {
 	
 	m_ag.AddAjax( ajax )
 		.done( function(data) {
-			alert( data );
+			alert(data);
 			if( data == "" ) {
 				call_failure();
 				return;

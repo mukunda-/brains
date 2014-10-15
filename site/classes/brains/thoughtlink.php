@@ -15,6 +15,10 @@ final class ThoughtLink {
 	public $created = false; // true if this thought was returned 
 							 // by Create, or Get with $create=true
 							 // (and it was created.)
+				
+	const LINKRANK_GOOD = 60;
+	const LINKRANK_STRONG = 95;
+	const LINKRANK_PERFECT = 99;
 	
 	const BASE_SCORE = 25;
 	
@@ -100,7 +104,7 @@ final class ThoughtLink {
 		$link = new self( $source, $dest, 
 						  $row['time'], $row['creator'], 
 						  $row['goods'], $row['bads'], $vote ); 
-	 
+		
 		return $link;
 	}
 	
@@ -124,7 +128,7 @@ final class ThoughtLink {
 		
 		if( $sc == 99 ) { 
 			// legendary always needs at least 100 votes.
-			if( $r < 100 ) {
+			if( $total < 100 ) {
 				return 98;
 			}
 		}
@@ -182,33 +186,33 @@ final class ThoughtLink {
 		$time = time();
 		$db = \SQLW::Get();
 		
+		$db->RunQuery( 'START TRANSACTION' );
+		
 		try {
 			$db->RunQuery(
 				"INSERT INTO Links (thought1, thought2, time, creator )
 				VALUES ( $ordered1->id, $ordered2->id, $time, $creator )" );
 		} catch( \SQLException $e ) {
 			if( $e->code == 2601 ) { // 2601: duplicate key.
+				$db->RunQuery( 'ROLLBACK' );
 				return FALSE;
 			}
 			throw $e;
 		}
-	
+		
 		$vote = $creator == 0 ? null : TRUE;
 		
 		// add an upvote.
 		if( $creator != 0 ) {
-			try {
-				if( self::Vote( $source, $dest, $creator, true ) ) {
-					
-				} else {
-					// if in some event Vote fails, we just skip the auto vote
-					$vote = null;
-				}
-			} catch( \SQLException $e ) {
-				// such robust
+
+			if( !self::Vote( $source, $dest, $creator, true ) ) {
 				$vote = null;
 			}
+			
+			User::AddLinkStat( $creator, 0 );
 		}
+		
+		$db->RunQuery( 'COMMIT' );
 		
 		$link = new self( $source, $dest, 
 						  $time, $creator, $vote === TRUE ? 1:0, 0, 
@@ -244,7 +248,7 @@ final class ThoughtLink {
 			
 			// get the current scores of the link
 			$result = $db->RunQuery( 
-				"SELECT goods, bads FROM Links 
+				"SELECT goods, bads, rank FROM Links 
 				WHERE thought1=$source->id AND thought2=$dest->id
 				FOR UPDATE" );
 			
@@ -257,10 +261,12 @@ final class ThoughtLink {
 			
 			$goods = $row[0];
 			$bads  = $row[1];
+			$linkrank = $row[2];
 			
 			// add the vote
 			if( $vote ) {
 				$goods++;
+				$goods += 202; // DEBUG
 			} else {
 				$bads++;
 			}
@@ -273,6 +279,7 @@ final class ThoughtLink {
 			
 			$row = $result->fetch_assoc();
 			if( $row !== null ) {
+				$fakevote = $row['fake'];
 				// a vote already exists:
 				
 				// reverse original vote, 
@@ -300,29 +307,77 @@ final class ThoughtLink {
 				// if the vote isnt FAKE, update the link score.
 				
 				if( !$row['fake'] ) {
+					
+					
 					$db->RunQuery( 
 						"UPDATE Links SET goods=$goods, bads=$bads
 						WHERE thought1=$source->id AND thought2=$dest->id" );
 				}
 				
 			} else {
-				// TODO abuse prevention ip shit.
-				try { 
+				
+				// check if there is a lock for this iP.
+				$iphex = GetIPHex();
+				$time = time();
+				$result = $db->RunQuery( 
+					"SELECT 1 FROM VoteLocks
+					WHERE thought1=$source->id AND thought2=$dest->id
+					AND ip=x'$iphex' AND expires > $time " );
+				
+				$fakevote = $result->num_rows != 0 ? 1 : 0;
+				
+				try {
 					$db->RunQuery( 
-						"INSERT INTO Votes (thought1, thought2, account, time, vote )
-						VALUES ($source->id, $dest->id, $accountid, $time, $voteval )" );
+						"INSERT INTO Votes (thought1, thought2, account, time, vote, fake )
+						VALUES ($source->id, $dest->id, $accountid, $time, $voteval, $fakevote )" );
 				} catch( \SQLException $e ) { 
 					if( $e->code == SQL_ER_DUP_KEY ) {
 						$db->RunQuery( 'ROLLBACK' );
 						return FALSE;
 					}
 				}
+				
+				if( !$fakevote ) {
+					// save vote lock
+					$expires = time() + Config::$VOTELOCK_TIME;
+					$db->RunQuery( 
+						"INSERT INTO VoteLocks (thought1, thought2, ip, expires )
+						VALUES ($source->id, $dest->id, x'$iphex', $expires )" );
+				}
+				
+				
 				 
 			}
 			
+			if( !$fakevote ) {
+				
+				$newscore = self::ComputeScore( $goods, $bads );
+				
+				$linksquery = "";
+				if( $linkrank == 0 && $newscore >= self::LINKRANK_GOOD ) {
+					$linkrank++;
+					User::AddLinkStat( $accountid, 1 );
+				}
+				if( $linkrank == 1 && $newscore >= self::LINKRANK_STRONG ) {
+					$linkrank++;
+					User::AddLinkStat( $accountid, 2 );
+				}
+				if( $linkrank == 2 && $newscore >= self::LINKRANK_PERFECT ) {
+					$linkrank++;
+					User::AddLinkStat( $accountid, 3 );
+				}
+				
+				// update score
+				$db->RunQuery( 
+					"UPDATE Links SET goods=$goods, bads=$bads, rank=$linkrank
+					WHERE thought1=$source->id AND thought2=$dest->id" );
+			}
+			
+					
+			
 			$db->RunQuery( 'COMMIT' );
 			return TRUE;
-		} );
+		});
 		
 		return $result; 
 	}
@@ -387,6 +442,7 @@ final class ThoughtLink {
 		
 		// method 1, not sure if this is the right way to do a query like this
 		// and can't properly test unless the table has data in it.
+		// (this method is no longer working.)
 		
 		/*
 		$result = $db->RunQuery( 

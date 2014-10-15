@@ -73,7 +73,7 @@ function Login_OnSubmit() {
 	$.post( "login.php", post )
 		.done( function( data ) {
 			brains.Dialog.Unlock();
-			alert(data);
+			 
 			try {
 				if( data == "" ) throw "No data.";
 				data = JSON.parse( data );
@@ -218,9 +218,7 @@ function CreateAccount_OnSubmit() {
 	
 	$.post( "login.php", post )
 		.done( function( data ) {
-			brains.Dialog.Unlock();
-			
-			alert(data);
+			brains.Dialog.Unlock(); 
 			
 			try {
 				if( data == "" ) throw "No data.";

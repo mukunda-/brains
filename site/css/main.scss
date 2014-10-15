@@ -56,12 +56,13 @@ input ,button {
 }
 
 @import "magicboxes";
+@import "thought";
 
 #content {
 	max-width: 800px;
 	margin: auto;
 	opacity: 0;
-	opacity: 0.25; // debug
+	//opacity: 0.25; // debug
 	transition: opacity 0.5s;
 	
 	h2 {
