@@ -704,7 +704,10 @@ function ParsePageTag() {
  */
 function LoadPageFromTag( tag ) {
 	if( tag == "" ) {
-		// load startup page?
+		SetContent("");
+		$("#query").val( "" );
+		
+		
 	} else {
 		var split = tag.indexOf( '+' );
 		
@@ -765,6 +768,9 @@ function PushHistory( content, to, from, replace ) {
 
 	if( replace ) {
 		history.replaceState( state, title, url );
+		console.log( "HELLO!" );
+		console.log( state );
+		console.log( url );
 	} else {
 		history.pushState( state, title, url );
 	}
@@ -773,8 +779,10 @@ function PushHistory( content, to, from, replace ) {
 window.onpopstate = function(event) {
 	//alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
 	//LoadPageFromTag( event.state.link, undefined, true );
-	
+
 	if( event.state === null ) {	
+		
+		console.log(" FUCK." );
 		var tag = ParsePageTag();
 		LoadPageFromTag( tag );
 		//brains.Loader.SetContent( "" );

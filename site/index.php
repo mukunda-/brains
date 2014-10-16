@@ -114,7 +114,7 @@ if( Config::DebugMode() ) {
 			$svg->Output();
 			//echo '<div class="logo"></div>';
 			echo '<form autocomplete="off" id="queryform">';
-			echo '<input id="query" maxlength="20" >';
+			echo '<input id="query" maxlength="20" placeholder="start" >';
 			echo '</form>';
 	//		$svg = new \SVG( 'img/gear-2.svg' );
 	//		$svg->SetID( 'user' );
