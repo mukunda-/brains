@@ -100,6 +100,12 @@ final class Thought {
 			throw $e;
 		}
 		
+		if( $creator && User::AccountID() == $creator ) {
+			Logger::Info( Logger::FormatUser( User::GetUsername(), $creator ) . " created a new thought: \"$phrase\"" );
+		} else {
+			Logger::Info( "Created a new thought: \"$phrase\" creator=$creator" );
+		}
+		
 		// success.
 		return new self( $db->insert_id, $phrase, $creator, $time, true );
 	}

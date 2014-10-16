@@ -1,6 +1,9 @@
 /*!
  * Copyright 2014 Mukunda Johnson
  */
+ 
+window.brains = window.brains || {};
+
 brains.Dialog = new function() { 
   
 var m_locked = false;

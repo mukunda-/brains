@@ -87,6 +87,7 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
 		goods    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of upvotes.',
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
+		score    INT UNSIGNED NOT NULL DEFAULT 25 COMMENT 'Computed score.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = nobody/admin',
 		rank	 TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rank achieved, 0=normal, 1=good, 2=strong, 3=perfect',

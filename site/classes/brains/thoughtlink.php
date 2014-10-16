@@ -230,6 +230,15 @@ final class ThoughtLink {
 		
 		$db->RunQuery( 'COMMIT' );
 		
+		
+		if( $creator == User::AccountID() ) {	
+			$username = User::GetUsername();
+			if( $username === FALSE ) $username = "Unknown";
+		} else {
+			$username = "Unknown";
+		}
+		Logger::Info( Logger::FormatUser( $username, $creator ) . " created a new link: \"$source->phrase\" -> \"$dest->phrase\"" );
+		
 		$link = new self( $source, $dest, 
 						  $time, $creator, $vote === TRUE ? 1:0, 0, 
 						  $vote );
@@ -381,11 +390,16 @@ final class ThoughtLink {
 				if( $linkrank == 2 && $newscore >= self::LINKRANK_PERFECT ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 3 );
+					
+					Logger::Info( "A PERFECT link was discovered! \"$source->phrase\" -> \"$dest->phrase\"" );
 				}
+				
+				$score = self::ComputeScore( $goods, $bads );
 				
 				// update score
 				$db->RunQuery( 
-					"UPDATE Links SET goods=$goods, bads=$bads, rank=$linkrank
+					"UPDATE Links 
+					SET goods=$goods, bads=$bads, rank=$linkrank, score=$score
 					WHERE thought1=$source->id AND thought2=$dest->id" );
 			}
 			

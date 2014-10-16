@@ -9,7 +9,7 @@ namespace Brains;
   
   GET {
     input: thought_string
-	
+	[from]: thought_string 
   }
   
   searches for a thought.
@@ -21,6 +21,14 @@ namespace Brains;
   RESPONSE "okay." { // normal response
     data {
 	  query: <input string>
+	  discovery {
+	    from:
+		to:
+		creator:
+		creator_nick:
+		score:
+		vote:
+	  }
 	  links[
 	    { dest: <destination thought/string>
 		  score: <score of link>
@@ -38,15 +46,34 @@ define( 'R_OKAY', 'okay.' ); // a thought was returned
 
 try {
 
+	// required input
 	if( !CheckArgsGET( 'input' ) ) exit();
-
+	$from = isset($_GET['from']) ? $_GET['from'] : FALSE;
+	
 	$thought_string = Thought::Scrub( $_GET['input'] );
 	if( $thought_string === FALSE ) exit();
+	
+	if( $from ) {
+		$from = Thought::Scrub( $from );
+		if( $from === FALSE ) exit();
+		if( $from == $thought_string ) exit();
+	}
 
 	$thought = Thought::Get( $thought_string );
 
 	$response = new Response;
 	$response->data['query'] = $thought_string;
+	if( $from && $thought ) {
+		$from = Thought::Get( $from );
+		if( $from !== FALSE ) {
+			$link = ThoughtLink::Get( $from, $thought, User::AccountID(), 
+								      false );
+			if( $link !== FALSE ) {
+				$response->data['from'] = $from->phrase;
+				$response->SetDiscovery( $link );
+			}
+		}
+	}
 
 	if( $thought === FALSE ) {
 		$response->CopyLinks( [] );

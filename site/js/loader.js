@@ -2,7 +2,9 @@
  * Copyright 2014 Mukunda Johnson
  */
  
-(function() { window.brains = window.brains || {};
+window.brains = window.brains || {};
+ 
+brains.Loader = new function() { 
 
 // Loader
 // module for loading pages in place
@@ -39,15 +41,37 @@ var PAGE_LOAD_FAILED_CONTENT =
 function FadeIn( content ) {
 	m_fading_out = false;
 	HideLoadingIcon();
+	//$(window).scrollTop(0);
+	
+	SetContent( content );
+	// global initialization here:
+//	brains.InitializePreLoad();
+	
+//	output = $('#content');
+//	$('#content').html( content );
+//	brains.InitializePostLoad();
+//	m_loading = false;
+	
+//	$(window).scrollTop( 0 );
+//	output.addClass( 'visible' ); // fade in
+}
+ 
+/** ---------------------------------------------------------------------------
+ * Set the page content.
+ *
+ * @param content Content to insert into #content
+ */
+function SetContent( content ) {
+	Cancel(); // for when this is used directly.
+	
 	$(window).scrollTop(0);
 	
-	// global initialization here:
 	brains.InitializePreLoad();
 	
 	output = $('#content');
 	$('#content').html( content );
 	brains.InitializePostLoad();
-	m_loading = false;
+	//m_loading = false;
 	
 	$(window).scrollTop( 0 );
 	output.addClass( 'visible' ); // fade in
@@ -96,7 +120,7 @@ function HideLoadingIcon() {
  *    [...] params are optional.
  * }
  */
-this.Load = function( info ) {
+function Load( info ) {
 	if( m_loading ) return;
 	
 	//matbox.ResetIdleTime();
@@ -198,7 +222,7 @@ this.Load = function( info ) {
  * Same as Load, but cancel an existing load first.
  *
  */
-this.ForceLoad = function( url, delay, get ) {
+function ForceLoad( url, delay, get ) {
 	if( m_loading ) {
 		
 		m_ag.ClearAll();
@@ -212,21 +236,21 @@ this.ForceLoad = function( url, delay, get ) {
  *
  * @return true if the page is fading out or otherwise busy loading.
  */
-this.IsLoading = function() {
+function IsLoading() {
 	return m_loading;
 }
 
 /** ---------------------------------------------------------------------------
  * Set the loading flag, to freeze the page for an imminent pageload. 
  */
-this.SetLoading = function() {
+function SetLoading() {
 	m_loading = true;
 }
 
 /** ---------------------------------------------------------------------------
  * Cancel any page load in progress.
  */
-this.Cancel = function() {
+function Cancel() {
 	if( m_loading ) {
 		
 		m_ag.ClearAll();
@@ -234,4 +258,11 @@ this.Cancel = function() {
 	}
 }
 
-})();
+this.SetContent = SetContent;
+this.Load = Load;
+this.ForceLoad = ForceLoad;
+this.IsLoading = IsLoading;
+this.SetLoading = SetLoading;
+this.Cancel = Cancel;
+
+};

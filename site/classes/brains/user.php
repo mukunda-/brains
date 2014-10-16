@@ -295,6 +295,9 @@ public static function CheckLogin( $ctoken ) {
 	if( $ctoken !== FALSE ) {
 		if( $_COOKIE['ctoken'] != $ctoken ) {
 			// csrf attack :o
+			
+			Logger::Info( "Invalid CTOKEN in request. REFERER={$_SERVER['HTTP_REFERER']}" );
+			
 			return FALSE;
 		}
 	} else {
@@ -329,6 +332,8 @@ public static function CheckLogin( $ctoken ) {
 		// TODO record login strike
 		// and tempban ip if they accumulate.
 		
+		Logger::Info( "User tried to log in using an invalid token. id=$id, secret=$secret" );
+			
 		// clear saved login cookie
 		setcookie( "login", 0, 0, GetDocumentRoot() );
 		return FALSE;
@@ -367,7 +372,9 @@ public static function LogIn( $username, $password, $remember ) {
 	if( $row === NULL ) return FALSE;
 	
 	if( !password_verify( $password, $row['password'] ) ) {
-		// TODO record strike and tempban ip.
+		// TODO record strike and tempban ip
+		
+		Logger::Info( "User entered invalid credentials for \"$username\"" );
 		return FALSE;
 	}
 	
@@ -524,6 +531,9 @@ public static function CreateAccount( $username, $password, $nickname ) {
 	
 	self::SetLoggedIn( $account_id, $username, $nickname );
 	
+	$user = Logger::FormatUser( $username, $account_id );
+	Logger::Info( "$user account created." );
+	
 	// one captcha per account creation.
 	Captcha::Reset();
 	
@@ -555,6 +565,9 @@ public static function EditProfile( $nickname, $realname, $website, $bio ) {
 	$website = $db->real_escape_string( $website );
 	$bio = $db->real_escape_string( $bio );
 	
+	$user = Logger::FormatUser( self::GetUsername(), self::$account_id );
+	Logger::Info( "$user edited their profile." );
+	
 	self::WriteAccount( self::AccountID(), [
 			'nickname' => $nickname, 
 			'name' => $realname, 
@@ -585,9 +598,19 @@ public static function ChangePassword( $current, $new ) {
 	$new = password_hash( $new, PASSWORD_DEFAULT );
 	self::WriteAccount( self::AccountID(), [ 'password' => $new ] );
 	
+	$user = Logger::FormatUser( self::GetUsername(), self::$account_id );
+	Logger::Info( "$user changed their password." );
+	
 	return TRUE;
 }
 
+/** ---------------------------------------------------------------------------
+ * Create a login ticket. Used for people who forget their password and have
+ * an e-mail account.
+ *
+ * @param int $account Account to create a ticket for.
+ * @return array [ "id" => ID of ticket, "code" => code ] for UseLoginTicket.
+ */
 public static function MakeLoginTicket( $account ) {
 	$db = \SQLW::Get();
 	
@@ -599,7 +622,56 @@ public static function MakeLoginTicket( $account ) {
 		(account, code, expires)
 		VALUES ($account, '$code', $expires)" );
 		
+	Logger::Info( "User created a login ticket for account $account." );
+		
 	return [ "id" => $db->insert_id, "code" => $code ];
+}
+
+/** ---------------------------------------------------------------------------
+ * Log in using a login ticket.
+ *
+ * @param int $id ID returned from MakeLoginTicket.
+ * @param int $code Code returned from MakeLoginTicket.
+ * @return bool TRUE if logged in, FALSE if the ticket is invalid.
+ */
+public static function UseLoginTicket( $id, $code ) {
+	$id = intval($id); // make sure this is an integer.
+	$db = \SQLW::Get();
+	
+	// lookup ticket
+	$result = $db->RunQuery( 
+		"SELECT account, code, expires FROM LoginTickets
+		WHERE id=$id" );
+		
+	$row = $result->fetch_assoc();
+	if( $row === null ) return FALSE; // ticket not found
+	
+	if( time() >= $row['expires'] ) return FALSE; // ticket expired
+	if( $code != $row['code'] ) {
+		// code mismatch 
+		Logger::Info( "User tried an invalid login ticket code." );
+		return FALSE; 
+	}
+	
+	$account = $row['account'];
+	
+	// delete ticket
+	$result = $db->RunQuery( 
+		"DELETE FROM LoginTickets
+		WHERE id=$id" );
+	
+	// lookup account info
+	$result = $db->RunQuery( 
+		"SELECT username, nickname 
+		FROM Accounts 
+		WHERE id=$account" );
+		
+	$row = $result->fetch_assoc();
+	if( $row === null ) return FALSE; // not found
+	
+	// log in user
+	self::SetLoggedIn( $account, $row['username'], $row['nickname'] );
+	return TRUE;
 }
  
 } // class User

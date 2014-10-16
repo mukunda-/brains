@@ -89,17 +89,18 @@ try {
 	
 	// start building response
 	$response = new Response;
+	$response->SetDiscovery( $link );
 	$response->data['from'] = $thought1->phrase;
 	$response->data['to'] = $thought2->phrase;
-	$response->data['creator'] = $link->creator;
-	$response->data['creator_nick'] = 
-			User::ReadAccount( $link->creator, 'nickname' )['nickname'];
+//	$response->data['creator'] = $link->creator;
+//	$response->data['creator_nick'] = 
+//			User::ReadAccount( $link->creator, 'nickname' )['nickname'];
 	
 	if( $thought2->created ) {
 		// the thought was just created, so there are no links yet
 		$response->CopyLinks( [] );
 	} else {
-	
+
 		// give an upvote depending on the method used.
 		if( ($method == METHOD_NEW && $link->vote !== TRUE)
 			|| ($method == METHOD_SOFT && $link->vote === null && User::LoggedIn() ) ) {
@@ -113,8 +114,8 @@ try {
 	}
 	
 	// finish response and send.
-	$response->data['score'] = $link->score;
-	$response->data['vote'] = $link->vote;
+	$response->data['discovery']['score'] = $link->score;
+	$response->data['discovery']['vote'] = $link->vote;
 	$response->data['logged_in'] = User::LoggedIn();
 	$response->Send( R_OKAY );
 	 

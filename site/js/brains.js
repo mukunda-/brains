@@ -168,7 +168,7 @@ function ScoreRank( score ) {
  * Content generator for the discovery block.
  *
  * @param array out Output html array.
- * @param object data Data from response.
+ * @param object data Discovery from response.
  */
 function PageContent_LastLink( out, data ) {
 	var nick = data.creator == brains.GetAccountID() ? 
@@ -284,29 +284,59 @@ function OnNewQuery() {
 	
 	$("#query").blur();
 
+	MakeQuery( thought );
+}
+
+/** ---------------------------------------------------------------------------
+ * Make a thought query.
+ *
+ * @param string input   Thought to lookup.
+ * @param string from    Optional thought to lookup a link.
+ * @param bool   startup Startup query, suppresses certain error messages, and
+ *                       doesn't push a history state.
+ */
+function MakeQuery( input, from, startup ) {
+	if( brains.Loader.IsLoading() ) return;
+	
+	var request = { input: input };
+	if( from ) request.from = from;
+	
 	brains.Loader.Load( { 
 		url: "query.php", 
-		data: { "input": thought }, 
+		data: request, 
 		process: function( response ) {
 			
+			if( response === null && startup ) {
+				return false;
+			}
+			
 			if( response === null || response.status != "okay." ) {
-				alert( "An error occurred. Please try again." );
+				alert( "An error occurred. Please try again later." );
 				return false;
 			}
 			
 			var html = [];
 			
+			// todo: discovery block.
+			if( response.data.discovery ) {
+				PageContent_LastLink( html, response.data.discovery );
+			}
 			PageContent_NewLink( html, response.data.query );
 			PageContent_Links( html, response.data.links );
 			
+			
+			html = html.join("");
+			
+			$("#query").val( response.data.query );
+			
+			PushHistory( html, response.data.query, response.data.from, startup );
+			
 			m_current_thought = response.data.query;
 			
-			return html.join("");
+			return html;
 		} 
 		
 	});
-	
-	return;
 }
 
 /** ---------------------------------------------------------------------------
@@ -518,13 +548,19 @@ function FollowLink( input, method ) {
 			
 			var html = [];
 			
-			PageContent_LastLink( html, response.data );
+			PageContent_LastLink( html, response.data.discovery );
 			PageContent_NewLink( html, response.data.to );
 			PageContent_Links( html, response.data.links );
 			
+			
+			html = html.join("");
+			
+			$("#query").val( response.data.to );
+			
+			PushHistory( html, response.data.to, response.data.from );
 			m_current_thought = response.data.to;
 			
-			return html.join( "" );
+			return html;
 			
 		}
 	});
@@ -639,21 +675,133 @@ brains.IsCaptchaValidated = function() {
 	return m_captcha_validated;
 }
 
+
+/** ---------------------------------------------------------------------------
+ * Parse the tag between the request query and after the base URL
+ *
+ * @return string Parsed tag, or "" if it's empty.
+ */
+function ParsePageTag() {
+	var url = window.location.href;
+		console.log( url );
+	var split = url.indexOf( '?' );
+	if( split != -1 ) {
+		url = url.substring( 0, split );
+	}
+	
+	split = url.lastIndexOf( '/' );
+	if( split != -1 ) {
+		return url.substring( split+1 );
+	} else {
+		return "";
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Make a query if the tag asks for it.
+ *
+ * @param string tag URL tag.
+ */
+function LoadPageFromTag( tag ) {
+	if( tag == "" ) {
+		// load startup page?
+	} else {
+		var split = tag.indexOf( '+' );
+		
+		var from = "";
+		var to;
+		if( split != -1 ) {
+			from = tag.substring( 0, split ).trim();
+			to = tag.substring( split+1 ).trim();
+			if( !from.match( /^[a-z-]+$/ ) ) {
+				return; // invalid link.
+			}
+		} else {
+			to = tag.trim();
+			
+		}
+		if( !to.match( /^[a-z-]+$/ ) ) {	
+			return;
+		}
+		$("#query").val( to );
+		
+		MakeQuery( to, from == "" ? undefined : from, true );
+		
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Make the page fade out if the user presses refresh.
+ * It might not fade out all the way before the page reloads but this
+ * is the best we can do.
+ */
+$( window ).on ( 'beforeunload', function(){ 
+	$('#content').removeClass( "visible" );
+}); 
+
+/** ---------------------------------------------------------------------------
+ * Add a history entry, this is ignored if it matches the current page.
+ *
+ * @param string content The page content.
+ * @param string to   Thought that they are going to.
+ * @param string from Thought that they came from.
+ * @param bool replace Replace the current state (default=false)
+ */
+function PushHistory( content, to, from, replace ) {
+	if( m_current_thought == to ) return;
+	
+	var url = to.replace( / /g, "-" );
+	if( from ) {
+		url = from.replace( / /g, "-" ) + "+" + url;
+	}
+	
+	var title = to;
+	if( from ) {
+		title = from + " -> " + to;
+	}
+	title = "wordweb: " + title;
+	
+	var state = { content: content, tag: url, thought: to }
+
+	if( replace ) {
+		history.replaceState( state, title, url );
+	} else {
+		history.pushState( state, title, url );
+	}
+}
+
+window.onpopstate = function(event) {
+	//alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+	//LoadPageFromTag( event.state.link, undefined, true );
+	
+	if( event.state === null ) {	
+		var tag = ParsePageTag();
+		LoadPageFromTag( tag );
+		//brains.Loader.SetContent( "" );
+		return;
+	}
+	
+	brains.Loader.SetContent( event.state.content );
+	m_current_thought = event.state.thought;
+	//$("#content").html( event.state.content );
+	$("#query").val( event.state.thought );
+
+}
+
 //-----------------------------------------------------------------------------
 $( function() {
 	// content initialization. 
 	
-	AdjustNewLinkInputSize();
+	//AdjustNewLinkInputSize();
 	
 	AdjustSizes();
-	AdjustThoughtSizes();
-	
+	//AdjustThoughtSizes();
 	
 	setTimeout(  // god i fucking hate the web.
 		function () {
 			
 			AdjustSizes();
-			AdjustThoughtSizes();
+	//		AdjustThoughtSizes();
 		}, 100 );
 	 
 	$(window).mouseup( function( e ) {
@@ -662,10 +810,9 @@ $( function() {
 		}
 		
 	} );
-	$(".thought").click( function( e ) {
-		
-		
-	});
+	//$(".thought").click( function( e ) {
+	//	 
+	//});
 	 
 	$("#queryform").submit( function() {
 		OnNewQuery();
@@ -685,13 +832,18 @@ $( function() {
 	$("#overlay").click( function() {
 		brains.Dialog.Close();
 	});
-	$("#dialog").click( function( e) {
+	$("#dialog").click( function( e ) {
 		e.stopPropagation();
 	});
 	
 	//brains.Dialog.Show( "login" );
 	
 	UpdateUserBlock();
+	
+	var tag = ParsePageTag();
+	LoadPageFromTag( tag );
+	
+	
 });
 
 //-----------------------------------------------------------------------------
