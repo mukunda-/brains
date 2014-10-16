@@ -23,7 +23,7 @@ final class Thought {
 		$this->time = $time;
 		$this->created = $created;
 	}
-		
+	
 	/** -----------------------------------------------------------------------
 	 * Scrub a thought phrase.
 	 *

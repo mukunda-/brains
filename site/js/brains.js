@@ -436,6 +436,8 @@ function NewLinkForm_OnSubmit() {
 	var input = SanitizeThought( $("#newlink").val(), invalid );
 	if( input === false ) return false;
 	
+	$("#newlink").blur();
+	
 	FollowLink( input, "new" );
 	return false;
 }

@@ -315,8 +315,9 @@ function OnLostPasswordSubmit() {
 				if( data != 'okay.' ) {
 					throw 'error';
 				}
-				
+				brains.Dialog.Close();
 				alert( "An e-mail has been sent." );
+				
 			} catch (err) {
 				console.log( err );
 				brains.Dialog.ShowError( "An error occurred, please try again later." );

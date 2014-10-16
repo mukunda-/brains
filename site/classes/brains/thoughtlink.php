@@ -11,6 +11,7 @@ final class ThoughtLink {
 	public $goods;
 	public $bads;
 	public $score;
+	public $tier;
 	public $vote = null;
 	public $created = false; // true if this thought was returned 
 							 // by Create, or Get with $create=true
@@ -41,6 +42,7 @@ final class ThoughtLink {
 	 */
 	public function UpdateScore() {
 		$this->score = self::ComputeScore( $this->goods, $this->bads );
+		$this->tier = self::GetTier( $this->score );
 		return $this->score;
 	}
 	
@@ -133,6 +135,20 @@ final class ThoughtLink {
 			}
 		}
 		return $sc;
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Compute the score tier
+	 *
+	 * @param int $score Score of link.
+	 * @return int Score tier.
+	 */
+	public static function GetTier( $score ) {
+		if( $score < 60 ) return 0;
+		if( $score < 75 ) return 1;
+		if( $score < 90 ) return 2;
+		if( $score < 99 ) return 3;
+		return 4;
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -266,7 +282,7 @@ final class ThoughtLink {
 			// add the vote
 			if( $vote ) {
 				$goods++;
-				$goods += 202; // DEBUG
+				$goods += mt_rand(1,35);
 			} else {
 				$bads++;
 			}
@@ -431,13 +447,17 @@ final class ThoughtLink {
 	/** -----------------------------------------------------------------------
 	 * Find links that are connected to a thought.
 	 *
-	 * @param Thought $thought Thought to search for.
-	 * @param int $accountid   Account ID to use to get the VOTE field.
-	 *                         0=NONE/ADMIN.
+	 * @param Thought $thought   Thought to search for.
+	 * @param int     $accountid Account ID to use to get the VOTE field.
+	 *                           0=NONE/ADMIN.
+	 * @param bool    $arrange   Arrange the result set. Sorts by score tiers
+	 *                           and randomizes.
+	 *
 	 * @return array           Array of ThoughtLink instances that are linked
 	 *                         to the thought given.
 	 */
-	public static function FindLinks( $thought, $accountid = 0 ) {
+	public static function FindLinks( $thought, $accountid = 0, 
+									  $arrange = true ) {
 		$db = \SQLW::Get();
 		
 		// method 1, not sure if this is the right way to do a query like this
@@ -500,6 +520,15 @@ final class ThoughtLink {
 			$link = new self( $thought, $dest, $row['time'], $row['creator'],
 							  $row['goods'], $row['bads'], $vote );
 			$list[] = $link;
+		}
+		
+		if( $arrange ) {
+			shuffle( $list );
+			usort( $list, function( $a, $b ) {
+				if( $a->tier == $b->tier ) return 0;
+				if( $a->tier < $b->tier ) return 1;
+				return -1;
+			});
 		}
 		return $list;
 	}
