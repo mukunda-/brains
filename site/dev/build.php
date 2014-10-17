@@ -19,7 +19,8 @@ spl_autoload_register( function ($class) {
 //-----------------------------------------------------------------------------
 function GetNewestFileTime( $list ) { 
 	array_walk( $list, function( &$item, $key ) {
-		$item = filemtime($item);
+		
+		$item = file_exists($item) ? filemtime($item) : 0;
 	});
 	$list[] = 0;
 	return max($list);
@@ -33,35 +34,40 @@ function Build() {
 		mkdir( "logs", 0700 );
 	}
 	
-	if( !file_exists( "min" ) ) {
-		mkdir( "min", 0755 );
+	if( !file_exists( "build" ) ) {
+		mkdir( "build", 0755 );
 	}
 	
 	//----------------------------------------------------------
-	$css_target = 'min/style.min.css';
+	//$css_target = 'min/style.min.css';
 	$newtime = GetNewestFileTime( glob( 'css/*.scss', GLOB_NOSORT ) );
-	$gentime = file_exists( $css_target ) ? filemtime( $css_target ) : 0;
+	$gentime = GetNewestFileTime( [ "build/style.min.css", "build/style.css" ] ); //file_exists( $css_target ) ? filemtime( $css_target ) : 0;
 
 	if( $newtime >= $gentime ) {
 		Logger::PrintInfo( "building css..." );
+		
+		exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss build/style.css", $output, $aaa ); 
+		exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss build/style.min.css --sourcemap=none --style compressed"  );
+		/*
 		if( Config::DebugMode() ) {
 			// debug mode, don't compress.
-			 
-			exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss $css_target", $output, $aaa ); 
+			
+			
 			
 		} else {
 			
-			exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss $css_target --style compressed"  );
-		}
+			
+		}*/
 	}
 	
 	//---------------------------------------------------------
-	$js_target = 'min/scripts.min.js';
+	//$js_target = 'min/scripts.min.js';
 	$js = array_merge( glob( "js/lib/*.js", GLOB_NOSORT ), 
 					   glob( "js/*.js", GLOB_NOSORT ) 
 					 );
 	$newtime = GetNewestFileTime( $js );
-	$gentime = file_exists( $js_target ) ? filemtime( $js_target ) : 0;
+	$gentime = GetNewestFileTime( [ "build/scripts.min.js", "build/scripts.js" ] ); 
+	
 	if( $newtime >= $gentime ) {
 		Logger::PrintInfo( "building javascript..." );
 		
@@ -70,6 +76,11 @@ function Build() {
 			$code .= file_get_contents( $jsfile ) . "\n\n";
 		}
 		
+		file_put_contents( "build/scripts.js", $code );
+		$code = \JShrink\Minifier::Minify( $code );	
+		file_put_contents( "build/scripts.min.js", $code );
+			
+			/*
 		if( Config::DebugMode() ) {
 			// debug mode, don't minify.
 			
@@ -78,7 +89,7 @@ function Build() {
 		} else {
 			$code = \JShrink\Minifier::Minify( $code );	
 			file_put_contents( $js_target, $code );
-		}
+		}*/
 	}
 		
 	

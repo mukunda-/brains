@@ -52,6 +52,9 @@ final class Config {
 		if( $_SERVER['SERVER_NAME'] != 'localhost' ) {
 			// disable debug in non local servers.
 			Config::$DEBUG = FALSE;
+		} else {
+			// enable debug on local servers
+			Config::$DEBUG = TRUE;
 		}
 		
 		self::$AUTHTOKEN_DURATION = 60*60*24*90; // 90 days

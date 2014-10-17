@@ -293,7 +293,6 @@ final class ThoughtLink {
 			// add the vote
 			if( $vote ) {
 				$goods++;
-				$goods += mt_rand(1,35);
 			} else {
 				$bads++;
 			}

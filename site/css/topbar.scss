@@ -38,6 +38,10 @@
 	#logo:hover {
 		fill: $cl_hl;
 	}
+	
+	#logo:active {
+		fill: darken( $cl_hl, 25% );
+	}
 
 	#query {
 		font: {
@@ -47,11 +51,11 @@
 		}
 		background: none;
 		border: none;
-		position:relative;
+		position: relative;
 		top: 1px;
 		display: inline-block;
 		width: 150px;
-		text-align:center;
+		text-align: center;
 		min-height: 34px;
 		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;

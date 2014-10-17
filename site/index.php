@@ -20,16 +20,27 @@ if( Config::DebugMode() ) {
 		<link rel="shortcut icon" href="/favicon.png">
 
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-
-		<link rel="stylesheet" href="min/style.min.css" type="text/css">
+		
+		<?php
+			if( Config::DebugMode() ) {
+				echo '<link rel="stylesheet" href="build/style.css" type="text/css">';
+			} else {
+				echo '<link rel="stylesheet" href="build/style.min.css" type="text/css">';
+			}
+		?>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<!--<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>-->
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400,300,300italic' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700' rel='stylesheet' type='text/css'>
-		<script src="min/scripts.min.js"></script>
-		 
+		
 		<?php
+			if( Config::DebugMode() ) {
+				echo '<script src="build/scripts.js"></script>';
+			} else {
+				echo '<script src="build/scripts.min.js"></script>';
+			} 
+			
 			echo '<script>';
 			if( User::LoggedIn() ) {
 			
