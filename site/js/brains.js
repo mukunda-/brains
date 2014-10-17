@@ -26,6 +26,8 @@ var m_current_thought = null;
 var s_thoughts;
 var s_votebuttons;
 
+var s_loaders = $(); // loader icons on the page.
+
 var m_stats; // stats returned from ShowInfoPage
  
 /** ---------------------------------------------------------------------------
@@ -74,6 +76,14 @@ function AdjustSizes() {
 	//$("#view").height( $(window).height() - 48 + "px" );
 	
 	$("#dialog").css( "max-width", (width - 48) + "px" );
+	
+	if( width < 470 ) {
+		$("#loader_top").css( "left", "16px" );
+	} else {
+		var query = $("#query");
+		var left = query.offset().left + query.width() + 16;
+		$("#loader_top").css( "left", left + "px" );
+	}
 }
 
 
@@ -142,14 +152,7 @@ function FilterThoughtKeys( e ) {
  *                     or visits a link to "asdf" the query is "asdf".
  */
 function PageContent_NewLink( out, query ) {
-	
-	out.push( '<h2>What does "' + query + '" make you think of?</h2>' );
-	out.push( '<div class="newlink">' );
-	out.push(    '<form id="newlinkform">' );
-	out.push(       '<input type="text" autocomplete="off" id="newlink" maxlength="20">' );
-	out.push(    '</form>' );
-	out.push( '</div>' );
-	
+	out.push( $("#template_newlink").html().replace( "{{query}}", query ) );
 }
 
 /** ---------------------------------------------------------------------------
@@ -303,6 +306,9 @@ function MakeQuery( input, from, startup ) {
 	var request = { input: input };
 	if( from ) request.from = from;
 	
+	ShowLoadingIcon( "#loader_top" );
+	
+	
 	brains.Loader.Load( { 
 		url: "query.php", 
 		data: request, 
@@ -422,6 +428,8 @@ function VoteThought( element, vote ) {
  *
  */
 brains.InitializePostLoad = function() {
+	FindLoadingIcons();
+	HideLoadingIcons();
 	var newlink = $( "#newlink" );
 	if( newlink.length ) {
 		
@@ -447,6 +455,7 @@ brains.InitializePostLoad = function() {
 			if( brains.Loader.IsLoading() ) return;
 			// follow link. use query mode if not logged in.
 			
+			$(this).addClass( "following" );
 			FollowLink( $(this).data( "dest"), "soft" );
 		} );
 		
@@ -464,6 +473,8 @@ brains.InitializePostLoad = function() {
 		s_votebuttons.click( function( e ) {
 			e.stopPropagation();
 		}); 
+		
+
 	}
 	var discovery = $("#discovery");
 	if( discovery.length ) {
@@ -484,6 +495,7 @@ brains.InitializePostLoad = function() {
 		$("#info_glinks").children( "span" ).text( m_stats.good_links );
 		$("#info_slinks").children( "span" ).text( m_stats.strong_links );
 	}
+	
 	AdjustSizes();
 }
 
@@ -501,8 +513,9 @@ function NewLinkForm_OnSubmit() {
 	var input = SanitizeThought( $("#newlink").val(), invalid );
 	if( input === false ) return false;
 	
-	$("#newlink").blur();
-	
+	$("#newlink").blur()
+				 .addClass( "following" );
+	$("#loader_newlink").show();
 	FollowLink( input, "new" );
 	return false;
 }
@@ -526,14 +539,17 @@ function FollowLink( input, method ) {
 	
 	if( input == m_current_thought ) {
 		alert( "You can't make a link to the same thought." );
+		HideLoadingIcons();
 		return;
 	}
 	
 	var show_login = function() {
-		
+		HideLoadingIcons();
 		brains.ShowLoginDialog( 
 				"To create a link you need to be signed in.",
 				NewLinkForm_OnSubmit );
+		
+		
 	}
 	
 	if( !m_logged_in && method == "new" ) {
@@ -544,6 +560,8 @@ function FollowLink( input, method ) {
 		
 	var failure = function() {
 		alert( "An error occurred. Please try again." ); 
+		$("#links").children( ".thought" ).removeClass( "following" );
+		$("#newlink").removeClass( "following" );
 	}
 	
 	brains.Loader.Load( {
@@ -556,7 +574,7 @@ function FollowLink( input, method ) {
 		},
 		post: true,
 		process: function( response ) {
-			 
+			
 			if( response === null ) {
 				return failure();
 			}
@@ -830,6 +848,18 @@ window.onpopstate = function(event) {
 
 }
 
+function FindLoadingIcons() {
+	s_loaders = $(".loader");
+}
+
+function ShowLoadingIcon( id ) {
+	$(id).addClass( "show" );
+}
+
+function HideLoadingIcons() {
+	s_loaders.removeClass( "show" );
+}
+
 //-----------------------------------------------------------------------------
 $( function() {
 	// content initialization. 
@@ -882,6 +912,8 @@ $( function() {
 		ShowInfoPage();
 	});
 	
+	FindLoadingIcons();
+	
 	//brains.Dialog.Show( "login" );
 	
 	UpdateUserBlock();
@@ -907,5 +939,9 @@ $( function() {
 brains.OnNewQuery = OnNewQuery;
 brains.AdjustSizes = AdjustSizes;
 brains.CToken = CToken;
+
+
+brains.HideLoadingIcons = HideLoadingIcons;
+brains.ShowLoadingIcon = ShowLoadingIcon;
 
 } )();

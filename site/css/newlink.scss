@@ -1,6 +1,7 @@
 
 .newlink {
 	
+	position: relative;
 	background-color: $cl_white;
 	border-radius: 16px;
 	@include light-box-shadow;
@@ -19,8 +20,25 @@
 		border: none;
 		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;
+		
+		
+		&.following {
+			
+			border-color: transparent;
+		
+			opacity: 0.7;
+			transition: opacity 0.5s, border-color 0.5s;
+
+		}
 	}
+	
 	form {
 		margin: 0px;
+	}
+	
+	.loader {
+		position: absolute;
+		right: 11px;
+		top: 29px;
 	}
 }

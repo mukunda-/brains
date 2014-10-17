@@ -1,0 +1,13 @@
+
+.loader {
+	width: 18px;
+	height: 15px;
+	background: transparent url( "../img/loading.gif" ) no-repeat left top;
+	display:none;
+	
+	&.show {
+		display:inline-block;
+	}
+	
+}
+

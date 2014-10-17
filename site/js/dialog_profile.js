@@ -47,14 +47,16 @@ function InitProfileDialog( account, nickname, preloaded ) {
 		$("#dialog")
 			.children( ".profile_content_loading_text" )
 			.text( "error. please try again later." );
+		brains.HideLoadingIcons();
 	}
 	
 	if( !preloaded ) {
 	
+		brains.ShowLoadingIcon( "#loader_profile" );
 		m_loader.AddAjax( $.get( "profile.php", { account: account } ) )
 			
 			.done( function( response ) {
-				 
+				 brains.HideLoadingIcons();
 				try {
 					if( response == "" ) throw "no data.";
 					response = JSON.parse( response );
@@ -237,6 +239,7 @@ function OnEditProfileSave() {
 								website: website, 
 								bio: bio, links: 
 								m_profile_data.links, 
+								goods: m_profile_data.goods,
 								strongs: m_profile_data.strongs, 
 								perfects: m_profile_data.perfects 
 							});

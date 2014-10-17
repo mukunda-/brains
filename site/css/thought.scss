@@ -148,5 +148,15 @@
 		
 	}
 	
-	
+	&.following {
+		
+		box-shadow: 0px 0px 24px 0px rgba( #fff, 0.5 );
+		opacity: 0.5;
+		//border-radius: 16px;
+		color: $cl_hl;
+		//box-shadow: inset 0px 0px 0px 2px $cl_hl;
+		//border: 2px solid $cl_hl;
+		//opacity: 0;
+		transition: opacity 0.5s;
+	}
 }

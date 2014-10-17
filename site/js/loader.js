@@ -40,20 +40,10 @@ var PAGE_LOAD_FAILED_CONTENT =
  */
 function FadeIn( content ) {
 	m_fading_out = false;
-	HideLoadingIcon();
-	//$(window).scrollTop(0);
+//	HideLoadingIcon();
 	
 	SetContent( content );
-	// global initialization here:
-//	brains.InitializePreLoad();
 	
-//	output = $('#content');
-//	$('#content').html( content );
-//	brains.InitializePostLoad();
-//	m_loading = false;
-	
-//	$(window).scrollTop( 0 );
-//	output.addClass( 'visible' ); // fade in
 }
  
 /** ---------------------------------------------------------------------------
@@ -76,7 +66,7 @@ function SetContent( content ) {
 	$(window).scrollTop( 0 );
 	output.addClass( 'visible' ); // fade in
 }
-
+/*
 //-----------------------------------------------------------------------------
 function ShowLoadingIcon() {
 	m_icontimeout.ClearAll();
@@ -94,7 +84,7 @@ function HideLoadingIcon() {
 	m_icontimeout.Set( function() {
 		$("#loader_window").addClass( "hidden" );
 	}, 1000 );
-}
+}*/
 
 /** ---------------------------------------------------------------------------
  * Load a content page.
@@ -144,29 +134,9 @@ function Load( info ) {
 	if( info.delay < 0 ) info.delay = -info.delay - FADE_OUT_TIME; 
 	
 	m_loading = true;
-	
-	//matbox.LiveRefresh.Reset(); 
-	
-	//output = $( '#content' );
-	//output.removeClass( 'visible' ); // fade out
-	
-	
-	ShowLoadingIcon();
-	//m_icontimeout.Set( ShowLoadingIcon, 2000 );
-	
-	/*
-	m_ag.Set( 
-		function() {
-			m_fading_out = false; 
-			if( m_page_content != null ) {
-				FadeIn( m_page_content );
-				m_page_content = null;
-			} else {
-				// we finished first, prime the output.
-				output.html("");
-			}
-		}, FADE_OUT_TIME+delay );
-	*/
+	 
+	//ShowLoadingIcon();
+	 
 	var ajax = info.post ? 
 				$.post( info.url, info.data ) : 
 				$.get( info.url, info.data );
@@ -175,12 +145,14 @@ function Load( info ) {
 		info.process( null );
 		m_loading = false;
 		m_fading_out = false;
+		brains.HideLoadingIcons();
 	}
 	
 	
 	m_ag.AddAjax( ajax )
 		.done( function(data) {
-			alert(data);
+			//alert(data);
+			
 			if( data == "" ) {
 				call_failure();
 				return;
@@ -212,6 +184,7 @@ function Load( info ) {
 		})
 		.fail( function( handle ) {
 			if( handle.ag_cancelled ) return;
+
 			
 			call_failure();
 		});

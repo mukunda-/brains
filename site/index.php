@@ -112,16 +112,20 @@ if( Config::DebugMode() ) {
 			$svg = new \SVG( 'img/logo1.svg' );
 			$svg->SetID( 'logo' );
 			$svg->Output();
+			
+			echo '<div class="loader" id="loader_top"></div>';
 			//echo '<div class="logo"></div>';
 			echo '<form autocomplete="off" id="queryform">';
 			echo '<input id="query" maxlength="20" >';
 			echo '</form>';
+
 	//		$svg = new \SVG( 'img/gear-2.svg' );
 	//		$svg->SetID( 'user' );
 	//		$svg->Output();
+	
 			echo '<div id="user">';
-				echo '<span></span>';
-				echo '<i class="icon fa fa-sign-in" id="user"></i>';
+				echo '<span></span> ';
+				echo '<i class="icon fa fa-sign-in"></i>';
 			echo '</div>';
 		echo '</div>';
 		
@@ -219,7 +223,7 @@ if( Config::DebugMode() ) {
 				<div class="profile_entry" id="profile_perfectlinks">Perfect links: <span></span> </div>
 				<div class="profile_entry" id="profile_bio">Bio: <span></span></div> -->
 			</div>
-			<div class="profile_content_loading_text">loading...</div>
+			<div class="profile_content_loading_text"><div class="loader" id="loader_profile"></div></div>
 			<center>
 				<button id="profile_button_close" class="view_profile_button">Okay</button> 
 				<span id="profile_selfbuttons" class="hidden">
@@ -319,6 +323,8 @@ if( Config::DebugMode() ) {
 				<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
 				and <i>crib</i> should form a <i>strong link</i>!</p>
 				
+				<p>This only works if a lot of people contribute, so please tell your friends to put in a few words too!</p>
+				
 				<h3><i>"A crowdsourced brainstorm"!</i></h3>
 				
 				<div class="stats">
@@ -326,6 +332,16 @@ if( Config::DebugMode() ) {
 					<div class="linksfound" id="info_glinks">Good links discovered: <span></span></div>
 					<div class="linksfound" id="info_slinks">Strong links discovered: <span></span></div>
 				</div>
+			</div>
+		</template>
+		
+		<template id="template_newlink">
+			<h2>What does {{query}} make you think of?</h2>
+			<div class="newlink">
+				<form id="newlinkform">
+					<input type="text" autocomplete="off" id="newlink" maxlength="20">
+					<div class="loader" id="loader_newlink"></div>
+				</form>
 			</div>
 		</template>
 	</body>

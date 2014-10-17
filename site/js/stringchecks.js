@@ -64,8 +64,8 @@ function ReadDialogField( id, name ) {
 										" cannot be blank." );
 										
 			brains.Dialog.MarkErrorField( id );
+			return false;
 		}
-		return false;
 	}
 	/*
 	var valid = password ? brains.IsValidPassword( value ) : 
