@@ -7,12 +7,15 @@ $bgcolor: #F8CC8A;
 $cl_red: #fe0201;
 $cl_bg: #6CD4FB; // blue stone (light blue)
 //$cl_bg: #00B4FF; // aural blue
+//$cl_bg: #69D2E7;
 $cl_hl: complement( $cl_bg );
 $cl_topbar: #93406D; // A Flower's Secrets
 $cl_white: #f7f7f7;
 $cl_black: #171711;
 
-$topbar_height: 48px;
+$squashwidth: 400px;
+
+$topbar_height: 40px;
 
 @mixin light-box-shadow {
 	box-shadow: 2px 2px 6px rgba( #000, 0.06 );
@@ -38,20 +41,36 @@ body {
 	text-align: center;
 	
 	font: {
-		family: 'Open Sans Condensed';
+		family: 'Open Sans';
+		
 		size: 18px;
 		weight: 300;
 	}
 	
+	@media (max-width:$squashwidth) {
+		// justify looks like shit on small width
+		font-family: 'Open Sans Condensed';
+		font-weight: 300;
+	}
+	
+	b {
+		font-weight: 700;
+	}
 	margin: 6px;
 	overflow:hidden;
 }
 
-input ,button { 
+input, button { 
 	font: {
-		family: 'Open Sans Condensed';
+		family: 'Open Sans';
+		 
 		size: 18px;
 		weight: 300;
+	}
+	@media (max-width:$squashwidth) {
+		// justify looks like shit on small width
+		font-family: 'Open Sans Condensed';
+		
 	}
 }
 

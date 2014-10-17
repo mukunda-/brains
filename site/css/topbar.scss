@@ -24,7 +24,7 @@
 		left: 4%;
 		transition: left 0.5s,
 					fill 0.25s;
-		top:7px;
+		top:3px;
 		display: inline-block;
 		cursor: pointer;
 		
@@ -48,7 +48,7 @@
 		background: none;
 		border: none;
 		position:relative;
-		top: 5px;
+		top: 1px;
 		display: inline-block;
 		width: 150px;
 		text-align:center;
@@ -56,15 +56,20 @@
 		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;
 		
-		.pointout {
-			border: 2px dashed rgba( #00f, 0.25 );
+		&.pointout {
+			//border-top: 1px dotted rgba($cl_black,0.25);
+			//border-top: 1px solid rgba( #000, 0.45 );
+			border-radius: 8px;
+			//box-shadow: 0px 0px 3px $cl_hl;
+			border-left: 2px solid $cl_hl;
+			border-right: 2px solid $cl_hl;
 		}
 	}
 	
 	#user {
 		position: absolute;
 		right: 44px;
-		top: ($topbar_height + 16) / 2 - 16;
+		top: ($topbar_height + 16) / 2 - 17;
 		//width: 32px;
 		height: 32px;
 		color: #333;

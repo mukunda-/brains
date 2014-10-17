@@ -31,6 +31,8 @@ function Show( name, initializer ) {
 		$(this).removeClass( "error" );
 	} );
 	
+	$("#query").attr( "disabled", "disabled" );
+	$("#newlink").attr( "disabled", "disabled" );
 } 
 
 /** ---------------------------------------------------------------------------
@@ -41,6 +43,8 @@ function Close() {
 	$("#overlay").removeClass( 'show' );
 	$("#dialog").html( "" );
 	
+	$("#query").removeAttr( "disabled" );
+	$("#newlink").removeAttr( "disabled" );
 } 
 
 /** ---------------------------------------------------------------------------

@@ -25,7 +25,7 @@ if( Config::DebugMode() ) {
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<!--<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>-->
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400,300,300italic' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700' rel='stylesheet' type='text/css'>
 		<script src="min/scripts.min.js"></script>
 		 
@@ -165,7 +165,7 @@ if( Config::DebugMode() ) {
 					<form id="form_createaccount">
 						<div class="fieldname">Nickname</div><div class="optdesc">What other people will see you as. This can be changed later.</div>
 						<input type="text" class="textinput" id="ca_nickname" autocomplete="off"><hr>
-						<div class="fieldname">Username/E-mail</div><div class="optdesc">What you will use to log in. Has to be unique. You can use your e-mail address as your username.</div>
+						<div class="fieldname">Username/E-mail</div><div class="optdesc">What you will use to sign in. Has to be unique. You can use your e-mail address as your username.</div>
 						<input type="text" class="textinput" id="ca_username" autocomplete="off"><hr>
 						<div class="fieldname">Password</div><div class="optdesc">Don't forget this.</div>
 						<input type="password" class="textinput" id="ca_password" autocomplete="off"><hr>
@@ -196,7 +196,7 @@ if( Config::DebugMode() ) {
 					<input type="password" name="password" class="textinput" id="text_password"><br>
 					<input type="checkbox" name="rememberme" id="check_rememberme">
 					<label for="check_rememberme">Remember me</label><br>
-					<input type="submit" class="submitinput" value="Log In"> 
+					<input type="submit" class="submitinput" value="Sign In"> 
 					<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
 					
 				</form>
@@ -304,22 +304,22 @@ if( Config::DebugMode() ) {
 				<h1>The Wordweb Project</h1>
 				<p>The Wordweb is a creative resource that is built from human thoughts. 
 				Since you're a human, you're able to contribute to the project! Simply type 
-				in a word or phrase (a "thought") in the above space, and then continue from there!
-				Every thought you type in helps build the database.</p>
+				in a word or phrase (a <i>thought</i>) in the above space, and then continue from there.
+				Every thought you type in helps to build the database!</p>
 				
-				<p>To help even more, you can vote on existing links. 
-				When you search for a thought, it might have existing links associated with it. 
-				If you can see a relation between the link's thought and the current thought
+				<p>To help even more, you can vote on existing <i>links</i>. 
+				When you search for a thought, it might already have links associated with it. 
+				If you can see a relation between a link's thought and the current thought
 				you are on, you should give it an upvote. If you don't see a relation, then you should
-				downvote it. If you click on a link to follow it, you will also upvote it.</p>
+				downvote it. Clicking on a link to follow it also gives it an upvote.</p>
 				
-				<p>Eventually, the Wordweb will grow into a massive database containing relations between
-				thoughts, kind of like a thesaurus, except with more than just synonyms. In fact, we aren't
-				looking for synonyms--that's what a thesaurus is for. For an example of what we're looking for, 
-				"baby" and "crib" are definitely not the same thing, but cribs are for babies! So ideally baby 
-				and crib should form a strong link!</p>
+				<p>Eventually, the Wordweb will grow into a massive database of relations between
+				thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't
+				looking for synonyms—that's what a thesaurus is for! For an example of what we <i>are</i> looking for: 
+				<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
+				and <i>crib</i> should form a <i>strong link</i>!</p>
 				
-				<p>You can also call this a "crowdsourced brainstorm"!</p>
+				<h3><i>"A crowdsourced brainstorm"!</i></h3>
 				
 				<div class="stats">
 					<div class="linksfound" id="info_tlinks">Total links discovered: <span></span></div>

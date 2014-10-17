@@ -3,16 +3,17 @@
 //************************
 
 .welcome {
-	font-family: 'open sans';
-	font-size: 28px;
+	
+	font-size: 24px;
 	
 	text-shadow: 1px 1px 1px darken( $cl_bg, 10% );
 	
 	h1 {
-		font-size: 32px;
+		font-size: 30px;
 		font-weight: 700;
 		margin-bottom: 40px;
 	}
+	
 	
 	p {
 		text-align: justify;
@@ -24,7 +25,7 @@
 	}
 	
 	.stats {
-		
+		font-weight: 700;
 		@media (max-width:400px) {
 			// justify looks like shit on small width
 			font-size: 0.8em;
@@ -33,7 +34,7 @@
 	}
 	
 	#biglogo {
-		width: 500px;
+		width: 400px;
 		max-width: 90%;
 	}
 	margin-bottom: 160px;

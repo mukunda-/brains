@@ -86,7 +86,10 @@
 			width: 9px;
 			height: 9px;
 			position: absolute;
-			left: 10px;
+			left: 11px;
+			@media (max-width:$squashwidth) {
+				left: 10px;
+			}
 			top: 8px;
 			background-position: 0px 0px;
 		}

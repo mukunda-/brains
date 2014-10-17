@@ -356,6 +356,7 @@ function ShowInfoPage() {
 			m_stats = response.data;
 			var html = $("#template_info").html();
 			
+			$("#query").val( "" );
 			PushHistory( html );
 			m_current_thought = "";
 			return html;
@@ -885,6 +886,16 @@ $( function() {
 	var tag = ParsePageTag();
 	LoadPageFromTag( tag );
 	
+	if( $("#query").val() == "" ) {
+	
+		$("#query").addClass( "pointout" )
+			.focusin( function() {
+				$(this).removeClass( "pointout" )
+					   .unbind( "focusin" );
+				
+			});
+		
+	}
 	
 });
 
