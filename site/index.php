@@ -114,7 +114,7 @@ if( Config::DebugMode() ) {
 			$svg->Output();
 			//echo '<div class="logo"></div>';
 			echo '<form autocomplete="off" id="queryform">';
-			echo '<input id="query" maxlength="20" placeholder="start" >';
+			echo '<input id="query" maxlength="20" >';
 			echo '</form>';
 	//		$svg = new \SVG( 'img/gear-2.svg' );
 	//		$svg->SetID( 'user' );
@@ -291,6 +291,42 @@ if( Config::DebugMode() ) {
 					<input type="button" class="submitinput" id="button_cancel" value="Cancel">
 				</form>
 			</center>
+		</template>
+		
+		<template id="template_info">
+			<div class="welcome">
+				<div class="biglogo">
+					<?php
+					$svg = new \SVG( 'img/logo1.svg' );
+					$svg->SetID( 'biglogo' );
+					$svg->Output();?>
+				</div>
+				<h1>The Wordweb Project</h1>
+				<p>The Wordweb is a creative resource that is built from human thoughts. 
+				Since you're a human, you're able to contribute to the project! Simply type 
+				in a word or phrase (a "thought") in the above space, and then continue from there!
+				Every thought you type in helps build the database.</p>
+				
+				<p>To help even more, you can vote on existing links. 
+				When you search for a thought, it might have existing links associated with it. 
+				If you can see a relation between the link's thought and the current thought
+				you are on, you should give it an upvote. If you don't see a relation, then you should
+				downvote it. If you click on a link to follow it, you will also upvote it.</p>
+				
+				<p>Eventually, the Wordweb will grow into a massive database containing relations between
+				thoughts, kind of like a thesaurus, except with more than just synonyms. In fact, we aren't
+				looking for synonyms--that's what a thesaurus is for. For an example of what we're looking for, 
+				"baby" and "crib" are definitely not the same thing, but cribs are for babies! So ideally baby 
+				and crib should form a strong link!</p>
+				
+				<p>You can also call this a "crowdsourced brainstorm"!</p>
+				
+				<div class="stats">
+					<div class="linksfound" id="info_tlinks">Total links discovered: <span></span></div>
+					<div class="linksfound" id="info_glinks">Good links discovered: <span></span></div>
+					<div class="linksfound" id="info_slinks">Strong links discovered: <span></span></div>
+				</div>
+			</div>
 		</template>
 	</body>
 </html>

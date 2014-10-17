@@ -228,6 +228,8 @@ final class ThoughtLink {
 			User::AddLinkStat( $creator, 0 );
 		}
 		
+		Stats::Increment( 'TLINKS' );
+		
 		$db->RunQuery( 'COMMIT' );
 		
 		
@@ -382,15 +384,18 @@ final class ThoughtLink {
 				if( $linkrank == 0 && $newscore >= self::LINKRANK_GOOD ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 1 );
+					Stats::Increment( 'GLINKS' );
 				}
 				if( $linkrank == 1 && $newscore >= self::LINKRANK_STRONG ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 2 );
+					Stats::Increment( 'SLINKS' );
 				}
 				if( $linkrank == 2 && $newscore >= self::LINKRANK_PERFECT ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 3 );
 					
+					Stats::Increment( 'PLINKS' );
 					Logger::Info( "A PERFECT link was discovered! \"$source->phrase\" -> \"$dest->phrase\"" );
 				}
 				

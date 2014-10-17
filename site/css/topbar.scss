@@ -55,6 +55,10 @@
 		min-height: 34px;
 		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;
+		
+		.pointout {
+			border: 2px dashed rgba( #00f, 0.25 );
+		}
 	}
 	
 	#user {

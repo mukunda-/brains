@@ -25,6 +25,8 @@ var m_current_thought = null;
 
 var s_thoughts;
 var s_votebuttons;
+
+var m_stats; // stats returned from ShowInfoPage
  
 /** ---------------------------------------------------------------------------
  * Adjust the size of a thought based on its text length.
@@ -339,6 +341,28 @@ function MakeQuery( input, from, startup ) {
 	});
 }
 
+function ShowInfoPage() {
+	if( brains.Loader.IsLoading() ) return;
+	
+	brains.Loader.Load( {
+		url: "stats.php",
+		data: {},
+		process: function( response ) {
+			if( response === null || response.status != "okay." ) {
+				
+				return false;
+			}
+			
+			m_stats = response.data;
+			var html = $("#template_info").html();
+			
+			PushHistory( html );
+			m_current_thought = "";
+			return html;
+		}
+	});
+}
+
 /** ---------------------------------------------------------------------------
  * Called when the old content was erased and new content is about to
  * be loaded.
@@ -448,6 +472,13 @@ brains.InitializePostLoad = function() {
 					creatorlink.text() );
 			});
 		}
+	}
+	
+	var welcome = $("#content").children( ".welcome" );
+	if( welcome.length ) {
+		$("#info_tlinks").children( "span" ).text( m_stats.total_links );
+		$("#info_glinks").children( "span" ).text( m_stats.good_links );
+		$("#info_slinks").children( "span" ).text( m_stats.strong_links );
 	}
 	AdjustSizes();
 }
@@ -704,7 +735,8 @@ function ParsePageTag() {
  */
 function LoadPageFromTag( tag ) {
 	if( tag == "" ) {
-		SetContent("");
+		ShowInfoPage();
+		//SetContent("");
 		$("#query").val( "" );
 		
 		
@@ -751,6 +783,8 @@ $( window ).on ( 'beforeunload', function(){
  * @param bool replace Replace the current state (default=false)
  */
 function PushHistory( content, to, from, replace ) {
+	if( !isSet(to) ) to = "";
+	
 	if( m_current_thought == to ) return;
 	
 	var url = to.replace( / /g, "-" );
@@ -758,19 +792,16 @@ function PushHistory( content, to, from, replace ) {
 		url = from.replace( / /g, "-" ) + "+" + url;
 	}
 	
-	var title = to;
-	if( from ) {
-		title = from + " -> " + to;
+	if( to == "" ) {
+		url = ".";
 	}
-	title = "wordweb: " + title;
+	
+	title = "wordweb";
 	
 	var state = { content: content, tag: url, thought: to }
 
 	if( replace ) {
 		history.replaceState( state, title, url );
-		console.log( "HELLO!" );
-		console.log( state );
-		console.log( url );
 	} else {
 		history.pushState( state, title, url );
 	}
@@ -781,8 +812,7 @@ window.onpopstate = function(event) {
 	//LoadPageFromTag( event.state.link, undefined, true );
 
 	if( event.state === null ) {	
-		
-		console.log(" FUCK." );
+		 
 		var tag = ParsePageTag();
 		LoadPageFromTag( tag );
 		//brains.Loader.SetContent( "" );
@@ -842,6 +872,10 @@ $( function() {
 	});
 	$("#dialog").click( function( e ) {
 		e.stopPropagation();
+	});
+	
+	$("#logo").click( function()  {
+		ShowInfoPage();
 	});
 	
 	//brains.Dialog.Show( "login" );

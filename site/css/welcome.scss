@@ -1,0 +1,43 @@
+
+#content {
+//************************
+
+.welcome {
+	font-family: 'open sans';
+	font-size: 28px;
+	
+	text-shadow: 1px 1px 1px darken( $cl_bg, 10% );
+	
+	h1 {
+		font-size: 32px;
+		font-weight: 700;
+		margin-bottom: 40px;
+	}
+	
+	p {
+		text-align: justify;
+		@media (max-width:600px) {
+			// justify looks like shit on small width
+			text-align: left;
+			
+		}
+	}
+	
+	.stats {
+		
+		@media (max-width:400px) {
+			// justify looks like shit on small width
+			font-size: 0.8em;
+			
+		}
+	}
+	
+	#biglogo {
+		width: 500px;
+		max-width: 90%;
+	}
+	margin-bottom: 160px;
+}
+
+//************************
+}

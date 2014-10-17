@@ -18,6 +18,7 @@ function DropTable( $name ) {
 }
 
 if( $droptables ) {
+	DropTable( 'Stats' );
 	DropTable( 'LoginTokens' );
 	DropTable( 'LoginTickets' );
 	DropTable( 'Votes' );
@@ -139,5 +140,19 @@ $db->RunQuery( "
 	ENGINE = InnoDB
 	COMMENT = 'Login tickets for accounts with lost passwords.'
 ");
+
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS Stats (
+		id CHAR(8) PRIMARY KEY,
+		value INT NOT NULL DEFAULT 0
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Statistics table.'
+");
+
+$db->RunQuery( "INSERT INTO Stats (id) VALUES ('TLINKS')" );
+$db->RunQuery( "INSERT INTO Stats (id) VALUES ('GLINKS')" );
+$db->RunQuery( "INSERT INTO Stats (id) VALUES ('SLINKS')" );
+$db->RunQuery( "INSERT INTO Stats (id) VALUES ('PLINKS')" );
 
 ?>
