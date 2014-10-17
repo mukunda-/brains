@@ -63,7 +63,7 @@ if( Config::DebugMode() ) {
 		echo '<div id="margintop"></div>';
 		echo '<div id="trail"></div>';
 		
-		echo '<div id="content">hi';
+		echo '<div id="content">';
 		/*
 		echo '<div class="discovery" id="discovery">';
 			echo '<div class="score">48</div>';
@@ -157,6 +157,9 @@ if( Config::DebugMode() ) {
 			file_put_contents( $name, "<script>brains.Dialog.RegisterContent( '$name', '$contents' );</script>\r\n" );
 		}*/
 		
+		
+		//<div style="height: 12px"></div>
+		//			<a href="privacy.html" target="_blank">Privacy Policy</a>
 		?>
 		<template id="dialog_createaccount">
 		
@@ -180,8 +183,7 @@ if( Config::DebugMode() ) {
 						<input type="submit" class="submitinput" value="Create Account">
 						<input type="button" class="submitinput" id="button_cancel" value="Cancel">
 					</form>
-					<div style="height: 12px"></div>
-					<a href="privacy.html" target="_blank">Privacy Policy</a>
+					
 				</center>
 				
 				

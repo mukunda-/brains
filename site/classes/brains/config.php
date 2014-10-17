@@ -10,7 +10,7 @@ final class Config {
 
 	// debug mode, make sure to turn this off!
 	// controls minification and allows major setup features
-	public static $DEBUG = TRUE;
+	public static $DEBUG = FALSE;
 	
 	// log errors/exceptions to disk
 	public static $ERRLOG = TRUE; 
