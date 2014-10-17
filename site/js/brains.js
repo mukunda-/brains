@@ -341,6 +341,9 @@ function MakeQuery( input, from, startup ) {
 	});
 }
 
+/** ---------------------------------------------------------------------------
+ * Load and show the startup page.
+ */
 function ShowInfoPage() {
 	if( brains.Loader.IsLoading() ) return;
 	
