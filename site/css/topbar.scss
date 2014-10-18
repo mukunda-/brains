@@ -40,7 +40,8 @@
 	}
 	
 	#logo:active {
-		fill: darken( $cl_hl, 25% );
+		transition: fill 0s;
+		fill: darken( $cl_hl, 35% );
 	}
 
 	#query {
@@ -65,8 +66,8 @@
 			//border-top: 1px solid rgba( #000, 0.45 );
 			border-radius: 8px;
 			//box-shadow: 0px 0px 3px $cl_hl;
-			border-left: 2px solid $cl_hl;
-			border-right: 2px solid $cl_hl;
+			border-left: 1px solid $cl_hl;
+			border-right: 1px solid $cl_hl;
 		}
 	}
 	

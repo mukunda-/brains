@@ -286,6 +286,7 @@ public static function ParseLoginToken( &$id, &$secret ) {
  *                   and do not have a valid login token.
  */
 public static function CheckLogin( $ctoken ) {
+	OpenSession();
 	if( self::$logged_in ) {
 		return self::$account_id;
 	}
@@ -306,7 +307,6 @@ public static function CheckLogin( $ctoken ) {
 	}
 	
 	// first check if they are logged in via their session.
-	OpenSession();
 	if( isset($_SESSION['account_id']) ) {
 		
 		self::$logged_in = true;

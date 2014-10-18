@@ -11,6 +11,8 @@ User::CheckLogin( FALSE );
 if( Config::DebugMode() ) {
 	require_once 'dev/build.php';
 }
+
+require_once 'htaccess.php';
  
 ?><!DOCTYPE html>
 <html> 
@@ -183,7 +185,7 @@ if( Config::DebugMode() ) {
 					<form id="form_createaccount">
 						<div class="fieldname">Nickname</div><div class="optdesc">What other people will see you as. This can be changed later.</div>
 						<input type="text" class="textinput" id="ca_nickname" autocomplete="off"><hr>
-						<div class="fieldname">Username/E-mail</div><div class="optdesc">What you will use to sign in. Has to be unique. You can use your e-mail address as your username.</div>
+						<div class="fieldname">Username or E-mail</div><div class="optdesc">What you will use to sign in. Has to be unique. You can use your e-mail address as your username.</div>
 						<input type="text" class="textinput" id="ca_username" autocomplete="off"><hr>
 						<div class="fieldname">Password</div><div class="optdesc">Don't forget this.</div>
 						<input type="password" class="textinput" id="ca_password" autocomplete="off"><hr>
@@ -207,7 +209,7 @@ if( Config::DebugMode() ) {
 				<div id="dialog_error" class="dialog_error"></div>
 				<form id="form_login">
 					
-					<label>Username/E-mail</label><br>
+					<label>Username or E-mail</label><br>
 					<input type="text" name="username" class="textinput" id="text_username"><br>
 					<label>Password</label><br>
 					<input type="password" name="password" class="textinput" id="text_password"><br>
@@ -336,7 +338,7 @@ if( Config::DebugMode() ) {
 				<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
 				and <i>crib</i> should form a <i>strong link</i>!</p>
 				
-				<p>This only works if a lot of people contribute, so please tell your friends to put in a few words too!</p>
+				<p>This only works if a lot of people contribute, so you should tell your friends to put in a few words too!</p>
 				
 				<h3><i>"A crowdsourced brainstorm"!</i></h3>
 				

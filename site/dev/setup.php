@@ -10,7 +10,7 @@ if( !Config::DebugMode() ) die('aaaa');
 
 $db = \SQLW::Get();
 
-$droptables = 1;
+$droptables = FALSE;
 
 function DropTable( $name ) {
 	global $db;
@@ -74,13 +74,13 @@ $db->RunQuery( "
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Thoughts (
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-		creator INT UNSIGNED          COMMENT 'Account of creator.',
+		creator INT UNSIGNED          COMMENT 'Account of creator. 0 = anonymous',
 		time    INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		phrase  VARCHAR(31) NOT NULL UNIQUE
 	) 
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of thoughts and their IDs.'
-	" );
+");
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Links (
@@ -90,7 +90,7 @@ $db->RunQuery( "
 		bads     INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of downvotes.',
 		score    INT UNSIGNED NOT NULL DEFAULT 25 COMMENT 'Computed score.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
-		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = nobody/admin',
+		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = anonymous',
 		rank	 TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rank achieved, 0=normal, 1=good, 2=strong, 3=perfect',
 		PRIMARY KEY( thought1, thought2 ),
 		INDEX USING BTREE( thought2 ),
@@ -99,8 +99,8 @@ $db->RunQuery( "
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Describes all links between thoughts.'
-	" );
-	
+");
+	/*
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Votes (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
@@ -115,8 +115,8 @@ $db->RunQuery( "
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes for each account for each link.'
-	" );
-	
+");
+	*/
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS VoteLocks (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
@@ -128,7 +128,7 @@ $db->RunQuery( "
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Hold recent vote information for abuse prevention.'
-	" );
+");
 	
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS LoginTickets (
@@ -154,5 +154,59 @@ $db->RunQuery( "INSERT INTO Stats (id) VALUES ('TLINKS')" );
 $db->RunQuery( "INSERT INTO Stats (id) VALUES ('GLINKS')" );
 $db->RunQuery( "INSERT INTO Stats (id) VALUES ('SLINKS')" );
 $db->RunQuery( "INSERT INTO Stats (id) VALUES ('PLINKS')" );
+
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS IPMap (
+		id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Mapping of IP.',
+		ip VARBINARY(16) NOT NULL         COMMENT 'Actual IP address.'
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Mapping of IPs to indexes.'
+");
+
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS RealVotes (
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		vote     BOOL COMMENT '1=upvote, 0=downvote',
+		PRIMARY KEY( thought1, thought2, mip ),
+		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Vote table'
+");
+
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS AccountVotes (
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.', 
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		vote     BOOL COMMENT '1=upvote, 0=downvote',
+		PRIMARY KEY( thought1, thought2, account ),
+		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Holds votes for each account for each link.'
+");
+
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS AnonymousLinks (
+		id       INT PRIMARY KEY,
+		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
+		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
+		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of creator.',
+		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
+		INDEX USING BTREE( mip ),
+		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Holds links created by anonymous users.'
+");
 
 ?>

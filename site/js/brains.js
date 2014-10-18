@@ -401,7 +401,7 @@ function VoteThought( element, vote ) {
 	element.children( ".vote" ).removeClass( "selected" );
 	sel.addClass( "selected" );
 	
-	var score = element.data( "score" );
+	var score = element.attr( "data-score" );
 	score = BiasScore( score, vote );
 	element.children( ".score" ).text( score )
 		   .removeClass( vote ? "down" : "up" )
@@ -410,7 +410,7 @@ function VoteThought( element, vote ) {
 	$.post( "votelink.php", 
 		{ ctoken: CToken(),
 		  t1: m_current_thought, 
-		  t2: element.data( "dest" ),
+		  t2: element.attr( "data-dest" ),
 		  vote: vote ? "good" : "bad" } )
 		.done( function( data ) {
 		 
@@ -456,7 +456,7 @@ brains.InitializePostLoad = function() {
 			// follow link. use query mode if not logged in.
 			
 			$(this).addClass( "following" );
-			FollowLink( $(this).data( "dest"), "soft" );
+			FollowLink( $(this).attr( "data-dest"), "soft" );
 		} );
 		
 		s_votebuttons = s_thoughts.children( ".vote" );
@@ -474,7 +474,7 @@ brains.InitializePostLoad = function() {
 			e.stopPropagation();
 		}); 
 		
-
+		
 	}
 	var discovery = $("#discovery");
 	if( discovery.length ) {
@@ -483,7 +483,7 @@ brains.InitializePostLoad = function() {
 			creatorlink.click( function() {
 			
 				brains.ShowProfileDialog( 
-					creatorlink.data( "account" ), 
+					creatorlink.attr( "data-account" ), 
 					creatorlink.text() );
 			});
 		}

@@ -302,7 +302,7 @@ function OnLostPasswordSubmit() {
 	
 	$.post( "loginticket.php", { username: username } )
 		.done( function( data ) {
-			alert(data);
+			//alert(data);
 			brains.Dialog.Unlock();
 			try {
 				if( data == "" ) throw "no data";
