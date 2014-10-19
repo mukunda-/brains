@@ -540,38 +540,54 @@ final class ThoughtLink {
 			$result = $db->RunQuery( 
 				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
 						 goods, bads, Links.time AS time, Links.creator AS creator, vote
-				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
-				AND Links.thought2 = Votes.thought2
-				AND Votes.account = $accountid
+				FROM Links 
+				LEFT JOIN AccountVotes AV 
+				ON Links.thought1 = AV.thought1
+				AND Links.thought2 = AV.thought2
+				AND AV.account = $accountid
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
 				UNION ALL
 				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
 						goods, bads, Links.time AS time, Links.creator AS creator, vote
-				FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
-				AND Links.thought2 = Votes.thought2
-				AND Votes.account = $accountid
+				FROM Links 
+				LEFT JOIN AccountVotes AV
+				ON Links.thought1 = AV.thought1
+				AND Links.thought2 = AV.thought2
+				AND AV.account = $accountid
 				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
 				WHERE Links.thought2 = $thought->id)" 
 			);
 		} else {
-			// simpler query without account polling
+			$aid = User::GetAid();
+			$mip = User::GetMip();
 			$result = $db->RunQuery( 
 				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
-						 goods, bads, Links.time AS time, Links.creator AS creator, null AS vote
-				FROM Links LEFT JOIN Thoughts T2 
+						 goods, bads, Links.time AS time, Links.creator AS creator, vote
+				FROM Links
+				LEFT JOIN RealVotes RV
+				ON Links.thought1 = RV.thought1
+				AND Links.thought2 = RV.thought2
+				AND RV.aid = $aid AND RV.mip = $mip
+				LEFT JOIN Thoughts T2 
 				ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
 				UNION ALL
 				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
-						goods, bads, Links.time, Links.creator AS creator, null AS vote
-				FROM Links LEFT JOIN Thoughts T1
+						goods, bads, Links.time AS time, Links.creator AS creator, vote
+				FROM Links 
+				LEFT JOIN RealVotes RV
+				ON Links.thought1 = RV.thought1
+				AND Links.thought2 = RV.thought2
+				AND RV.aid = $aid AND RV.mip = $mip
+				LEFT JOIN Thoughts T1
 				ON T1.id=Links.thought1
 				WHERE Links.thought2 = $thought->id)" 
 			);
 		}
 		$list = [];
 			
+		// populate the $list with links created from the query result.
 		while( $row = $result->fetch_assoc() ) {
 			$vote = $row['vote'];
 			if( !is_null($vote) ) $vote = $vote ? TRUE:FALSE;
@@ -583,6 +599,8 @@ final class ThoughtLink {
 			$list[] = $link;
 		}
 		
+		// if $arrange is set, randomize the links
+		// and sort them by their tiers
 		if( $arrange ) {
 			shuffle( $list );
 			usort( $list, function( $a, $b ) {
@@ -591,6 +609,7 @@ final class ThoughtLink {
 				return -1;
 			});
 		}
+		
 		return $list;
 	}
 }
