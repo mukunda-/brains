@@ -61,13 +61,10 @@
 		border-bottom: 1px dotted rgba($cl_black,0.25);
 		outline: none;
 		
-		&.pointout {
-			//border-top: 1px dotted rgba($cl_black,0.25);
-			//border-top: 1px solid rgba( #000, 0.45 );
-			border-radius: 8px;
-			//box-shadow: 0px 0px 3px $cl_hl;
-			border-left: 1px solid $cl_hl;
-			border-right: 1px solid $cl_hl;
+		&.pointout { 
+	//		border-radius: 8px; 
+	//		border-left: 1px solid $cl_hl;
+	//		border-right: 1px solid $cl_hl;
 		}
 	}
 	

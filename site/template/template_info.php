@@ -1,4 +1,4 @@
-
+﻿
 <div class="welcome">
 	<div class="biglogo">
 		<?php
@@ -6,7 +6,10 @@
 		$svg->SetID( 'biglogo' );
 		$svg->Output();?>
 	</div>
-	<h1>The Wordweb Project</h1>
+	<h1>Type in a word or phrase to begin your query.</h1>
+	
+		{{querybox}}
+		
 	<p>The Wordweb is a creative resource that is built from human thoughts. 
 	Since you're a human, you're able to contribute to the project! Simply type 
 	in a word or phrase (a <i>thought</i>) in the above space, and then continue from there.
@@ -20,7 +23,7 @@
 	
 	<p>Eventually, the Wordweb will grow into a massive database of relations between
 	thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't
-	looking for synonyms�that's what a thesaurus is for! For an example of what we <i>are</i> looking for: 
+	looking for synonyms—that's what a thesaurus is for! For an example of what we <i>are</i> looking for: 
 	<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
 	and <i>crib</i> should form a <i>strong link</i>!</p>
 	

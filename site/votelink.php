@@ -32,7 +32,7 @@ try {
 		exit( R_ERROR );
 	}
 	
-	if( !User::CheckCToken() ) exit( R_ERROR );
+	if( !User::VerifyCToken() ) exit( R_ERROR );
 	User::CheckLogin();
 	//if( !User::CheckLogin() ) exit(R_LOGIN );
 	

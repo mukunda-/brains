@@ -1,5 +1,4 @@
 
-<h2>What does {{query}} make you think of?</h2>
 <div class="newlink">
 	<form id="newlinkform">
 		<input type="text" autocomplete="off" id="newlink" maxlength="20">

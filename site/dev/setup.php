@@ -208,6 +208,7 @@ $db->RunQuery( "
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of creator.',
+		aid      INT UNSIGNED NOT NULL COMMENT 'Anonymous ID of creator.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		INDEX USING BTREE( mip ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,

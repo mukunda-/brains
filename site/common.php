@@ -27,7 +27,7 @@ function GetIPHex() {
  */
 function ImportTemplate( $id ) {
 	echo "<template id=\"$id\">";
-	readfile( "template/$id.html" );
+	include( "template/$id.php" );
 	echo '</template>';
 }
 
@@ -39,6 +39,7 @@ function ImportTemplate( $id ) {
 function ImportTemplates( $ids ) {
 	foreach( $ids as $id ) ImportTemplate( $id );
 }
+ 
 
 /** ---------------------------------------------------------------------------
  * Check if a list of args are present in a POST request.

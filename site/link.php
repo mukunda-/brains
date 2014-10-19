@@ -103,7 +103,7 @@ try {
 		// the thought was just created, so there are no links yet
 		$response->CopyLinks( [] );
 	} else {
-
+		
 		// give an upvote depending on the method used.
 		if( ($method == METHOD_NEW && $link->vote !== TRUE)
 			|| ($method == METHOD_SOFT && $link->vote === null) ) {

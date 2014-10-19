@@ -118,13 +118,14 @@ require_once 'htaccess.php';
 				'dialog_editprofile',
 				'dialog_chgpassword',
 				'dialog_lostpassword',
-				'template_info',
 				'template_newlink',
 				'template_discovery',
 				'template_links',
-				'template_link'
+				'template_link',
+				'template_info'
 			]);
-		
+			
+			
 		?>
 	     
 	</body>

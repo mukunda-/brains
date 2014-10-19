@@ -103,7 +103,7 @@ final class ThoughtLink {
 		}
 		
 		$vote = null;
-		if( $account != 0 && !is_null($row['vote']) ) {
+		if( !is_null($row['vote']) ) {
 			$vote = $row['vote'] ? TRUE : FALSE; 
 		}
 		
@@ -235,9 +235,10 @@ final class ThoughtLink {
 			User::AddLinkStat( $creator, 0 );
 		} else {
 			$mip = User::GetMip();
+			$aid = User::GetAid();
 			$db->RunQuery( "
-				INSERT INTO AnonymousLinks (thought1, thought2, mip, time)
-				VALUES ($ordered1->id, $ordered2->id, $mip, $time )" );
+				INSERT INTO AnonymousLinks (thought1, thought2, mip, aid, time)
+				VALUES ($ordered1->id, $ordered2->id, $mip, $aid, $time )" );
 		}
 		
 		Stats::Increment( 'TLINKS' );
