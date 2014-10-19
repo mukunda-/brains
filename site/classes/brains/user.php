@@ -13,6 +13,7 @@ private static $logged_in = FALSE;
 private static $account_id = 0;
 
 private static $mip = null;
+private static $aid = null;
 
 private static $account_field_types;
 
@@ -56,6 +57,23 @@ public static function GetMip() {
 	$db->RunQuery( "INSERT INTO IPMap (ip) VALUES (x'$xip')" );
 	self::$mip = $db->insert_id;
 	return self::$mip;
+}
+
+/** ---------------------------------------------------------------------------
+ * Get the anonymous ID for the user.
+ *
+ * @return int Anonymous ID ("aid")
+ */
+public static function GetAid() {
+	if( self::$aid != NULL ) return self::$aid;
+	
+	if( isset($_COOKIE['aid']) ) {
+		self::$aid = $_COOKIE['aid'];
+		return self::$aid;
+	}
+	
+	self::$aid = mt_rand( 1, 0x7FFFFFFF );
+	setcookie( 'aid', self::$aid, time() + 60*60*24*90, GetDocumentRoot() );
 }
 
 /** ---------------------------------------------------------------------------

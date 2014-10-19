@@ -74,6 +74,9 @@ try {
 	$thought1 = Thought::Get( $thought1, $method == METHOD_NEW );
 	$thought2 = Thought::Get( $thought2, $method == METHOD_NEW );
 	if( $thought1 === FALSE || $thought2 === FALSE ) {
+		if( $method == METHOD_NEW ) {
+			Response::SendSimple( R_ERROR );
+		}
 		Response::SendSimple( R_MISSING );
 	}
 	

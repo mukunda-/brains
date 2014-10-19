@@ -52,7 +52,7 @@ final class ThoughtLink {
 	 * @param Thought $source First thought in the link.
 	 * @param Thought $dest   Second thought in the link.
 	 * @param int $account Account ID to associate with the query
-	 *                     which is used to get the vote bias. 0 = admin
+	 *                     which is used to get the vote bias. 0 = anonymous
 	 * @param bool $create Create a link if it doesn't exist.
 	 * @return ThoughtLink instance or FALSE if the link doesn't exist.
 	 */
@@ -86,9 +86,8 @@ final class ThoughtLink {
 				"SELECT goods, bads, L.time AS time, creator, vote FROM Links L
 				LEFT JOIN RealVotes V
 				ON V.thought1=L.thought1 AND V.thought2=L.thought2
-				AND V.mip = $mip
-				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id
-				AND V.anonymous=1" );
+				AND V.mip = $mip AND V.aid = $aid
+				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		}
 		
 		$row = $result->fetch_assoc();
@@ -209,6 +208,7 @@ final class ThoughtLink {
 		
 		$db->RunQuery( 'START TRANSACTION' );
 		
+		// try to insert, quit on duplicate.
 		try {
 			$db->RunQuery(
 				"INSERT INTO Links (thought1, thought2, time, creator )
@@ -223,15 +223,20 @@ final class ThoughtLink {
 		
 		$vote = $creator == 0 ? null : TRUE;
 		
+		// add an upvote.
 		if( !self::Vote( $source, $dest, $creator, true ) ) {
 			$vote = null;
 		}
 			
-		// add an upvote.
 		if( $creator != 0 ) {
 
 			
 			User::AddLinkStat( $creator, 0 );
+		} else {
+			$mip = User::GetMip();
+			$db->RunQuery( "
+				INSERT INTO AnonymousLinks (thought1, thought2, mip, time)
+				VALUES ($ordered1->id, $ordered2->id, $mip, $time )" );
 		}
 		
 		Stats::Increment( 'TLINKS' );
@@ -253,6 +258,7 @@ final class ThoughtLink {
 		
 		return $link;
 	}
+	 
 	
 	/** -----------------------------------------------------------------------
 	 * Create or update a vote for a user.
@@ -274,6 +280,8 @@ final class ThoughtLink {
 									       $accountid, $vote ) {
 										   
 			$voteval = $vote ? 1 : 0;
+			$mip = User::GetMip();
+			$aid = User::GetAid();
 			
 			$time = time();	
 			$db->RunQuery( 'START TRANSACTION' );
@@ -304,59 +312,87 @@ final class ThoughtLink {
 			
 			// check if there is already a vote from this user.
 			$result = $db->RunQuery(
-				"SELECT vote, fake FROM Votes WHERE
-				thought1=$source->id AND thought2=$dest->id
-				AND account=$accountid FOR UPDATE" );
+				"SELECT vote, aid FROM RealVotes 
+				WHERE thought1=$source->id AND thought2=$dest->id 
+				AND mip=$mip FOR UPDATE" );
 			
 			$row = $result->fetch_assoc();
+			$scorechange = true;
+			
 			if( $row !== null ) {
-				$fakevote = $row['fake'];
 				// a vote already exists:
 				
 				// reverse original vote, 
 				// or quit if the vote in the database already
 				// matches the current request.
-				if( !is_null($row['vote']) ) {
-					if( $row['vote'] == $voteval ) {
-						$db->RunQuery( 'ROLLBACK' );
-						return TRUE;
+	
+				if( $row['vote'] == $voteval ) {
+					$scorechange = false;
+					
+					/*
+					if( $row['aid'] != $aid ) {
+						
+						$db->RunQuery( 
+							"UPDATE RealVotes SET aid=$aid, time=$time
+							WHERE thought1=$source->id AND thought2->$dest->id
+							AND mip=$mip" );
 					}
 					
+					self::UpdateAccountVote( $source, $dest, $accountid, $time, $voteval );
+					
+					$db->RunQuery( 'COMMIT' );
+					return TRUE;
+					*/
+				} else {
+				
 					if( $row['vote'] == 1 ) {
 						$goods--;
 					} else {
 						$bads--;
 					}
+					
 				}
+	//			$score = self::ComputeScore( $goods, $bads );
 				
 				// update the user's vote.
 				$db->RunQuery(
-					"UPDATE Votes SET vote=$voteval, time=$time
+					"UPDATE RealVotes SET vote=$voteval, aid=$aid, time=$time
 					WHERE thought1=$source->id AND thought2=$dest->id
-					AND account=$accountid" );
-				
-				// if the vote isnt FAKE, update the link score.
-				
-				if( !$row['fake'] ) {
-					
-					
-					$db->RunQuery( 
-						"UPDATE Links SET goods=$goods, bads=$bads
-						WHERE thought1=$source->id AND thought2=$dest->id" );
+					AND mip=$mip" );
+		
+
+		
+				// update the link score
+		//		$db->RunQuery(
+			//		"UPDATE Links SET goods=$goods, bads=$bads, score=$score
+		//			WHERE thought1=$source->id AND thought2=$dest->id" );
+		/*		
+				UpdateAccountVote( $source, $dest, $account, $time, $voteval );
+				if( $accountid != 0 ) {
+					$db->RunQuery(
+						"INSERT INTO AccountVotes (thought1, thought2, account, time, vote)
+						VALUES( $source->id, $dest->id, $accountid, $time, $voteval )
+						ON DUPLICATE KEY UPDATE time=$time, vote=$voteval" );
 				}
-				
+			*/	
 			} else {
 				
+				$db->RunQuery( 
+					"INSERT INTO RealVotes 
+					(thought1, thought2, mip, time, aid, vote )
+					VALUES ($source->id, $dest->id, $mip, $time, $aid, $voteval)" 
+				);
+				
 				// check if there is a lock for this iP.
-				$iphex = GetIPHex();
-				$time = time();
-				$result = $db->RunQuery( 
-					"SELECT 1 FROM VoteLocks
-					WHERE thought1=$source->id AND thought2=$dest->id
-					AND ip=x'$iphex' AND expires > $time " );
-				
-				$fakevote = $result->num_rows != 0 ? 1 : 0;
-				
+		//		$iphex = GetIPHex();
+		//		$time = time();
+		//		$result = $db->RunQuery( 
+		//			"SELECT 1 FROM VoteLocks
+		//			WHERE thought1=$source->id AND thought2=$dest->id
+		//			AND ip=x'$iphex' AND expires > $time " );
+		//		
+		//		$fakevote = $result->num_rows != 0 ? 1 : 0;
+		/*		
 				try {
 					$db->RunQuery( 
 						"INSERT INTO Votes (thought1, thought2, account, time, vote, fake )
@@ -376,26 +412,32 @@ final class ThoughtLink {
 						VALUES ($source->id, $dest->id, x'$iphex', $expires )" );
 				}
 				
-				
+		*/		
 				 
 			}
 			
-			if( !$fakevote ) {
+			if( $accountid != 0 ) {
+				$db->RunQuery(
+					"INSERT INTO AccountVotes (thought1, thought2, account, time, vote)
+					VALUES( $source->id, $dest->id, $accountid, $time, $voteval )
+					ON DUPLICATE KEY UPDATE time=$time, vote=$voteval" 
+				);
+			}
+			
+			if( $scorechange ) {
+				$score = self::ComputeScore( $goods, $bads );
 				
-				$newscore = self::ComputeScore( $goods, $bads );
-				
-				$linksquery = "";
-				if( $linkrank == 0 && $newscore >= self::LINKRANK_GOOD ) {
+				if( $linkrank == 0 && $score >= self::LINKRANK_GOOD ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 1 );
 					Stats::Increment( 'GLINKS' );
 				}
-				if( $linkrank == 1 && $newscore >= self::LINKRANK_STRONG ) {
+				if( $linkrank == 1 && $score >= self::LINKRANK_STRONG ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 2 );
 					Stats::Increment( 'SLINKS' );
 				}
-				if( $linkrank == 2 && $newscore >= self::LINKRANK_PERFECT ) {
+				if( $linkrank == 2 && $score >= self::LINKRANK_PERFECT ) {
 					$linkrank++;
 					User::AddLinkStat( $accountid, 3 );
 					
@@ -403,16 +445,12 @@ final class ThoughtLink {
 					Logger::Info( "A PERFECT link was discovered! \"$source->phrase\" -> \"$dest->phrase\"" );
 				}
 				
-				$score = self::ComputeScore( $goods, $bads );
-				
 				// update score
 				$db->RunQuery( 
 					"UPDATE Links 
 					SET goods=$goods, bads=$bads, rank=$linkrank, score=$score
 					WHERE thought1=$source->id AND thought2=$dest->id" );
 			}
-			
-					
 			
 			$db->RunQuery( 'COMMIT' );
 			return TRUE;

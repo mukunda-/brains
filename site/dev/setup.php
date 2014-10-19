@@ -174,7 +174,7 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
-		anonymous BOOL COMMENT '1=this vote was created or updated without an account.',
+		aid      INT NOT NULL COMMENT 'Anonymous ID. 0=account used',
 		vote     BOOL COMMENT '1=upvote, 0=downvote',
 		PRIMARY KEY( thought1, thought2, mip ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
