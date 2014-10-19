@@ -117,6 +117,8 @@ $db->RunQuery( "
 	COMMENT = 'Holds votes for each account for each link.'
 ");
 	*/
+	
+	/*
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS VoteLocks (
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
@@ -129,6 +131,7 @@ $db->RunQuery( "
 	ENGINE = InnoDB
 	COMMENT = 'Hold recent vote information for abuse prevention.'
 ");
+	*/
 	
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS LoginTickets (
@@ -140,6 +143,7 @@ $db->RunQuery( "
 	ENGINE = InnoDB
 	COMMENT = 'Login tickets for accounts with lost passwords.'
 ");
+
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Stats (
@@ -158,7 +162,7 @@ $db->RunQuery( "INSERT INTO Stats (id) VALUES ('PLINKS')" );
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS IPMap (
 		id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Mapping of IP.',
-		ip VARBINARY(16) NOT NULL         COMMENT 'Actual IP address.'
+		ip VARBINARY(16) NOT NULL UNIQUE  COMMENT 'Actual IP address.'
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of IPs to indexes.'
@@ -170,13 +174,14 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
+		anonymous BOOL COMMENT '1=this vote was created or updated without an account.',
 		vote     BOOL COMMENT '1=upvote, 0=downvote',
 		PRIMARY KEY( thought1, thought2, mip ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
 	)
 	ENGINE = InnoDB
-	COMMENT = 'Vote table'
+	COMMENT = 'Vote table.'
 ");
 
 $db->RunQuery( "
@@ -191,12 +196,12 @@ $db->RunQuery( "
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
 	)
 	ENGINE = InnoDB
-	COMMENT = 'Holds votes for each account for each link.'
+	COMMENT = 'Holds votes per account, these don't affect score.'
 ");
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS AnonymousLinks (
-		id       INT PRIMARY KEY,
+		id       INT AUTO_INCREMENT PRIMARY KEY,
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of creator.',

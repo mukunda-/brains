@@ -12,6 +12,8 @@ final class User {
 private static $logged_in = FALSE;
 private static $account_id = 0;
 
+private static $mip = null;
+
 private static $account_field_types;
 
 const FIELD_STRING = 0;
@@ -34,6 +36,29 @@ public static function init() {
 }
 
 /** ---------------------------------------------------------------------------
+ * Get the mapped value for the user's IP.
+ *
+ * @return int Mapped IP ("mip").
+ */
+public static function GetMip() {
+	if( self::$mip != NULL ) return self::$mip;
+	
+	$db = \SQLW::Get();
+	$xip = GetIPHex();
+	
+	$result = $db->RunQuery( "SELECT id FROM IPMap WHERE ip=x'$xip'" );
+	$row = $result->fetch_row();
+	if( $row !== NULL ) {
+		self::$mip = $row[0];
+		return self::$mip;
+	}
+	
+	$db->RunQuery( "INSERT INTO IPMap (ip) VALUES (x'$xip')" );
+	self::$mip = $db->insert_id;
+	return self::$mip;
+}
+
+/** ---------------------------------------------------------------------------
  * Check if the user is logged in.
  *
  * CheckLogin should be called before this function is used.
@@ -47,11 +72,39 @@ public static function LoggedIn() {
 /** ---------------------------------------------------------------------------
  * Generate a new ctoken
  */
-private static function RefreshCToken() {
+public static function RefreshCToken() {
 	$ctoken = Garbage::Produce( 24 );
 	setcookie( "ctoken", $ctoken, 
 			   time() + 60*60*24*90, GetDocumentRoot() );
 	$_COOKIE['ctoken'] = $ctoken;
+}
+
+/** ---------------------------------------------------------------------------
+ * Check if the CToken was provided properly
+ *
+ * This should only be called if there is a ctoken expected, as it logs a
+ * warning.
+ *
+ * @param string $ctoken Token passed in with request. If not specified, it
+ *                       will be read from the POST data.
+ * @return bool TRUE if the token is good, FALSE if it is missing or bad.
+ */
+public static function VerifyCToken( $ctoken = null ) {
+	if( !isset( $_COOKIE['ctoken'] ) ) return FALSE;
+	
+	if( $ctoken === null ) {
+		if( !isset( $_POST['ctoken'] ) ) return FALSE;
+		$ctoken = $_POST['ctoken'];
+	}
+	
+	if( $_COOKIE['ctoken'] != $ctoken ) {
+		// csrf attack :o
+		
+		Logger::Info( "Invalid CTOKEN in request. REFERER={$_SERVER['HTTP_REFERER']}" );
+		
+		return FALSE;
+	}
+
 }
 
 /** ---------------------------------------------------------------------------
@@ -280,8 +333,7 @@ public static function ParseLoginToken( &$id, &$secret ) {
 
 /** ---------------------------------------------------------------------------
  * Check if a user is logged in, and try to log them in if they aren't.
- *
- * @param string $ctoken CSRF token.
+ * 
  * @return int|false Account ID or FALSE if they are not logged in 
  *                   and do not have a valid login token.
  */
@@ -289,21 +341,6 @@ public static function CheckLogin( $ctoken ) {
 	OpenSession();
 	if( self::$logged_in ) {
 		return self::$account_id;
-	}
-	
-	if( !isset( $_COOKIE['ctoken'] ) ) return FALSE;
-	
-	if( $ctoken !== FALSE ) {
-		if( $_COOKIE['ctoken'] != $ctoken ) {
-			// csrf attack :o
-			
-			Logger::Info( "Invalid CTOKEN in request. REFERER={$_SERVER['HTTP_REFERER']}" );
-			
-			return FALSE;
-		}
-	} else {
-		// bypass check from non-request login
-		
 	}
 	
 	// first check if they are logged in via their session.

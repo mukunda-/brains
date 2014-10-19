@@ -75,19 +75,24 @@ final class ThoughtLink {
 		if( $account != 0 ) {
 			$result = $db->RunQuery( 
 				"SELECT goods, bads, L.time AS time, creator, vote 
-				FROM Links L LEFT JOIN Votes V
+				FROM Links L LEFT JOIN AccountVotes V
 				ON V.thought1=L.thought1
 				AND V.thought2=L.thought2
 				AND V.account=$account
 				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		} else {
-			$result = $db->RunQuery( 
-				"SELECT goods, bads, time, creator FROM Links
-				WHERE thought1=$ordered1->id AND thought2=$ordered2->id" );
+			$mip = User::GetMip();
+			$result = $db->RunQuery(
+				"SELECT goods, bads, L.time AS time, creator, vote FROM Links L
+				LEFT JOIN RealVotes V
+				ON V.thought1=L.thought1 AND V.thought2=L.thought2
+				AND V.mip = $mip
+				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id
+				AND V.anonymous=1" );
 		}
 		
 		$row = $result->fetch_assoc();
-	
+		
 		if( $row === NULL ) {
 			if( $create ) {
 				
@@ -218,12 +223,13 @@ final class ThoughtLink {
 		
 		$vote = $creator == 0 ? null : TRUE;
 		
+		if( !self::Vote( $source, $dest, $creator, true ) ) {
+			$vote = null;
+		}
+			
 		// add an upvote.
 		if( $creator != 0 ) {
 
-			if( !self::Vote( $source, $dest, $creator, true ) ) {
-				$vote = null;
-			}
 			
 			User::AddLinkStat( $creator, 0 );
 		}
@@ -231,7 +237,6 @@ final class ThoughtLink {
 		Stats::Increment( 'TLINKS' );
 		
 		$db->RunQuery( 'COMMIT' );
-		
 		
 		if( $creator == User::AccountID() ) {	
 			$username = User::GetUsername();
@@ -253,7 +258,7 @@ final class ThoughtLink {
 	 * Create or update a vote for a user.
 	 *
 	 * @param Thought $thought1, $thought2 Thoughts in the link.
-	 * @param int $accountid   Account ID that is voting.
+	 * @param int $accountid   Account ID that is voting. 0 = Anonymous vote.
 	 * @param bool $vote       TRUE to upvote, FALSE to downvote.
 	 * @return bool            TRUE if the vote was inserted or updated, 
 	 *                         FALSE if something strange happened.
