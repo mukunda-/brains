@@ -53,13 +53,14 @@ final class Thought {
 	/** ---------------------------------------------------------------------------
 	 * Look up a thought from its phrase.
 	 *
-	 * For creation, if a user is logged in, the creator will be set to them, 
-	 * otherwise NULL.
+	 * For creation, if a user is logged in, the creator will be set to them.
 	 *
 	 * @param string $phrase Thought value. Needs to be Scrubbed.
 	 * @param bool   [$create] Create the thought if it doens't exist.
 	 * @return Thought|false Thought instance for the phrase given, or FALSE if it
 	 *                       doesn't exist yet and $create is FALSE.
+	 *
+	 * @throws SQLException On database error or collision.
 	 */
 	public static function Get( $phrase, $create = false ) {
 		$db = \SQLW::Get();
@@ -67,8 +68,7 @@ final class Thought {
 		$phrase_sql = $db->real_escape_string( $phrase );
 		
 		$result = $db->RunQuery( 
-			"SELECT id,creator,time 
-			FROM Thoughts 
+			"SELECT id,creator,time FROM Thoughts 
 			WHERE phrase='$phrase_sql'" );
 			
 		if( $result->num_rows != 0 ) {
@@ -82,10 +82,11 @@ final class Thought {
 		$time = time();
 		$creator = User::AccountID();
 		
-		try {
-			$db->RunQuery(
-				"INSERT IGNORE INTO Thoughts ( creator, `time`, phrase )
-				VALUES ( ".($creator ? $creator : 'NULL').", $time, '$phrase_sql')" );
+		//try {
+		$db->RunQuery(
+			"INSERT INTO Thoughts ( creator, `time`, phrase )
+			VALUES ( $creator, $time, '$phrase_sql')" );
+			/*
 		} catch( \SQLException $e ) {
 			if( $e->code == SQLW::ER_DUP_KEY ) {
 				// someone else created the thought before us somehow..
@@ -98,12 +99,12 @@ final class Thought {
 							
 			}
 			throw $e;
-		}
+		}*/
 		
 		if( $creator && User::AccountID() == $creator ) {
 			Logger::Info( Logger::FormatUser( User::GetUsername(), $creator ) . " created a new thought: \"$phrase\"" );
 		} else {
-			Logger::Info( "Created a new thought: \"$phrase\" creator=$creator" );
+			Logger::Info( "Created a new thought anonymously: \"$phrase\" creator=$creator" );
 		}
 		
 		// success.

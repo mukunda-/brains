@@ -82,6 +82,7 @@ final class ThoughtLink {
 				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		} else {
 			$mip = User::GetMip();
+			$aid = User::GetAid();
 			$result = $db->RunQuery(
 				"SELECT goods, bads, L.time AS time, creator, vote FROM Links L
 				LEFT JOIN RealVotes V

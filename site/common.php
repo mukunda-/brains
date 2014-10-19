@@ -13,9 +13,31 @@ function Swap( &$a, &$b ) {
 	$b = $c;
 }
 
-//-----------------------------------------------------------------------------
+/** ---------------------------------------------------------------------------
+ * Get the remote address and return it as a hex string.
+ */
 function GetIPHex() {
 	return bin2hex(inet_pton( $_SERVER['REMOTE_ADDR'] ));
+}
+
+/** ---------------------------------------------------------------------------
+ * Echo a template to the output.
+ *
+ * @param string $id ID of template, must have matching filename in template/
+ */
+function ImportTemplate( $id ) {
+	echo "<template id=\"$id\">";
+	readfile( "template/$id.html" );
+	echo '</template>';
+}
+
+/** ---------------------------------------------------------------------------
+ * Import an array of templates.
+ *
+ * @param array $ids List of IDs to import.
+ */
+function ImportTemplates( $ids ) {
+	foreach( $ids as $id ) ImportTemplate( $id );
 }
 
 /** ---------------------------------------------------------------------------

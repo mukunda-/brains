@@ -16,10 +16,12 @@ require_once 'core.php';
 // response codes
 define( 'R_ERROR', 'error.' ); // input or database error
 define( 'R_NOTFOUND', 'notfound.' ); // link doesn't exist
-define( 'R_LOGIN', 'login.' ); // user needs to log in
+//define( 'R_LOGIN', 'login.' ); // user needs to log in
 define( 'R_OKAY', 'okay.' ); // vote was added or updated.
 
 try {
+
+	// validate input
 	if( !CheckArgsPOST( 'ctoken', 't1', 't2', 'vote' ) ) exit( R_ERROR );
 	
 	if( $_POST['vote'] == 'good' ) {
@@ -30,7 +32,9 @@ try {
 		exit( R_ERROR );
 	}
 	
-	if( !User::CheckLogin( $_POST['ctoken'] ) ) exit( R_LOGIN );
+	if( !User::CheckCToken() ) exit( R_ERROR );
+	User::CheckLogin();
+	//if( !User::CheckLogin() ) exit(R_LOGIN );
 	
 	// scrub and catch invalid input
 	$thought1 = Thought::Scrub( $_POST['t1'] );

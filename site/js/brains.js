@@ -9,12 +9,7 @@ console.log( 'hi' );
 var current_button = null;
 
 var m_vertical;
-
-//var s_nav;
-//var s_navboxes;
-//var s_navphrases;
-//var s_navarrows;
-
+ 
 var m_async = AsyncGroup.Create();
 
 var m_logged_in;
@@ -143,6 +138,25 @@ function FilterThoughtKeys( e ) {
 	return false;
 }
 
+/** ---------------------------------------------------------------------------
+ * Read a template and perform replacements.
+ * 
+ * @param string id ID of template in dom.
+ * @param object replacements Replacements to make. 
+ *               e.g { "foo": "bar", // replaces {{foo}} with "bar"
+ *                     ...
+ */
+function ReadTemplate( id, replacements ) {
+	var html = $(id).html();
+	
+	for( var key in replacements ) {
+		if( replacements.hasOwnProperty( key ) ) {
+			html = html.replace( "{{"+key+"}}", replacements[key] );
+		}
+	}
+	
+	return html;
+}
 
 /** ---------------------------------------------------------------------------
  * Content generator for the newlink block.
@@ -152,7 +166,11 @@ function FilterThoughtKeys( e ) {
  *                     or visits a link to "asdf" the query is "asdf".
  */
 function PageContent_NewLink( out, query ) {
-	out.push( $("#template_newlink").html().replace( "{{query}}", query ) );
+	out.push( 
+		ReadTemplate( "#template_newlink", {
+			"query": query 
+		}) 
+	);
 }
 
 /** ---------------------------------------------------------------------------
@@ -176,18 +194,32 @@ function ScoreRank( score ) {
  * @param object data Discovery from response.
  */
 function PageContent_LastLink( out, data ) {
-	var nick = data.creator == brains.GetAccountID() ? 
-			'<span class="nick owner">you' :
-			'<span class="nick other" data-account="'+data.creator+'">'+ data.creator_nick;
-			
-	var rank = ScoreRank( data.score );
-	out.push( '<div class="discovery" id="discovery">' );
-	out.push(   '<div class="score '+rank+'">'+ data.score +'</div>' );
-	out.push(   '<div class="link">'+ data.from 
-				+' <div class="arrow"></div> '+ data.to +'</div>' );
-	out.push(   '<div class="creator">discovered by '+ nick
-				+'</span></div>' );
-	out.push( '</div>' );
+
+	var rank_class = ScoreRank( data.score );
+	var creator_class;
+	var creator_name;
+	
+	if( data.creator == 0 ) {
+		creator_name = "anonymous";
+		creator_class = "static";
+	} else if( m_logged_in && data.creator == brains.GetAccountID() ) {
+		creator_name = "you";
+		creator_class = "static";
+	} else {
+		creator_name = data.creator_nick;
+		creator_class = "other";
+	}
+	
+	out.push( 
+		ReadTemplate( "#template_discovery", {
+			"rank_class": rank_class,
+			"score": data.score,
+			"from": data.from,
+			"to": data.to,
+			"creator_class": creator_class,
+			"creator_name": creator_name
+		})
+	);
 }
 
 /** ---------------------------------------------------------------------------
@@ -217,35 +249,66 @@ function PageContent_Links( out, links ) {
 
 	if( links.length == 0 ) return; // no links made yet.
 	
+	var html_links = [];
+	
+	for( var i = 0; i < links.length; i++ ) {
+	
+		var score = links[i].score;
+		biased_score = BiasScore( score, links[i].vote );
+		
+		var scoreclass = "";
+		if( links[i].vote === true ) scoreclass = "up";
+		if( links[i].vote === false ) scoreclass = "down";
+		
+		var upclass = links[i].vote === true ? "selected" : "";
+		var downclass = links[i].vote === false ? "selected" : "";
+		
+		html_links.push( 
+			ReadTemplate( "#template_link", {
+				"dest": links[i].dest,
+				"score": score,
+				"scoreclass": scoreclass,
+				"biased_score": biased_score,
+				"upclass": upclass,
+				"downclass": downclass,
+				"dest2": links[i].dest
+			})
+		);
+				
+		/*
+		out.push( '<div class="thought" data-dest="'+ links[i].dest 
+				+'" data-score="'+ links[i].score +'">' );
+				
+				
+			var voteclass = "score";
+			if( links[i].vote === true ) voteclass += " up";
+			if( links[i].vote === false ) voteclass += " down";
+			out.push( '<div class="'+voteclass+'">'+ score +'</div>' );
+			
+			voteclass = "vote up";
+			if( links[i].vote === true ) voteclass += " selected";
+			
+			out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
+			
+			voteclass = "vote down";
+			if( links[i].vote === false ) voteclass += " selected";
+			
+			out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
+			out.push( '<span>'+ links[i].dest +'</span>' );
+		out.push( '</div>' );*/
+	}
+	/*
 	out.push( '<h2>What other people thought of:</h2>' );
 	out.push( '<div id="links">' );
 	
-		for( var i = 0; i < links.length; i++ ) {
-			var score = links[i].score;
-			score = BiasScore( score, links[i].vote );
-			out.push( '<div class="thought" data-dest="'+ links[i].dest 
-					+'" data-score="'+ links[i].score +'">' );
-					
-					
-				var voteclass = "score";
-				if( links[i].vote === true ) voteclass += " up";
-				if( links[i].vote === false ) voteclass += " down";
-				out.push( '<div class="'+voteclass+'">'+ score +'</div>' );
-				
-				voteclass = "vote up";
-				if( links[i].vote === true ) voteclass += " selected";
-				
-				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
-				
-				voteclass = "vote down";
-				if( links[i].vote === false ) voteclass += " selected";
-				
-				out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
-				out.push( '<span>'+ links[i].dest +'</span>' );
-			out.push( '</div>' );
-		}
 
-	out.push( '</div>' );
+	out.push( '</div>' );*/
+	
+	out.push( 
+		ReadTemplate( "#template_links", {
+			"links": html_links.join("")
+		})
+	);
 }
 
 /** ---------------------------------------------------------------------------
@@ -389,10 +452,11 @@ brains.InitializePreLoad = function() {
  * @param bool vote Vote to apply, true for upvote, false for downvote.
  */
 function VoteThought( element, vote ) {
-	if( !m_logged_in ) {
-		brains.ShowLoginDialog( "To vote on links you need to be signed in." );
-		return;
-	}
+// anonymous voting is now here
+//	if( !m_logged_in ) {
+//		brains.ShowLoginDialog( "To vote on links you need to be signed in." );
+//		return;
+//	}
 	var sel = vote ? element.children( ".vote.up" ) : 
 				     element.children( ".vote.down" );
 	
@@ -411,7 +475,9 @@ function VoteThought( element, vote ) {
 		{ ctoken: CToken(),
 		  t1: m_current_thought, 
 		  t2: element.attr( "data-dest" ),
-		  vote: vote ? "good" : "bad" } )
+		  vote: vote ? "good" : "bad" } );
+		  
+		  /*
 		.done( function( data ) {
 		 
 			// just care about the login response, to invalidate
@@ -419,7 +485,7 @@ function VoteThought( element, vote ) {
 			if( data == "login." ) {
 				brains.SetLoggedIn( false );
 			}
-		});
+		});*/
 	
 }
 
@@ -515,7 +581,7 @@ function NewLinkForm_OnSubmit() {
 	
 	$("#newlink").blur()
 				 .addClass( "following" );
-	$("#loader_newlink").show();
+	$("#loader_newlink").addClass( "show" );
 	FollowLink( input, "new" );
 	return false;
 }
@@ -540,11 +606,13 @@ function FollowLink( input, method ) {
 	if( input == m_current_thought ) {
 		alert( "You can't make a link to the same thought." );
 		HideLoadingIcons();
+		$("#newlink").removeClass( "following" );
 		return;
 	}
 	
 	var show_login = function() {
 		HideLoadingIcons();
+		$("#newlink").removeClass( "following" );
 		brains.ShowLoginDialog( 
 				"To create a link you need to be signed in.",
 				NewLinkForm_OnSubmit );
@@ -552,12 +620,12 @@ function FollowLink( input, method ) {
 		
 	}
 	
-	if( !m_logged_in && method == "new" ) {
-		show_login();
-		return;
-	}
-	
-		
+// anonymous creation is now allowed!
+//	if( !m_logged_in && method == "new" ) {
+//		show_login();
+//		return;
+//	}
+	 
 	var failure = function() {
 		alert( "An error occurred. Please try again." ); 
 		$("#links").children( ".thought" ).removeClass( "following" );

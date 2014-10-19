@@ -37,7 +37,7 @@ require_once 'core.php';
 // response status codes
 define( 'R_ERROR' , 'error.'  ); // (error) an error occurred.
 define( 'R_MISSING' , 'missing.'  ); // (error) link doesn't exist.
-define( 'R_LOGIN' , 'login.'  ); // (error) user is not logged in.
+//define( 'R_LOGIN' , 'login.'  ); // (error) user is not logged in.
 define( 'R_SAME'  , 'same.'   ); // (error) the inputs entered were identical.
 //define( 'R_EXISTS', 'exists.' ); // the link already exists.
 define( 'R_OKAY'  , 'okay.'   ); // the link was returned
@@ -61,14 +61,17 @@ try {
 	$thought2 = Thought::Scrub( $_POST['b'] );
 	if( $thought2 === FALSE ) exit();
 	
-	User::CheckLogin( $_POST['ctoken'] );
+	if( !User::VerifyCToken() ) Response::SendSimple( R_ERROR );
+	
+	User::CheckLogin();
+	/*
 	if( !User::LoggedIn() ) {
 		if( $method == METHOD_NEW ) {
 			
 			// new requires a session.
 			Response::SendSimple( R_LOGIN );
 		}
-	}
+	}*/
 	
 	// get thoughts, exit if missing
 	$thought1 = Thought::Get( $thought1, $method == METHOD_NEW );
@@ -95,10 +98,7 @@ try {
 	$response->SetDiscovery( $link );
 	$response->data['from'] = $thought1->phrase;
 	$response->data['to'] = $thought2->phrase;
-//	$response->data['creator'] = $link->creator;
-//	$response->data['creator_nick'] = 
-//			User::ReadAccount( $link->creator, 'nickname' )['nickname'];
-	
+
 	if( $thought2->created ) {
 		// the thought was just created, so there are no links yet
 		$response->CopyLinks( [] );
@@ -106,7 +106,7 @@ try {
 
 		// give an upvote depending on the method used.
 		if( ($method == METHOD_NEW && $link->vote !== TRUE)
-			|| ($method == METHOD_SOFT && $link->vote === null && User::LoggedIn() ) ) {
+			|| ($method == METHOD_SOFT && $link->vote === null) ) {
 			
 			$link->Upvote();
 		}

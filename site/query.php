@@ -87,7 +87,7 @@ try {
 	
 	$response->Send( R_OKAY );
 } catch( \Exception $e ) {
-	Logger::LogException( $e );
+	Logger::PrintException( $e );
 }
 
 Response::SendSimple( R_ERROR );

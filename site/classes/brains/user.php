@@ -122,7 +122,7 @@ public static function VerifyCToken( $ctoken = null ) {
 		
 		return FALSE;
 	}
-
+	return true;
 }
 
 /** ---------------------------------------------------------------------------
@@ -355,7 +355,7 @@ public static function ParseLoginToken( &$id, &$secret ) {
  * @return int|false Account ID or FALSE if they are not logged in 
  *                   and do not have a valid login token.
  */
-public static function CheckLogin( $ctoken ) {
+public static function CheckLogin() {
 	OpenSession();
 	if( self::$logged_in ) {
 		return self::$account_id;

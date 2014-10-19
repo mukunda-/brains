@@ -51,8 +51,9 @@ class Response {
 			'from' => $link->source->phrase,
 			'to' => $link->dest->phrase,
 			'creator' => $link->creator,
-			'creator_nick' => 
-				User::ReadAccount( $link->creator, 'nickname' )['nickname'],
+			'creator_nick' => $link->creator != 0 ? 
+				User::ReadAccount( $link->creator, 'nickname' )['nickname']
+				: "anonymous",
 			'score' => $link->score,
 			'vote' => $link->vote
 		];
