@@ -10,7 +10,7 @@ if( !Config::DebugMode() ) die('aaaa');
 
 $db = \SQLW::Get();
 
-$droptables = FALSE;
+$droptables = TRUE;
 
 function DropTable( $name ) {
 	global $db;
@@ -18,14 +18,17 @@ function DropTable( $name ) {
 }
 
 if( $droptables ) {
+	DropTable( 'AnonymousLinks' );
+	DropTable( 'RealVotes' );
+	DropTable( 'AccountVotes' );
 	DropTable( 'Stats' );
 	DropTable( 'LoginTokens' );
 	DropTable( 'LoginTickets' );
-	DropTable( 'Votes' );
+	
 	DropTable( 'Links' );
 	DropTable( 'Thoughts' );
 	DropTable( 'Accounts' ); 
-	DropTable( 'VoteLocks' );
+	
 	
 }
 
@@ -175,7 +178,7 @@ $db->RunQuery( "
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		aid      INT NOT NULL COMMENT 'Anonymous ID. 0=account used',
-		vote     BOOL COMMENT '1=upvote, 0=downvote',
+		vote     TINYINT NOT NULL COMMENT '1=upvote, 0=downvote',
 		PRIMARY KEY( thought1, thought2, mip ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
@@ -190,13 +193,13 @@ $db->RunQuery( "
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.', 
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
-		vote     BOOL COMMENT '1=upvote, 0=downvote',
+		vote     TINYINT NOT NULL COMMENT '1=upvote, 0=downvote',
 		PRIMARY KEY( thought1, thought2, account ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
 	)
 	ENGINE = InnoDB
-	COMMENT = 'Holds votes per account, these don't affect score.'
+	COMMENT = 'Holds votes per account, these don\'t affect score.'
 ");
 
 $db->RunQuery( "
