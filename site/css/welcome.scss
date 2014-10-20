@@ -6,7 +6,7 @@
 	
 	font-size: 20px;
 	
-	text-shadow: 1px 1px 1px darken( $cl_bg, 10% );
+	text-shadow: 1px 2px 5px lighten( $cl_bg, 10% );
 	
 	h1 {
 		font-size: 26px;
@@ -16,6 +16,7 @@
 	h3 {
 		font-weight: 300;
 		font-style: oblique;
+		font-size: 30px;
 	}
 	
 	

@@ -68,6 +68,9 @@ try {
 		}
 	}
 	
+	ThoughtLink::ImportAnonymous( User::AccountID(), User::GetMip(), 
+								   User::GetAid() );
+	
 	$response = new Response();
 	$response->data['username'] = User::GetUsername();
 	$response->data['accountid'] = User::AccountID();

@@ -10,7 +10,7 @@
 	
 	<?php include "template/template_newlink_raw.php" ?>
 	
-	<p>The Wordweb is a creative resource that is built from human thoughts. 
+	<p>The Wordex is a creative resource that is built from human thoughts. 
 	Since you're a human, you can contribute to the project! 
 	Every <i>thought</i> you type in helps to build the database!</p>
 	
@@ -20,7 +20,7 @@
 	you are on, you should give it an upvote. If you don't see a relation, then you should
 	downvote it. Clicking on a link to follow it also gives it an upvote.</p>
 	
-	<p>Eventually, the Wordweb will grow into a massive database of relations between
+	<p>Eventually, the Wordex will grow into a massive database of relations between
 	thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't
 	looking for synonyms—that's what a thesaurus is for! For an example of what we <i>are</i> looking for: 
 	<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
@@ -36,3 +36,4 @@
 		<div class="linksfound" id="info_slinks">Strong links discovered: <span></span></div>
 	</div>
 </div>
+

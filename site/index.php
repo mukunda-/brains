@@ -63,7 +63,7 @@ require_once 'htaccess.php';
 			echo '</script>';
 		?>
 		 
-		<title>brains</title>
+		<title>wordex - the word machine</title>
 	</head>
 	<body>
 	

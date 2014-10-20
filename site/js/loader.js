@@ -165,7 +165,7 @@ function Load( info ) {
 			}
 			
 			data = info.process( data );
-			if( data === false ) {	
+			if( data === false ) {
 				m_loading = false;
 				m_fading_out = false;
 				return; // page load cancelled.

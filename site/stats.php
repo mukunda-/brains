@@ -10,6 +10,8 @@ try {
 	$response->data['good_links'] = Stats::GET( 'GLINKS' );
 	$response->data['strong_links'] = Stats::GET( 'SLINKS' );
 	//$response->data['perfect_links'] = Stats::GET( 'PLINKS' );
+	
+	$response->data['recent_queries'] = RecentQueries::GetPhrases();
 
 	$response->Send( 'okay.' );
 	

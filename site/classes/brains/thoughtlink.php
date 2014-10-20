@@ -3,6 +3,7 @@
 namespace Brains;
 
 final class ThoughtLink {
+	public $id;
 	public $source; // source thought
 	public $dest; // destination thought
 	
@@ -23,8 +24,9 @@ final class ThoughtLink {
 	
 	const BASE_SCORE = 25;
 	
-	private function __construct( $source, $dest, $time, $creator = 0,
+	private function __construct( $id, $source, $dest, $time, $creator = 0,
 								  $goods = 0, $bads = 0, $vote = null ) {
+		$this->id = $id;
 		$this->source = $source;
 		$this->dest = $dest;
 		$this->creator = (int)$creator;
@@ -74,10 +76,9 @@ final class ThoughtLink {
 		$result = 0;
 		if( $account != 0 ) {
 			$result = $db->RunQuery( 
-				"SELECT goods, bads, L.time AS time, creator, vote 
+				"SELECT id, goods, bads, L.time AS time, creator, vote 
 				FROM Links L LEFT JOIN AccountVotes V
-				ON V.thought1=L.thought1
-				AND V.thought2=L.thought2
+				ON V.link=L.id 
 				AND V.account=$account
 				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		} else {
@@ -85,9 +86,9 @@ final class ThoughtLink {
 			$aid = User::GetAid();
 		
 			$result = $db->RunQuery(
-				"SELECT goods, bads, L.time AS time, creator, vote FROM Links L
+				"SELECT id, goods, bads, L.time AS time, creator, vote FROM Links L
 				LEFT JOIN RealVotes V
-				ON V.thought1=L.thought1 AND V.thought2=L.thought2
+				ON V.link=L.id 
 				AND V.mip = $mip AND V.aid = $aid
 				WHERE L.thought1=$ordered1->id AND L.thought2=$ordered2->id" );
 		}
@@ -109,7 +110,7 @@ final class ThoughtLink {
 		}
 		
 		// return existing link.  
-		$link = new self( $source, $dest, 
+		$link = new self( $row['id'], $source, $dest, 
 						  $row['time'], $row['creator'], 
 						  $row['goods'], $row['bads'], $vote ); 
 		
@@ -223,6 +224,8 @@ final class ThoughtLink {
 			throw $e;
 		}
 		
+		$insert_id = $db->insert_id;
+		
 		$vote = $creator == 0 ? null : TRUE;
 		
 		// add an upvote.
@@ -238,8 +241,8 @@ final class ThoughtLink {
 			$mip = User::GetMip();
 			$aid = User::GetAid();
 			$db->RunQuery( "
-				INSERT INTO AnonymousLinks (thought1, thought2, mip, aid, time)
-				VALUES ($ordered1->id, $ordered2->id, $mip, $aid, $time )" );
+				INSERT INTO AnonymousLinks ( link, mip, aid, time)
+				VALUES ( $insert_id, $mip, $aid, $time )" );
 		}
 		
 		Stats::Increment( 'TLINKS' );
@@ -254,7 +257,7 @@ final class ThoughtLink {
 		}
 		Logger::Info( Logger::FormatUser( $username, $creator ) . " created a new link: \"$source->phrase\" -> \"$dest->phrase\"" );
 		
-		$link = new self( $source, $dest, 
+		$link = new self( $insert_id, $source, $dest, 
 						  $time, $creator, $vote === TRUE ? 1:0, 0, 
 						  $vote );
 		$link->created = true;
@@ -291,7 +294,7 @@ final class ThoughtLink {
 			
 			// get the current scores of the link
 			$result = $db->RunQuery( 
-				"SELECT goods, bads, rank FROM Links 
+				"SELECT id, goods, bads, rank FROM Links 
 				WHERE thought1=$source->id AND thought2=$dest->id
 				FOR UPDATE" );
 			
@@ -302,9 +305,10 @@ final class ThoughtLink {
 				throw new InvalidArgumentException( "Link doesn't exist." );
 			}
 			
-			$goods = $row[0];
-			$bads  = $row[1];
-			$linkrank = $row[2];
+			$linkid = $row[0];
+			$goods = $row[1];
+			$bads  = $row[2];
+			$linkrank = $row[3];
 			
 			// add the vote
 			if( $vote ) {
@@ -316,8 +320,8 @@ final class ThoughtLink {
 			// check if there is already a vote from this user.
 			$result = $db->RunQuery(
 				"SELECT vote, aid FROM RealVotes 
-				WHERE thought1=$source->id AND thought2=$dest->id 
-				AND mip=$mip FOR UPDATE" );
+				WHERE link=$linkid AND mip=$mip 
+				FOR UPDATE" );
 			
 			$row = $result->fetch_assoc();
 			$scorechange = true;
@@ -325,104 +329,36 @@ final class ThoughtLink {
 			if( $row !== null ) {
 				// a vote already exists:
 				
-				// reverse original vote, 
-				// or quit if the vote in the database already
-				// matches the current request.
-	
+				// reverse original vote  
 				if( $row['vote'] == $voteval ) {
-					$scorechange = false;
-					
-					/*
-					if( $row['aid'] != $aid ) {
-						
-						$db->RunQuery( 
-							"UPDATE RealVotes SET aid=$aid, time=$time
-							WHERE thought1=$source->id AND thought2->$dest->id
-							AND mip=$mip" );
-					}
-					
-					self::UpdateAccountVote( $source, $dest, $accountid, $time, $voteval );
-					
-					$db->RunQuery( 'COMMIT' );
-					return TRUE;
-					*/
+					$scorechange = false; 
 				} else {
 				
 					if( $row['vote'] == 1 ) {
 						$goods--;
 					} else {
 						$bads--;
-					}
-					
-				}
-	//			$score = self::ComputeScore( $goods, $bads );
-				
+					} 
+				} 
 				// update the user's vote.
 				$db->RunQuery(
 					"UPDATE RealVotes SET vote=$voteval, aid=$aid, time=$time
-					WHERE thought1=$source->id AND thought2=$dest->id
-					AND mip=$mip" );
-		
-
-		
-				// update the link score
-		//		$db->RunQuery(
-			//		"UPDATE Links SET goods=$goods, bads=$bads, score=$score
-		//			WHERE thought1=$source->id AND thought2=$dest->id" );
-		/*		
-				UpdateAccountVote( $source, $dest, $account, $time, $voteval );
-				if( $accountid != 0 ) {
-					$db->RunQuery(
-						"INSERT INTO AccountVotes (thought1, thought2, account, time, vote)
-						VALUES( $source->id, $dest->id, $accountid, $time, $voteval )
-						ON DUPLICATE KEY UPDATE time=$time, vote=$voteval" );
-				}
-			*/	
+					WHERE link=$linkid AND mip=$mip" );
+		 
 			} else {
 				
 				$db->RunQuery( 
 					"INSERT INTO RealVotes 
-					(thought1, thought2, mip, time, aid, vote )
-					VALUES ($source->id, $dest->id, $mip, $time, $aid, $voteval)" 
+					( link, mip, time, aid, vote )
+					VALUES( $linkid, $mip, $time, $aid, $voteval )" 
 				);
-				
-				// check if there is a lock for this iP.
-		//		$iphex = GetIPHex();
-		//		$time = time();
-		//		$result = $db->RunQuery( 
-		//			"SELECT 1 FROM VoteLocks
-		//			WHERE thought1=$source->id AND thought2=$dest->id
-		//			AND ip=x'$iphex' AND expires > $time " );
-		//		
-		//		$fakevote = $result->num_rows != 0 ? 1 : 0;
-		/*		
-				try {
-					$db->RunQuery( 
-						"INSERT INTO Votes (thought1, thought2, account, time, vote, fake )
-						VALUES ($source->id, $dest->id, $accountid, $time, $voteval, $fakevote )" );
-				} catch( \SQLException $e ) { 
-					if( $e->code == SQL_ER_DUP_KEY ) {
-						$db->RunQuery( 'ROLLBACK' );
-						return FALSE;
-					}
-				}
-				
-				if( !$fakevote ) {
-					// save vote lock
-					$expires = time() + Config::$VOTELOCK_TIME;
-					$db->RunQuery( 
-						"INSERT INTO VoteLocks (thought1, thought2, ip, expires )
-						VALUES ($source->id, $dest->id, x'$iphex', $expires )" );
-				}
-				
-		*/		
 				 
 			}
 			
 			if( $accountid != 0 ) {
 				$db->RunQuery(
-					"INSERT INTO AccountVotes (thought1, thought2, account, time, vote)
-					VALUES( $source->id, $dest->id, $accountid, $time, $voteval )
+					"INSERT INTO AccountVotes ( link, account, time, vote )
+					VALUES( $linkid, $accountid, $time, $voteval )
 					ON DUPLICATE KEY UPDATE time=$time, vote=$voteval" 
 				);
 			}
@@ -452,7 +388,7 @@ final class ThoughtLink {
 				$db->RunQuery( 
 					"UPDATE Links 
 					SET goods=$goods, bads=$bads, rank=$linkrank, score=$score
-					WHERE thought1=$source->id AND thought2=$dest->id" );
+					WHERE id=$linkid" );
 			}
 			
 			$db->RunQuery( 'COMMIT' );
@@ -545,8 +481,7 @@ final class ThoughtLink {
 						 goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links 
 				LEFT JOIN AccountVotes AV 
-				ON Links.thought1 = AV.thought1
-				AND Links.thought2 = AV.thought2
+				ON Links.id = AV.link 
 				AND AV.account = $accountid
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
@@ -555,8 +490,7 @@ final class ThoughtLink {
 						goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links 
 				LEFT JOIN AccountVotes AV
-				ON Links.thought1 = AV.thought1
-				AND Links.thought2 = AV.thought2
+				ON Links.id = AV.link
 				AND AV.account = $accountid
 				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
 				WHERE Links.thought2 = $thought->id)" 
@@ -565,23 +499,21 @@ final class ThoughtLink {
 			$aid = User::GetAid();
 			$mip = User::GetMip();
 			$result = $db->RunQuery( 
-				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
+				"(SELECT Links.id AS id, Links.thought2 AS dest, T2.phrase AS dest_phrase,
 						 goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links
 				LEFT JOIN RealVotes RV
-				ON Links.thought1 = RV.thought1
-				AND Links.thought2 = RV.thought2
+				ON Links.id = RV.link
 				AND RV.aid = $aid AND RV.mip = $mip
 				LEFT JOIN Thoughts T2 
 				ON T2.id=Links.thought2
 				WHERE Links.thought1 = $thought->id)
 				UNION ALL
-				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
+				(SELECT Links.id AS id, Links.thought1 AS dest, T1.phrase AS dest_phrase,
 						goods, bads, Links.time AS time, Links.creator AS creator, vote
 				FROM Links 
 				LEFT JOIN RealVotes RV
-				ON Links.thought1 = RV.thought1
-				AND Links.thought2 = RV.thought2
+				ON Links.id = RV.link
 				AND RV.aid = $aid AND RV.mip = $mip
 				LEFT JOIN Thoughts T1
 				ON T1.id=Links.thought1
@@ -597,8 +529,9 @@ final class ThoughtLink {
 			
 			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
 			
-			$link = new self( $thought, $dest, $row['time'], $row['creator'],
-							  $row['goods'], $row['bads'], $vote );
+			$link = new self( $row['id'], $thought, $dest, $row['time'], 
+							  $row['creator'], $row['goods'], $row['bads'], 
+							  $vote );
 			$list[] = $link;
 		}
 		
@@ -614,6 +547,42 @@ final class ThoughtLink {
 		}
 		
 		return $list;
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Query for anonymous links made by $mip/$aid and assign them
+	 * to the $account.
+	 *
+	 * @param int $account Account ID to claim the anonymous links.
+	 * @param int $mip Mapped IP for query.
+	 * @param int $aid Anonymous ID for query.
+	 */
+	public static function ImportAnonymous( $account, $mip, $aid ) {
+		
+		$db = \SQLW::Get();
+		
+		$update_statement = $db->prepare( 
+			"UPDATE Links SET account=$account 
+			WHERE thought1=? AND thought2=?" );
+			
+		// set creator and reset AID
+		$db->RunQuery( 
+			"UPDATE AnonymousLinks AL
+			INNER JOIN Links L
+			ON AL.link = L.id
+			SET L.creator=$account, AL.aid = 0 
+			WHERE AL.mip=$mip AND AL.aid=$aid" );
+			
+		// delete claimed rows
+		$db->RunQuery(
+			"DELETE FROM AnonymousLinks WHERE mip=$mip AND aid=0" );
+		
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Get a list of recent links.
+	public static function GetRecentList() {
+		
 	}
 }
 

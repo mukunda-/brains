@@ -18,6 +18,7 @@ function DropTable( $name ) {
 }
 
 if( $droptables ) {
+	DropTable( 'RecentQueries' );
 	DropTable( 'AnonymousLinks' );
 	DropTable( 'RealVotes' );
 	DropTable( 'AccountVotes' );
@@ -87,6 +88,7 @@ $db->RunQuery( "
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Links (
+		id       INT UNSIGNED NOT NULL PRIMARY KEY,
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
 		goods    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of upvotes.',
@@ -95,7 +97,7 @@ $db->RunQuery( "
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		creator  INT UNSIGNED          COMMENT 'Account of the creator, 0 = anonymous',
 		rank	 TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rank achieved, 0=normal, 1=good, 2=strong, 3=perfect',
-		PRIMARY KEY( thought1, thought2 ),
+		UNIQUE KEY( thought1, thought2 ),
 		INDEX USING BTREE( thought2 ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
@@ -173,15 +175,13 @@ $db->RunQuery( "
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS RealVotes (
-		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
-		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		link INT UNSIGNED NOT NULL COMMENT 'ID of link.', 
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		aid      INT NOT NULL COMMENT 'Anonymous ID. 0=account used',
 		vote     TINYINT NOT NULL COMMENT '1=upvote, 0=downvote',
-		PRIMARY KEY( thought1, thought2, mip ),
-		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+		PRIMARY KEY( link, mip ),
+		FOREIGN KEY( link ) REFERENCES Links( id ) ON DELETE CASCADE ON UPDATE CASCADE 
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Vote table.'
@@ -189,14 +189,12 @@ $db->RunQuery( "
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS AccountVotes (
-		thought1 INT UNSIGNED NOT NULL COMMENT 'Lesser thought ID in link.',
-		thought2 INT UNSIGNED NOT NULL COMMENT 'Greater thought ID in link.',
+		link     INT UNSIGNED NOT NULL COMMENT 'ID of link.', 
 		account  INT UNSIGNED NOT NULL COMMENT 'Account of the voter.', 
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		vote     TINYINT NOT NULL COMMENT '1=upvote, 0=downvote',
-		PRIMARY KEY( thought1, thought2, account ),
-		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+		PRIMARY KEY( link, account ),
+		FOREIGN KEY( link ) REFERENCES Links( id ) ON DELETE CASCADE ON UPDATE CASCADE 
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Holds votes per account, these don\'t affect score.'
@@ -205,17 +203,27 @@ $db->RunQuery( "
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS AnonymousLinks (
 		id       INT AUTO_INCREMENT PRIMARY KEY,
-		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
-		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
+		link     INT UNSIGNED NOT NULL COMMENT 'ID of link.',
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of creator.',
 		aid      INT UNSIGNED NOT NULL COMMENT 'Anonymous ID of creator.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
 		INDEX USING BTREE( mip ),
-		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+		FOREIGN KEY( link ) REFERENCES Links( id ) ON DELETE CASCADE ON UPDATE CASCADE
 	)
 	ENGINE = InnoDB
 	COMMENT = 'Holds links created by anonymous users.'
 ");
+
+/* nevermind.
+$db->RunQuery( "
+	CREATE TABLE IF NOT EXISTS RecentQueries (
+		id		INT AUTO_INCREMENT PRIMARY KEY
+		thought INT UNSIGNED NOT NULL UNIQUE COMMENT 'Thought ID that was queried.',
+		time	INT UNSIGNED NOT NULL COMMENT 'Time of insertion or update.'
+		FOREIGN KEY( thought ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
+	)
+	ENGINE = InnoDB
+	COMMENT = 'Past queries that were executed.'
+");*/
 
 ?>

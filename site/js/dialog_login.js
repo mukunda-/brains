@@ -72,6 +72,7 @@ function Login_OnSubmit() {
 
 	$.post( "login.php", post )
 		.done( function( data ) {
+			alert(data);
 			brains.Dialog.Unlock();
 			 
 			try {

@@ -633,6 +633,7 @@ function FollowLink( input, method ) {
 	 
 	var failure = function() {
 		alert( "An error occurred. Please try again." ); 
+		HideLoadingIcons();
 		$("#links").children( ".thought" ).removeClass( "following" );
 		$("#newlink").removeClass( "following" );
 		$("#newlink").focus();
@@ -657,11 +658,11 @@ function FollowLink( input, method ) {
 			case "error.":
 			default:
 				failure();
-				return;
+				return false; 
 			case "login.":
 				brains.SetLoggedIn( false );
 				show_login();
-				return;
+				return false;
 			case "same.":
 				alert( "You can't make a link to the same thought." );
 				HideLoadingIcons();
@@ -903,7 +904,7 @@ function PushHistory( content, to, from, replace ) {
 		url = ".";
 	}
 	
-	title = "wordweb";
+	title = "wordex - the word machine";
 	
 	var state = { content: content, tag: url, thought: to }
 

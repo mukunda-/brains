@@ -91,7 +91,7 @@ try {
 							  $method == METHOD_NEW );
 	if( $link === FALSE ) {
 		Response::SendSimple( R_MISSING );
-	}
+	} 
 	
 	// start building response
 	$response = new Response;

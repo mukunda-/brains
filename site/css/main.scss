@@ -5,12 +5,14 @@ $bgcolor: #F8CC8A;
 //$cl_bg: #EDAA65;
 //$cl_bg: #115533;
 $cl_red: #fe0201;
-$cl_bg: #6CD4FB; // blue stone (light blue)
-//$cl_bg: #00B4FF; // aural blue
+//$cl_bg: #6CD4FB; // blue stone (light blue)
+$cl_bg: #00B4FF; // aural blue
 //$cl_bg: #69D2E7;
-$cl_hl: complement( $cl_bg );
+//$cl_hl: complement( $cl_bg );
+$cl_hl: complement( #4Cc4FF );
 $cl_topbar: #93406D; // A Flower's Secrets
-$cl_white: #f7f7f7;
+//$cl_white: #f0FaFF;//#f7f7f7;
+$cl_white: #f4FcFF;//#f7f7f7;
 $cl_black: #171711;
 
 $squashwidth: 400px;
