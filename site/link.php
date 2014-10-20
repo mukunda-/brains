@@ -121,7 +121,7 @@ try {
 	$response->data['discovery']['vote'] = $link->vote;
 	$response->data['logged_in'] = User::LoggedIn();
 	$response->Send( R_OKAY );
-	 
+	
 } catch( \Exception $e ) {
 	Logger::PrintException( $e );
 }

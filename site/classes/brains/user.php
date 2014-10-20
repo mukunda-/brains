@@ -74,6 +74,8 @@ public static function GetAid() {
 	
 	self::$aid = mt_rand( 1, 0x7FFFFFFF );
 	setcookie( 'aid', self::$aid, time() + 60*60*24*90, GetDocumentRoot() );
+	
+	return self::$aid;
 }
 
 /** ---------------------------------------------------------------------------
@@ -108,7 +110,10 @@ public static function RefreshCToken() {
  * @return bool TRUE if the token is good, FALSE if it is missing or bad.
  */
 public static function VerifyCToken( $ctoken = null ) {
-	if( !isset( $_COOKIE['ctoken'] ) ) return FALSE;
+	if( !isset( $_COOKIE['ctoken'] ) ) {
+		User::RefreshCToken();
+		return FALSE;
+	}
 	
 	if( $ctoken === null ) {
 		if( !isset( $_POST['ctoken'] ) ) return FALSE;
@@ -119,7 +124,7 @@ public static function VerifyCToken( $ctoken = null ) {
 		// csrf attack :o
 		
 		Logger::Info( "Invalid CTOKEN in request. REFERER={$_SERVER['HTTP_REFERER']}" );
-		
+		User::RefreshCToken();
 		return FALSE;
 	}
 	return true;
@@ -393,8 +398,7 @@ public static function CheckLogin() {
 		setcookie( "login", 0, 0, GetDocumentRoot() );
 		return FALSE;
 	}
-	 
-	self::RefreshCToken(); // new session refresh
+	  
 	self::SetLoggedIn( (int)$row['account'], null, null );
  
 	return self::$account_id;

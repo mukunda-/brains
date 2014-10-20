@@ -83,6 +83,7 @@ final class ThoughtLink {
 		} else {
 			$mip = User::GetMip();
 			$aid = User::GetAid();
+		
 			$result = $db->RunQuery(
 				"SELECT goods, bads, L.time AS time, creator, vote FROM Links L
 				LEFT JOIN RealVotes V
@@ -283,7 +284,7 @@ final class ThoughtLink {
 										   
 			$voteval = $vote ? 1 : 0;
 			$mip = User::GetMip();
-			$aid = User::GetAid();
+			$aid = User::AccountID() ? 0 : User::GetAid();
 			
 			$time = time();	
 			$db->RunQuery( 'START TRANSACTION' );

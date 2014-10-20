@@ -14,18 +14,13 @@ var m_locked_selection;
  * Show the dialog box.
  *
  * @param string   name        Dialog box name to display.
- * @param function initializer Optional function to call after the dialog is
- *                             loaded.
  */
-function Show( name, initializer ) {
+function Show( name ) {
 	
 	m_locked = false;
 	//m_init_function = null;
 	$("#dialog").html( $("#dialog_" + name).html() );
 	$("#overlay").addClass( 'show' );
-	if( initializer ) {
-		initializer();
-	}
 	// hook error highlighter
 	$("#dialog").find( ".textinput" ).keyup( function() {
 		$(this).removeClass( "error" );

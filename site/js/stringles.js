@@ -88,9 +88,31 @@ function ReadDialogField( id, name ) {
 	return value;
 }
 
+
 window.brains = window.brains || {};
 brains.ReadDialogField = ReadDialogField;
 //brains.IsNormalString = IsNormalString;
 //brains.IsValidPassword = IsValidPassword;
 
 })()
+
+/** ---------------------------------------------------------------------------
+ * Read a template and perform replacements.
+ * 
+ * @param string id ID of template in dom.
+ * @param object replacements Replacements to make. 
+ *               e.g { "foo": "bar", // replaces {{foo}} with "bar"
+ *                     ...
+ */
+function ReadTemplate( id, replacements ) {
+	replacements = replacements || {};
+	var html = $(id).html();
+	
+	for( var key in replacements ) {
+		if( replacements.hasOwnProperty( key ) ) {
+			html = html.replace( "{{"+key+"}}", replacements[key] );
+		}
+	}
+	
+	return html;
+}

@@ -26,10 +26,12 @@ class Logger {
 
 	public static function PrintException( $e ) {
 		if( Config::ErrorLogging() ) {
-			file_put_contents( "logs/error.log", self::LogStamp() . print_r( $e, true ) ."\n", FILE_APPEND ); 
+			file_put_contents( "logs/error.log", self::LogStamp() . " " . print_r( $e, true ) ."\n", FILE_APPEND ); 
 		}
 	}
 
 }
+
+date_default_timezone_set( 'America/Chicago' );
 
 ?>

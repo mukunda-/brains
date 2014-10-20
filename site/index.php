@@ -6,7 +6,8 @@ date_default_timezone_set( 'America/Chicago' );
 
 require_once 'core.php';
 
-User::CheckLogin( FALSE );
+User::CheckLogin();
+User::RefreshCToken();
 
 if( Config::DebugMode() ) {
 	require_once 'dev/build.php';
@@ -66,6 +67,7 @@ require_once 'htaccess.php';
 	</head>
 	<body>
 	
+		<div id="aura"></div>
 		
 		<div id="magicbox"></div>
 		<span id="magicbox2"></span>
@@ -99,14 +101,15 @@ require_once 'htaccess.php';
 			
 		</div>
 		
-		<div id="overlay">
-		<br>
-		<div id="dialog_wrapper"> 
-			<div id="dialog">
-				
-			</div>
-		</div>
 		
+		<div id="overlay">
+			<br>
+			<div id="dialog_wrapper"> 
+				<div id="dialog">
+					
+				</div>
+			</div>
+			
 		</div>
 		
 		<?php
@@ -122,7 +125,8 @@ require_once 'htaccess.php';
 				'template_discovery',
 				'template_links',
 				'template_link',
-				'template_info'
+				'template_info',
+				'template_signin_reminder'
 			]);
 			
 			

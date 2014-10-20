@@ -1,5 +1,5 @@
 ﻿
-<div class="welcome">
+<div class="welcome" id="welcome_page">
 	<div class="biglogo">
 		<?php
 		$svg = new \SVG( 'img/logo1.svg' );
@@ -8,8 +8,8 @@
 	</div>
 	<h1>Type in a word or phrase to begin your query.</h1>
 	
-		{{querybox}}
-		
+	<?php include "template/template_newlink_raw.php" ?>
+	
 	<p>The Wordweb is a creative resource that is built from human thoughts. 
 	Since you're a human, you're able to contribute to the project! Simply type 
 	in a word or phrase (a <i>thought</i>) in the above space, and then continue from there.

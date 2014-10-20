@@ -58,6 +58,8 @@ body {
 	}
 	margin: 6px;
 	overflow:hidden;
+	
+	
 }
 
 input, button { 
@@ -102,6 +104,7 @@ input, button {
 	height: $topbar_height + 16 + 64;
 }
 
+
 @import "discovery";
 @import "newlink";
 @import "topbar";
@@ -109,3 +112,5 @@ input, button {
 
 @import "welcome";
 
+@import "bugger";
+@import "aura";

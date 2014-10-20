@@ -139,26 +139,6 @@ function FilterThoughtKeys( e ) {
 }
 
 /** ---------------------------------------------------------------------------
- * Read a template and perform replacements.
- * 
- * @param string id ID of template in dom.
- * @param object replacements Replacements to make. 
- *               e.g { "foo": "bar", // replaces {{foo}} with "bar"
- *                     ...
- */
-function ReadTemplate( id, replacements ) {
-	var html = $(id).html();
-	
-	for( var key in replacements ) {
-		if( replacements.hasOwnProperty( key ) ) {
-			html = html.replace( "{{"+key+"}}", replacements[key] );
-		}
-	}
-	
-	return html;
-}
-
-/** ---------------------------------------------------------------------------
  * Content generator for the newlink block.
  *
  * @param array out Output html array.
@@ -170,6 +150,17 @@ function PageContent_NewLink( out, query ) {
 		ReadTemplate( "#template_newlink", {
 			"query": query 
 		}) 
+	);
+}
+
+/** ---------------------------------------------------------------------------
+ * Content generator for the signin bugger.
+ *
+ * @param array out Output html array.
+ */
+function PageContent_Bugger( out ) {
+	out.push( 
+		ReadTemplate( "#template_signin_reminder" )
 	);
 }
 
@@ -217,6 +208,7 @@ function PageContent_LastLink( out, data ) {
 			"from": data.from,
 			"to": data.to,
 			"creator_class": creator_class,
+			"creator_account": data.creator,
 			"creator_name": creator_name
 		})
 	);
@@ -352,6 +344,7 @@ function OnNewQuery() {
 	
 	$("#query").blur();
 
+	ShowLoadingIcon( "#loader_top" );
 	MakeQuery( thought );
 }
 
@@ -368,10 +361,7 @@ function MakeQuery( input, from, startup ) {
 	
 	var request = { input: input };
 	if( from ) request.from = from;
-	
-	ShowLoadingIcon( "#loader_top" );
-	
-	
+	 
 	brains.Loader.Load( { 
 		url: "query.php", 
 		data: request, 
@@ -383,6 +373,11 @@ function MakeQuery( input, from, startup ) {
 			
 			if( response === null || response.status != "okay." ) {
 				alert( "An error occurred. Please try again later." );
+				
+				// this may be called from the newlink box.
+				HideLoadingIcons();
+				$("#newlink").removeClass( "following" );
+				
 				return false;
 			}
 			
@@ -502,7 +497,7 @@ brains.InitializePostLoad = function() {
 			});
 			
 		newlink.keypress( FilterThoughtKeys );
-			
+		
 		$("#newlinkform").submit( NewLinkForm_OnSubmit );
 		
 		s_thoughts = $("#links").children( ".thought" );
@@ -558,6 +553,10 @@ brains.InitializePostLoad = function() {
 		$("#info_slinks").children( "span" ).text( m_stats.strong_links );
 	}
 	
+	$("#bugger_signin").click( function() {
+		brains.ShowLoginDialog( "" );
+	});
+	
 	AdjustSizes();
 }
 
@@ -595,6 +594,13 @@ function NewLinkForm_OnSubmit() {
  */
 function FollowLink( input, method ) {
 	if( brains.Loader.IsLoading() ) return;
+	
+	if( $("#welcome_page").length ) {
+		// we are on the welcome page, use a normal query.
+		 
+		MakeQuery( input );
+		return;
+	}
 	
 	if( m_current_thought == null ||
 		m_current_thought == "" ) return;
@@ -665,6 +671,10 @@ function FollowLink( input, method ) {
 			
 			var html = [];
 			
+			if( !m_logged_in ) {
+				PageContent_Bugger( html );
+			}
+			
 			PageContent_LastLink( html, response.data.discovery );
 			PageContent_NewLink( html, response.data.to );
 			PageContent_Links( html, response.data.links );
@@ -698,6 +708,8 @@ brains.SetLoggedIn = function( value, userdata ) {
 	m_logged_in = value;
 	if( value ) {
 		m_userdata = userdata;
+		$("#content > .bugger").remove();
+		
 	} else {
 		m_userdata = null;
 	}
@@ -846,6 +858,8 @@ function LoadPageFromTag( tag ) {
 		}
 		$("#query").val( to );
 		
+	
+		ShowLoadingIcon( "#loader_top" );
 		MakeQuery( to, from == "" ? undefined : from, true );
 		
 	}
