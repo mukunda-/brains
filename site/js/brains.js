@@ -472,11 +472,13 @@ function VoteThought( element, vote ) {
 		  t2: element.attr( "data-dest" ),
 		  vote: vote ? "good" : "bad" } )
 		  
-		  
+		  /*
 		.done( function( data ) {
 			alert(data);
 			
-		});
+		})*/
+		
+	; // <--
 	
 }
 
@@ -609,6 +611,7 @@ function FollowLink( input, method ) {
 		alert( "You can't make a link to the same thought." );
 		HideLoadingIcons();
 		$("#newlink").removeClass( "following" );
+		$("#newlink").focus();
 		return;
 	}
 	
@@ -632,6 +635,7 @@ function FollowLink( input, method ) {
 		alert( "An error occurred. Please try again." ); 
 		$("#links").children( ".thought" ).removeClass( "following" );
 		$("#newlink").removeClass( "following" );
+		$("#newlink").focus();
 	}
 	
 	brains.Loader.Load( {
@@ -660,6 +664,9 @@ function FollowLink( input, method ) {
 				return;
 			case "same.":
 				alert( "You can't make a link to the same thought." );
+				HideLoadingIcons();
+				$("#newlink").removeClass( "following" );
+				$("#newlink").focus();
 				return false;
 			case "okay.":
 			}

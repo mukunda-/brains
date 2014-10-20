@@ -12,7 +12,7 @@
 	
 	<p>The Wordweb is a creative resource that is built from human thoughts. 
 	Since you're a human, you're able to contribute to the project! Simply type 
-	in a word or phrase (a <i>thought</i>) in the above space, and then continue from there.
+	in a word or phrase (a <i>thought</i>) in the above space and then continue from there.
 	Every thought you type in helps to build the database!</p>
 	
 	<p>To help even more, you can vote on existing <i>links</i>. 
@@ -29,7 +29,7 @@
 	
 	<p>This only works if a lot of people contribute, so you should tell your friends to put in a few words too!</p>
 	
-	<h3><i>"A crowdsourced brainstorm"!</i></h3>
+	<h3>"A crowdsourced brainstorm"!</h3>
 	
 	<div class="stats">
 		<div class="linksfound" id="info_tlinks">Total links discovered: <span></span></div>
