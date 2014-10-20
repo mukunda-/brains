@@ -38,7 +38,7 @@ function Build() {
 	}
 	
 	//----------------------------------------------------------
-	//$css_target = 'min/style.min.css';
+ 
 	$newtime = GetNewestFileTime( glob( 'css/*.scss', GLOB_NOSORT ) );
 	$gentime = GetNewestFileTime( [ "build/style.min.css", "build/style.css" ] ); //file_exists( $css_target ) ? filemtime( $css_target ) : 0;
 
@@ -47,20 +47,10 @@ function Build() {
 		
 		exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss build/style.css", $output, $aaa ); 
 		exec( "%RUBY%/bin/ruby \"%RUBY%/bin/sass\" css/main.scss build/style.min.css --sourcemap=none --style compressed"  );
-		/*
-		if( Config::DebugMode() ) {
-			// debug mode, don't compress.
-			
-			
-			
-		} else {
-			
-			
-		}*/
+		 
 	}
 	
-	//---------------------------------------------------------
-	//$js_target = 'min/scripts.min.js';
+	//---------------------------------------------------------- 
 	$js = array_merge( glob( "js/lib/*.js", GLOB_NOSORT ), 
 					   glob( "js/*.js", GLOB_NOSORT ) 
 					 );
@@ -78,20 +68,8 @@ function Build() {
 		file_put_contents( "build/scripts.js", $code );
 		$code = \JShrink\Minifier::Minify( $code );	
 		file_put_contents( "build/scripts.min.js", $code );
-			
-			/*
-		if( Config::DebugMode() ) {
-			// debug mode, don't minify.
-			
-			file_put_contents( $js_target, $code );
-			
-		} else {
-			$code = \JShrink\Minifier::Minify( $code );	
-			file_put_contents( $js_target, $code );
-		}*/
+			 
 	}
-		
-	
 }
 
 Build();

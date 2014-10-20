@@ -6,16 +6,15 @@
 		$svg->SetID( 'biglogo' );
 		$svg->Output();?>
 	</div>
-	<h1>Type in a word or phrase to begin your query.</h1>
+	<h1>Type in a word or phrase to begin.</h1>
 	
 	<?php include "template/template_newlink_raw.php" ?>
 	
 	<p>The Wordweb is a creative resource that is built from human thoughts. 
-	Since you're a human, you're able to contribute to the project! Simply type 
-	in a word or phrase (a <i>thought</i>) in the above space and then continue from there.
-	Every thought you type in helps to build the database!</p>
+	Since you're a human, you can contribute to the project! 
+	Every <i>thought</i> you type in helps to build the database!</p>
 	
-	<p>To help even more, you can vote on existing <i>links</i>. 
+	<p>To help out more, you can vote on existing <i>links</i>. 
 	When you search for a thought, it might already have links associated with it. 
 	If you can see a relation between a link's thought and the current thought
 	you are on, you should give it an upvote. If you don't see a relation, then you should
