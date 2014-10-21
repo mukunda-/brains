@@ -34,13 +34,13 @@ try {
 		
 		$ticket = User::MakeLoginTicket( $account_id );
 		
-		$url = "http://wordweb.me/splogin/?id={$ticket['id']}&code={$ticket['code']}";
+		$url = "http://wordex.link/recover.php?id={$ticket['id']}&code={$ticket['code']}";
 		
 		$message = 'Hi, 
 		You are receiving this message because you or someone has requested 
 		to sign in with this e-mail. To sign in please follow this link:
 		
-		<a href="'.$url.'">'.$url.'</a>
+		'.$url.'
 		
 		After you sign in you may change your password by clicking on the settings
 		button, located in the top right corner, and pressing Change Password.';
@@ -54,7 +54,7 @@ try {
 	if( !mail( $username,
 			$subject,
 			$message,
-			"From: WordWeb\r\n" .
+			"From: Wordex\r\n" .
 			'X-Mailer: PHP/' . phpversion() ) ) {
 		
 		exit( 'error.' );
