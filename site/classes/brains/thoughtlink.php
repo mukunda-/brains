@@ -460,21 +460,6 @@ final class ThoughtLink {
 									  $arrange = true ) {
 		$db = \SQLW::Get();
 		
-		// method 1, not sure if this is the right way to do a query like this
-		// and can't properly test unless the table has data in it.
-		// (this method is no longer working.)
-		
-		/*
-		$result = $db->RunQuery( 
-			"SELECT thought1, thought2 goods, bads, Links.time, creator, vote 
-			FROM Links LEFT JOIN Votes ON Links.thought1 = Votes.thought1
-			AND Links.thought2 = Votes.thought2
-			AND Votes.account = $accountid
-			WHERE Links.thought1=$thought->id 
-			OR    Links.thought2=$thought->id" );
-		*/
-	
-		// method 2, union the two key queries. safer but may be slower.
 		if( $accountid != 0 ) {
 			$result = $db->RunQuery( 
 				"(SELECT Links.thought2 AS dest, T2.phrase AS dest_phrase,
@@ -547,6 +532,13 @@ final class ThoughtLink {
 		}
 		
 		return $list;
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Faster findlinks method. Does not include personal data.
+	 */
+	public static function FindLinks2( $thought ) {
+		// todo
 	}
 	
 	/** -----------------------------------------------------------------------

@@ -22,9 +22,9 @@
 	
 	<p>Eventually, the Wordex will grow into a massive database of relations between
 	thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't
-	looking for synonyms—that's what a thesaurus is for! For an example of what we <i>are</i> looking for: 
+	looking for synonyms—that's what a thesaurus is for. For an example of what we <i>are</i> looking for: 
 	<i>baby</i> and <i>crib</i> are definitely not the same thing, but cribs are for babies! So, ideally, <i>baby </i>
-	and <i>crib</i> should form a <i>strong link</i>!</p>
+	and <i>crib</i> should form a <i>strong link</i>.</p>
 	
 	<p>This only works if a lot of people contribute, so you should tell your friends to put in a few words too!</p>
 	

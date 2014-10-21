@@ -40,6 +40,9 @@ final class Config {
 	
 	public static $LOGIN_TICKET_EXPIRY = 600; // 10 minutes.
 	
+	// time before the tree file is invalidated.
+	public static $TREE_REFRESH_TIME = 600; // 10 minutes
+	
 	public static function init() {
 		// absolute path to site directory
 		// ie /brains/site/
