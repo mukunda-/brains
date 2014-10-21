@@ -12,8 +12,8 @@ try {
 	//$response->data['perfect_links'] = Stats::GET( 'PLINKS' );
 	
 	//$response->data['recent_queries'] = RecentQueries::GetPhrases();
-
-	$response->CopyLinks( ThoughtLink::GetRecentList() );
+	
+	$response->CopyLinks( ThoughtLink::GetRecentList(20, true) );
 	$response->Send( 'okay.' );
 	
 } catch( \Exception $e ) {

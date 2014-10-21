@@ -79,7 +79,7 @@
 	}
 	
 	$voteuptop: $scoretop - 4 - 8;
-	$votedowntop: $scoretop +21 - 8;
+	$votedowntop: $scoretop + 21 - 8;
 	
 	.vote { 
 		position: absolute;
@@ -88,38 +88,39 @@
 		height: 9px + 16px;
 		transition: opacity 0.25s;
 		
-		.image {
-			width: 9px;
-			height: 9px;
+		i {
+			color: #333;
+			font-size: 12px;
 			position: absolute;
-			left: 11px;
+			left: 10px;
 			@media (max-width:$squashwidth) {
 				left: 10px;
 			}
-			top: 8px;
 			background-position: 0px 0px;
 		}
 		
 		&.up {
 			opacity: 0;
-			top: $voteuptop;//$scoretop - 4 - 8;
+			top: $voteuptop; 
 			@-moz-document url-prefix() {
 				top: $voteuptop -1;//$scoretop - 4 - 7;
 			}
 			
 			
-			.image {
-				background: transparent url( '../img/up.png' ) no-repeat top left;
+			i {	
+				
+				top: 5px;
 			}
 			
 		}
 		
 		&.down {
 			opacity: 0;
-			top: $votedowntop;//$scoretop + 21 - 8;
+			top: $votedowntop; 
 			
-			.image {
-				background: transparent url( '../img/down.png' ) no-repeat top left;
+			i {
+				
+				top: 7px;
 			}
 			
 		}
@@ -149,10 +150,13 @@
 		
 	}
 	
-	.vote.selected .image {
-		background-position: -9px 0px;
-		
+	.vote.up.selected i {
+		color: #67ac1c;
 	}
+	
+	.vote.down.selected i {
+		color: #c52c20;
+	} 
 	
 	&.following {
 		

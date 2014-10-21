@@ -567,7 +567,7 @@ function NewLinkForm_OnSubmit() {
 	$("#loader_newlink").addClass( "show" );
 	
 	var from;
-	if( OnWelcomePage ) {
+	if( OnWelcomePage() ) {
 		from = "";
 	} else {
 		from = m_current_thought;

@@ -578,9 +578,13 @@ final class ThoughtLink {
 	/** -----------------------------------------------------------------------
 	 * Get a list of recently created links.
 	 *
+	 * @param int $limit How many links to fetch.
+	 * @param bool $randomize_direction Randomize the direction of the links.
+	 *             switches the source and dest randomly.
 	 * @return array Array of ThoughtLink instances.
 	 */
-	public static function GetRecentList() {
+	public static function GetRecentList( $limit = 50, 
+										  $randomize_direction = false ) {
 	
 		$db = \SQLW::Get();
 		
@@ -596,7 +600,7 @@ final class ThoughtLink {
 				ON Links.id = AV.link AND AV.account=$account
 				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
-				ORDER BY Links.id DESC LIMIT 50"
+				ORDER BY Links.id DESC LIMIT $limit"
 			);
 		} else {
 			$mip = User::GetMip();
@@ -612,7 +616,7 @@ final class ThoughtLink {
 				AND RV.mip = $mip AND RV.aid = $aid
 				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
-				ORDER BY Links.id DESC LIMIT 50"
+				ORDER BY Links.id DESC LIMIT $limit"
 			);
 		}
 		
@@ -624,6 +628,12 @@ final class ThoughtLink {
 			
 			$source = new Thought( $row['source'], $row['source_phrase'] );
 			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
+			
+			if( $randomize_direction ) {
+				if( mt_rand(0,1) == 1 ) {
+					Swap( $source, $dest );
+				}
+			}
 			
 			$link = new self( $row['id'], $source, $dest, $row['time'], 
 							  $row['creator'], $row['goods'], $row['bads'], 
