@@ -560,11 +560,7 @@ final class ThoughtLink {
 	public static function ImportAnonymous( $account, $mip, $aid ) {
 		
 		$db = \SQLW::Get();
-		
-		$update_statement = $db->prepare( 
-			"UPDATE Links SET account=$account 
-			WHERE thought1=? AND thought2=?" );
-			
+		 
 		// set creator and reset AID
 		$db->RunQuery( 
 			"UPDATE AnonymousLinks AL
@@ -580,9 +576,60 @@ final class ThoughtLink {
 	}
 	
 	/** -----------------------------------------------------------------------
-	 * Get a list of recent links.
+	 * Get a list of recently created links.
+	 *
+	 * @return array Array of ThoughtLink instances.
+	 */
 	public static function GetRecentList() {
+	
+		$db = \SQLW::Get();
 		
+		if( User::LoggedIn() ) {
+			$account = User::AccountID();
+			$result = $db->RunQuery( 
+				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
+				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
+						goods, bads, Links.time AS time, Links.creator AS creator
+				FROM Links
+				LEFT JOIN AccountVotes AV
+				ON Links.id = AV.link AND AV.account=$account
+				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+				ORDER BY Links.id DESC LIMIT 50"
+			);
+		} else {
+			$mip = User::GetMip();
+			$aid = User::GetAid();
+			$result = $db->RunQuery( 
+				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
+				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
+						goods, bads, Links.time AS time, Links.creator AS creator
+				FROM Links
+				LEFT JOIN RealVotes RV
+				ON Links.id = RV.link 
+				AND RV.mip = $mip AND RV.aid = $aid
+				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
+				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
+				ORDER BY Links.id DESC LIMIT 50"
+			);
+		}
+		
+		$list = [];
+			 
+		while( $row = $result->fetch_assoc() ) {
+			$vote = $row['vote'];
+			if( !is_null($vote) ) $vote = $vote ? TRUE:FALSE;
+			
+			$source = new Thought( $row['source'], $row['source_phrase'] );
+			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
+			
+			$link = new self( $row['id'], $source, $dest, $row['time'], 
+							  $row['creator'], $row['goods'], $row['bads'], 
+							  $vote );
+			$list[] = $link;
+		}
+		
+		return $list;
 	}
 }
 

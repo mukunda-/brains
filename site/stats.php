@@ -11,7 +11,7 @@ try {
 	$response->data['strong_links'] = Stats::GET( 'SLINKS' );
 	//$response->data['perfect_links'] = Stats::GET( 'PLINKS' );
 	
-	$response->data['recent_queries'] = RecentQueries::GetPhrases();
+	//$response->data['recent_queries'] = RecentQueries::GetPhrases();
 
 	$response->Send( 'okay.' );
 	

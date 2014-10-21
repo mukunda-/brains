@@ -88,7 +88,7 @@ $db->RunQuery( "
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Links (
-		id       INT UNSIGNED NOT NULL PRIMARY KEY,
+		id       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		thought1 INT UNSIGNED NOT NULL COMMENT 'Thought ID, must be LESSER than id2',
 		thought2 INT UNSIGNED NOT NULL COMMENT 'Thought that the other id is linked to and vice versa.',
 		goods    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total number of upvotes.',
@@ -175,7 +175,7 @@ $db->RunQuery( "
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS RealVotes (
-		link INT UNSIGNED NOT NULL COMMENT 'ID of link.', 
+		link     INT UNSIGNED NOT NULL COMMENT 'ID of link.', 
 		mip      INT UNSIGNED NOT NULL COMMENT 'Mapped IP of the voter.',
 		time     INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation/update.',
 		aid      INT NOT NULL COMMENT 'Anonymous ID. 0=account used',
