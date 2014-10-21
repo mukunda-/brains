@@ -36,7 +36,7 @@ $(function() {
 	
 	setTimeout( function() {
 		s_magic = $("#magicbox");
-		$.get( "../site/tree.php", {} )
+		$.get( "../tree.php", {} )
 			.done( function( data ) {
 				m_source = data;
 				Render();
