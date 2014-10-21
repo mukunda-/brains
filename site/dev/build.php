@@ -8,6 +8,7 @@ if( substr(getcwd(),-3) == 'dev' ) {
 }
 
 require_once 'core.php';
+require_once 'htaccess.php';
 /*
 spl_autoload_register( function ($class) {
 	if( $class === "JShrink\Minifier" ) {

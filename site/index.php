@@ -13,7 +13,6 @@ if( Config::DebugMode() ) {
 	require_once 'dev/build.php';
 }
 
-require_once 'htaccess.php';
  
 ?><!DOCTYPE html>
 <html> 
@@ -32,7 +31,7 @@ require_once 'htaccess.php';
 		<meta charset="UTF-8">
 		<meta name="description" content="A database of thought relations, populated by brainstorming.">
 		<meta name="keywords" content="brainstorm,thought,think,word,links,creative,thesaurus,human,modern,sexy">
-		<link rel="shortcut icon" href="/favicon.png">
+		<link rel="shortcut icon" href="favicon.png">
 
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		

@@ -134,7 +134,7 @@ function InitCreateAccountDialog() {
  */
 function ShowCaptcha( focus ) {
 
-	var recaptcha_public_key = "6LdsGvsSAAAAAP1H8FgcBG-KrIkswRWe90I8oUqU";
+	var recaptcha_public_key = "6LdcX_wSAAAAAKIbA-6d1x4DRWx8QojEykEPcus6 ";
 	function CreateCaptcha() {
 		
 		if( $("#recaptcha_challenge_field").length == 0 ) {

@@ -5,6 +5,9 @@ namespace Brains;
 require_once 'core.php';
 
 try {
+
+	User::CheckLogin();
+	
 	$response = new Response();
 	$response->data['total_links'] = Stats::Get( 'TLINKS' );
 	$response->data['good_links'] = Stats::GET( 'GLINKS' );

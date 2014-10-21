@@ -1,5 +1,10 @@
 <?php
 
+namespace Brains;
+
+require_once 'core.php';
+require_once 'htaccess.php';
+
 if( !file_exists( "logs" ) ) {
 	mkdir( "logs", 0700 );
 } else {
