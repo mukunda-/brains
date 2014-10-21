@@ -589,7 +589,8 @@ final class ThoughtLink {
 			$result = $db->RunQuery( 
 				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
 				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
-						goods, bads, Links.time AS time, Links.creator AS creator
+						goods, bads, Links.time AS time, 
+						Links.creator AS creator, vote
 				FROM Links
 				LEFT JOIN AccountVotes AV
 				ON Links.id = AV.link AND AV.account=$account
@@ -603,7 +604,8 @@ final class ThoughtLink {
 			$result = $db->RunQuery( 
 				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
 				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
-						goods, bads, Links.time AS time, Links.creator AS creator
+						goods, bads, Links.time AS time, 
+						Links.creator AS creator, vote
 				FROM Links
 				LEFT JOIN RealVotes RV
 				ON Links.id = RV.link 

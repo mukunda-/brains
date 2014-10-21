@@ -6,7 +6,7 @@
 	
 	<div class="link">
 		{{from}} 
-		<div class="arrow"></div> 
+		<i class="fa fa-arrow-right"></i>
 		{{to}}
 	</div>
 	

@@ -13,6 +13,7 @@ try {
 	
 	//$response->data['recent_queries'] = RecentQueries::GetPhrases();
 
+	$response->CopyLinks( ThoughtLink::GetRecentList() );
 	$response->Send( 'okay.' );
 	
 } catch( \Exception $e ) {

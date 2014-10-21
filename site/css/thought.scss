@@ -25,6 +25,12 @@
 		font-size: 24px;
 		vertical-align:top;
 		word-wrap: break-word;
+		
+		i { 
+			font-size: 50%;
+			position:relative;
+			top: -3px;
+		}
 	}
 	
 	&:hover {

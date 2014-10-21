@@ -1,5 +1,5 @@
 
-<h2>What other people thought of:</h2>
+<h2>{{title}}</h2>
 <div id="links">
 
 	{{links}}

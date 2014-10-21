@@ -237,7 +237,7 @@ function BiasScore( score, vote ) {
  * @param array out Output html array.
  * @param array links out Output buffer.
  */
-function PageContent_Links( out, links ) { 
+function PageContent_Links( out, links, title, full ) { 
 
 	if( links.length == 0 ) return; // no links made yet.
 	
@@ -255,49 +255,29 @@ function PageContent_Links( out, links ) {
 		var upclass = links[i].vote === true ? "selected" : "";
 		var downclass = links[i].vote === false ? "selected" : "";
 		
+		var caption = full ? 
+			(links[i].source + ' <i class="fa fa-arrow-right"></i> ' + links[i].dest) :
+			links[i].dest;
+		
 		html_links.push( 
 			ReadTemplate( "#template_link", {
+				"source": links[i].source,
 				"dest": links[i].dest,
 				"score": score,
 				"scoreclass": scoreclass,
 				"biased_score": biased_score,
 				"upclass": upclass,
 				"downclass": downclass,
-				"dest2": links[i].dest
+				"caption": caption
 			})
 		);
 				
-		/*
-		out.push( '<div class="thought" data-dest="'+ links[i].dest 
-				+'" data-score="'+ links[i].score +'">' );
-				
-				
-			var voteclass = "score";
-			if( links[i].vote === true ) voteclass += " up";
-			if( links[i].vote === false ) voteclass += " down";
-			out.push( '<div class="'+voteclass+'">'+ score +'</div>' );
-			
-			voteclass = "vote up";
-			if( links[i].vote === true ) voteclass += " selected";
-			
-			out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
-			
-			voteclass = "vote down";
-			if( links[i].vote === false ) voteclass += " selected";
-			
-			out.push( '<div class="'+ voteclass +'"><div class="image"></div></div>' );
-			out.push( '<span>'+ links[i].dest +'</span>' );
-		out.push( '</div>' );*/
-	}
-	/*
-	out.push( '<h2>What other people thought of:</h2>' );
-	out.push( '<div id="links">' );
-	
-
-	out.push( '</div>' );*/
+	 
+	} 
 	
 	out.push( 
 		ReadTemplate( "#template_links", {
+			"title": title,
 			"links": html_links.join("")
 		})
 	);
@@ -388,7 +368,7 @@ function MakeQuery( input, from, startup ) {
 				PageContent_LastLink( html, response.data.discovery );
 			}
 			PageContent_NewLink( html, response.data.query );
-			PageContent_Links( html, response.data.links );
+			PageContent_Links( html, response.data.links, "What other people thought of:", false );
 			
 			
 			html = html.join("");
@@ -421,7 +401,11 @@ function ShowInfoPage() {
 			}
 			
 			m_stats = response.data;
-			var html = $("#template_info").html();
+			var html = [$("#template_info").html()];
+			PageContent_Links( html, response.data.links, "Recently discovered links:", true );
+			
+			html.push( "<br><br><br><br>" );
+			html = html.join("");
 			
 			$("#query").val( "" );
 			PushHistory( html );
@@ -468,7 +452,7 @@ function VoteThought( element, vote ) {
 	
 	$.post( "votelink.php", 
 		{ ctoken: CToken(),
-		  t1: m_current_thought, 
+		  t1: element.attr( "data-source" ), 
 		  t2: element.attr( "data-dest" ),
 		  vote: vote ? "good" : "bad" } )
 		  
@@ -515,7 +499,9 @@ brains.InitializePostLoad = function() {
 			// follow link. use query mode if not logged in.
 			
 			$(this).addClass( "following" );
-			FollowLink( $(this).attr( "data-dest" ), "soft" );
+			FollowLink( $(this).attr( "data-source" ), 
+						$(this).attr( "data-dest" ), 
+						OnWelcomePage() ? "query" : "soft" );
 		} );
 		
 		s_votebuttons = s_thoughts.children( ".vote" );
@@ -579,7 +565,15 @@ function NewLinkForm_OnSubmit() {
 	$("#newlink").blur()
 				 .addClass( "following" );
 	$("#loader_newlink").addClass( "show" );
-	FollowLink( input, "new" );
+	
+	var from;
+	if( OnWelcomePage ) {
+		from = "";
+	} else {
+		from = m_current_thought;
+	}
+	
+	FollowLink( from, input, "new" );
 	return false;
 }
 
@@ -594,20 +588,17 @@ function NewLinkForm_OnSubmit() {
  *	       "soft": dont create, and only give upvote only if the user 
  *                 hasnt voted yet.
  */
-function FollowLink( input, method ) {
+function FollowLink( from, target, method ) {
 	if( brains.Loader.IsLoading() ) return;
 	
-	if( $("#welcome_page").length ) {
-		// we are on the welcome page, use a normal query.
+	if( from == "" ) {
 		 
-		MakeQuery( input );
+		// make a normal query.
+		MakeQuery( target );
 		return;
 	}
-	
-	if( m_current_thought == null ||
-		m_current_thought == "" ) return;
-	
-	if( input == m_current_thought ) {
+	  
+	if( target == from ) {
 		alert( "You can't make a link to the same thought." );
 		HideLoadingIcons();
 		$("#newlink").removeClass( "following" );
@@ -623,13 +614,7 @@ function FollowLink( input, method ) {
 				NewLinkForm_OnSubmit );
 		
 		
-	}
-	
-// anonymous creation is now allowed!
-//	if( !m_logged_in && method == "new" ) {
-//		show_login();
-//		return;
-//	}
+	} 
 	 
 	var failure = function() {
 		alert( "An error occurred. Please try again." ); 
@@ -643,8 +628,8 @@ function FollowLink( input, method ) {
 		url: "link.php",
 		data: { 
 			ctoken: CToken(), 
-			a: m_current_thought, 
-			b: input, 
+			a: from, 
+			b: target, 
 			method: method 
 		},
 		post: true,
@@ -685,7 +670,7 @@ function FollowLink( input, method ) {
 			
 			PageContent_LastLink( html, response.data.discovery );
 			PageContent_NewLink( html, response.data.to );
-			PageContent_Links( html, response.data.links );
+			PageContent_Links( html, response.data.links, "What other people thought of:", false );
 			
 			
 			html = html.join("");
@@ -893,7 +878,7 @@ $( window ).on ( 'beforeunload', function(){
 function PushHistory( content, to, from, replace ) {
 	if( !isSet(to) ) to = "";
 	
-	if( m_current_thought == to ) return;
+	if( m_current_thought == to ) replace=true;//return;
 	
 	var url = to.replace( / /g, "-" );
 	if( from ) {
@@ -944,6 +929,10 @@ function ShowLoadingIcon( id ) {
 
 function HideLoadingIcons() {
 	s_loaders.removeClass( "show" );
+}
+
+function OnWelcomePage() {
+	return $("#welcome_page").length != 0;
 }
 
 //-----------------------------------------------------------------------------

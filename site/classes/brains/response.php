@@ -63,7 +63,7 @@ class Response {
 	 * Copy links from an array into data.links
 	 *
 	 * @param array $links Links returned from ThoughtLink::FindLinks
-	 * @param bool $init Initialize/erase the link list.
+	 * @param bool $init Initialize/erase the link list. 
 	 */
 	public function CopyLinks( $links, $init=true ) {
 		if( $init ) {
@@ -72,12 +72,14 @@ class Response {
 
 		foreach( $links as $link ) {
 			$this->data['links'][] = [ 
+				'source' => $link->source->phrase,
 				'dest' => $link->dest->phrase,
 				'score' => $link->score,
 				'vote' => $link->vote
 			];
 		}
 	}
+	
 }
 
 ?>
