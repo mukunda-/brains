@@ -10,7 +10,7 @@ if( !Config::DebugMode() ) die('aaaa');
 
 $db = \SQLW::Get();
 
-$droptables = TRUE;
+$droptables = FALSE;
 
 function DropTable( $name ) {
 	global $db;
