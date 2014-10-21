@@ -2,10 +2,6 @@
 
 namespace Brains;
 
-if( substr(getcwd(),-3) == 'dev' ) {	
-	// running from dev folder, change to main
-	chdir( '..' );
-}
 
 header( "Content-type: application/json" );
 
@@ -21,14 +17,6 @@ if( file_exists( 'word_tree' ) ) {
 	}
 }
 
-$db = \SQLW::Get();
-
-class Result {
-	public $start;
-	public $phrases = [];
-	public $links = [];
-}
-
 class Link {
 	public $to;
 	public $score;
@@ -39,40 +27,51 @@ class Link {
 	}
 }
 
-$tree = new Result;
+class Result {
+	public $start;
+	public $time;
+	public $phrases = [];
+	public $links = [];
+	
+	public function __construct( $starting_word ) {
+		$this->start = Thought::Get( $starting_word );
+		if( $this->start === FALSE ) die();
+		$this->start = $this->start->id;
+		
+		$db = \SQLW::Get();
 
-$tree->start = Thought::Get( "start" );
-if( $tree->start === FALSE ) exit();
+		$result = $db->RunQuery( "SELECT id, phrase FROM Thoughts" );
+		while( $row = $result->fetch_row() ) {
+			$row[0] = (int)$row[0];
+			$this->phrases[ $row[0] ] = $row[1];
+		}
+		
+		$result = $db->RunQuery( "SELECT thought1, thought2, score FROM Links" );
 
-$result = $db->RunQuery( "SELECT id, phrase FROM Thoughts" );
-
-while( $row = $result->fetch_row() ) {
-	$row[0] = (int)$row[0];
-	$tree->phrases[ $row[0] ] = $row[1];
+		while( $row = $result->fetch_row() ) {
+			$row[0] = (int)$row[0];
+			$row[1] = (int)$row[1];
+			$row[2] = (int)$row[2];
+			
+			if( !isset( $this->links[$row[0]] ) ) {
+				$this->links[$row[0]] = [];
+			}
+			$this->links[$row[0]][] = new Link( $row[1], $row[2] );
+			
+			if( !isset( $this->links[$row[1]] ) ) {
+				$this->links[$row[1]] = [];
+			}
+			$this->links[$row[1]][] = new Link( $row[0], $row[2] );
+		}
+		
+		$this->time = time();
+	}
 }
 
-$result = $db->RunQuery( "SELECT thought1, thought2, score FROM Links" );
+$result = new Result( 'start' );
 
-while( $row = $result->fetch_row() ) {
-	$row[0] = (int)$row[0];
-	$row[1] = (int)$row[1];
-	$row[2] = (int)$row[2];
-	
-	if( !isset( $links[$row[0]] ) ) {
-		$links[$row[0]] = [];
-	}
-	$tree->links[$row[0]][] = new Link( $row[1], $row[2] );
-	
-	if( !isset( $links[$row[1]] ) ) {
-		$links[$row[1]] = [];
-	}
-	$tree->links[$row[1]][] = new Link( $row[0], $row[2] );
-}
-
-$tree = json_encode( $tree );
-
-file_put_contents( 'word_tree', $tree );
-
-echo $tree;
+$result = json_encode( $result );
+file_put_contents( 'word_tree', $result );
+echo $result;
 
 ?>

@@ -12,3 +12,4 @@ site/private/recaptcha_keys_init.php
 site/.htaccess
 deploy/
 site/build
+site/word_tree

@@ -73,7 +73,7 @@ final class Thought {
 			
 		if( $result->num_rows != 0 ) {
 			$row = $result->fetch_row();
-			return new self( $row[0], $phrase, $row[1], $row[2] );
+			return new self( (int)$row[0], $phrase, (int)$row[1], (int)$row[2] );
 		}
 		
 		// thought doesn't exist, create it.
