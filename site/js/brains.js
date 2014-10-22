@@ -38,6 +38,7 @@ var m_userdata;
 var m_captcha_validated;
 
 var m_current_thought = null;
+var m_current_tag;
 
 var s_thoughts;
 var s_votebuttons;
@@ -907,10 +908,13 @@ function PushHistory( content, to, from, replace ) {
 	if( from ) {
 		url = from.replace( / /g, "-" ) + "+" + url;
 	}
+	m_current_tag = url;
 	
 	if( to == "" ) {
 		url = ".";
+		m_current_tag = "";
 	}
+	
 	
 	title = "wordex - the word machine";
 	
@@ -956,6 +960,10 @@ function HideLoadingIcons() {
 
 function OnWelcomePage() {
 	return $("#welcome_page").length != 0;
+}
+
+brains.GetCurrentTag = function() {
+	return m_current_tag;
 }
 
 //-----------------------------------------------------------------------------

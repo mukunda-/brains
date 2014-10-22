@@ -186,16 +186,19 @@ function RenderItem() {
 	Shuffle( m_source.links[item.id] );
 	
 	var length = m_source.links[item.id].length;
+	//var dbase = -140.0;
 	
 	for( var i = 0; i < length; i++ ) {
-		var distance_range =1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
+		var distance_range = 1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
+		
 		var angle_range = 0.1+Math.min( 1.0, length / 20.0 ) * 2.0 +  Math.max(1.0-(item.level / 3.0),0.0) * 6.0; 
 		var angle = item.angle + RndRange(-angle_range,angle_range) + 0.05;
 		
 		//var angle = Math.random() * 3.14159*2.0;
 		
 		//var distance = RndRange( 40.0 , 120.0 )* distance_range;
-		var distance = RndRange( 70.0 , 100.0 )* distance_range;
+		var distance = RndRange( 70.0 , 100.0 )* distance_range;// + dbase;
+		//dbase += 5.0;
 		var x2 = item.x + Math.cos( angle ) * distance;
 		var y2 = item.y + Math.sin( angle ) * distance;
 	

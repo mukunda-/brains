@@ -41,7 +41,9 @@ var PAGE_LOAD_FAILED_CONTENT =
 function FadeIn( content ) {
 	m_fading_out = false;
 //	HideLoadingIcon();
-	ga('send', 'pageview');
+	ga('send', 'pageview', {
+		'page': '/' + brains.GetCurrentTag()
+	});
 	SetContent( content );
 	
 }
