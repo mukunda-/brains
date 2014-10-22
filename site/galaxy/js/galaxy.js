@@ -68,20 +68,21 @@ function MakeSVG(tag, attrs) {
 	return el;
 }
 
-function DrawLine( x1, y1, x2, y2 ) {
+function DrawLine( x1, y1, x2, y2, shade ) {
 	
+	var style2 = shade ? ";opacity: 0.5" : "";
 	content = MakeSVG( "line", {
 			x1: x1 + STARTX,
 			y1: y1 + STARTY,
 			x2: x2 + STARTX,
 			y2: y2 + STARTY,
-			style: "stroke: white; stroke-width:1"
+			style: "stroke: white; stroke-width:1" + style2
 		}
 	);
 	s_svg_lines.appendChild( content );
 }
 
-function DrawText( text, x, y, power ) {
+function DrawText( text, x, y, shade ) {
 	var sx = x+STARTX;
 	var sy = y+STARTY;
 /*
@@ -104,6 +105,9 @@ function DrawText( text, x, y, power ) {
 	content.innerHTML = text;
 	s_svg_text.appendChild( content );
 	*/
+	var style = "";
+	if( shade ) style = "opacity: 0.5";
+	
 	
 	content = MakeSVG( "rect", {
 			x: sx - width/2-2,
@@ -111,7 +115,8 @@ function DrawText( text, x, y, power ) {
 			width: width+4,
 			height: height,
 			fill: "white",
-			title: text
+			title: text,
+			style: style
 		}
 	);
 	
@@ -121,7 +126,8 @@ function DrawText( text, x, y, power ) {
 			x: sx - width/2,
 			y: sy + height/4,
 			fill: "black",
-			title: text
+			title: text,
+			style: style
 		}
 	);
 		
@@ -147,24 +153,35 @@ function RndRange( min, max ) {
 	return Math.random() * (max-min) + min;
 }
 
+function Distance2( x1, y1, x2, y2 ) {
+	return (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1);
+}
+
 function RenderItem() {
 	var item = m_stack.shift();
 	
-	if( m_found.hasOwnProperty(item.id) ) return 0;
+	var shade = m_found.hasOwnProperty(item.id);
 	
-	m_found[item.id] = 1;
-	
-	m_pos[item.id] = { x: item.x, y: item.y };
+	if( shade ) {
+		if( Distance2( m_pos[item.from].x, m_pos[item.from].y, m_pos[item.id].x, m_pos[item.id].y ) < 500 * 500 ) {
+			DrawLine( m_pos[item.from].x, m_pos[item.from].y, m_pos[item.id].x, m_pos[item.id].y, false );
+			return 1;
+		}
+	}
 	
 	if( item.from != 0 ) {
 		// draw line
-		DrawLine( m_pos[item.from].x, m_pos[item.from].y, item.x, item.y );
+		DrawLine( m_pos[item.from].x, m_pos[item.from].y, item.x, item.y, shade );
 	}
 	
 	if( item.progress == 0 ) {
-		DrawText( m_source.phrases[item.id], item.x, item.y, item.power );
+		DrawText( m_source.phrases[item.id], item.x, item.y,  shade );
 		item.progress = 1;
 	}
+	
+	if( m_found.hasOwnProperty(item.id)  ) return 0;
+	m_found[item.id] = 1;
+	m_pos[item.id] = { x: item.x, y: item.y };
 	
 	Shuffle( m_source.links[item.id] );
 	
@@ -173,7 +190,7 @@ function RenderItem() {
 	for( var i = 0; i < length; i++ ) {
 		var distance_range =1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
 		var angle_range = 0.1+Math.min( 1.0, length / 20.0 ) * 2.0 +  Math.max(1.0-(item.level / 3.0),0.0) * 6.0; 
-		var angle = item.angle + RndRange(-angle_range,angle_range) + 0.15;
+		var angle = item.angle + RndRange(-angle_range,angle_range) + 0.05;
 		
 		//var angle = Math.random() * 3.14159*2.0;
 		
@@ -198,7 +215,7 @@ function RenderItem() {
 function DoRender() {
 	
 	var time = 0;
-	while( time < 15 ) {
+	while( time < 4 ) {
 		if( m_stack.length == 0 ) {
 			
 			return; // finished!

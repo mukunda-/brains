@@ -404,6 +404,7 @@ function ShowInfoPage() {
 			var html = [$("#template_info").html()];
 			PageContent_Links( html, response.data.links, "Recently discovered links:", true );
 			
+			
 			html.push( "<br><br><br><br>" );
 			html = html.join("");
 			

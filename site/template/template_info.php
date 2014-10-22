@@ -18,7 +18,7 @@
 	When you search for a thought, it might already have links associated with it. 
 	If you can see a relation between a link's thought and the current thought
 	you are on, you should give it an upvote. If you don't see a relation, then you should
-	downvote it. Clicking on a link to follow it also gives it an upvote.</p>
+	downvote it. You also automatically put votes into the system by using it normally. </p>
 	
 	<p>Eventually, the Wordex will grow into a massive database of relations between
 	thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't
@@ -35,5 +35,6 @@
 		<div class="linksfound" id="info_glinks">Good links discovered: <span></span></div>
 		<div class="linksfound" id="info_slinks">Strong links discovered: <span></span></div>
 	</div>
+	
 </div>
 
