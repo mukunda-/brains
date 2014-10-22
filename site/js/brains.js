@@ -3,8 +3,29 @@
  */
  
 (function() { window.brains = window.brains || {};
-
-console.log( 'hi' );
+                                                            
+console.log( 
+[	"\n",
+	"------------------------------------------------------------\n",
+	"                                  ,---,                     \n",
+	"         .---.  ,---.   __  ,-. ,---.'|                     \n",
+	"        /. ./| '   ,'\\,' ,'/ /| |   | :         ,--,  ,--,  \n",
+	"     .-'-. ' |/   /   '  | |' | |   | |  ,---.  |'. \\/ .`|  \n",
+	"    /___/ \\: .   ; ,. |  |   ,,--.__| | /     \\ '  \\/  / ;  \n",
+	" .-'.. '   ' '   | |: '  :  //   ,'   |/    /  | \\  \\.' /   \n",
+	"/___/ \\:     '   | .; |  | '.   '  /  .    ' / |  \\  ;  ;   \n",
+	".   \\  ' .\\  |   :    ;  : |'   ; |:  '   ;   /| / \\  \\  \\  \n",
+	" \\   \\   ' \\ |\\   \\  /|  , ;|   | '/  '   |  / ./__;   ;  \\ \n",
+	"  \\   \\  |--\"  `----'  ---' |   :    :|   :    |   :/\\  \\ ; \n",
+	"   \\   \\ |                   \\   \\  /  \\   \\  /`---'  `--`  \n",
+	"    '---\"                     `----'    `----'              \n",
+	"\n",
+	"    Is this what the cool kids do?\n",
+	"------------------------------------------------------------\n"
+]
+	
+	.join("") );
+//----------------------------
 
 var current_button = null;
 
@@ -806,7 +827,7 @@ brains.IsCaptchaValidated = function() {
  */
 function ParsePageTag() {
 	var url = window.location.href;
-		console.log( url );
+
 	var split = url.indexOf( '?' );
 	if( split != -1 ) {
 		url = url.substring( 0, split );
@@ -830,9 +851,10 @@ function LoadPageFromTag( tag ) {
 		ShowInfoPage();
 		//SetContent("");
 		$("#query").val( "" );
-		
+		console.log( "Loading info page..." );
 		
 	} else {
+		console.log( "Loading page: \""+tag+"\"" );
 		var split = tag.indexOf( '+' );
 		
 		var from = "";

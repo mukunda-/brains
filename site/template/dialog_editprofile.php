@@ -18,4 +18,3 @@
 	<input type="button" class="submitinput" id="button_save" value="Save"> 
 	<input type="button" class="submitinput" id="button_cancel" value="Cancel"><br>
 </center>
-</form>

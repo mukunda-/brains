@@ -1,0 +1,9 @@
+body {
+	margin: 0px;
+}
+
+#glcanvas {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+}

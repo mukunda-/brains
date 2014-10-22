@@ -41,7 +41,7 @@ var PAGE_LOAD_FAILED_CONTENT =
 function FadeIn( content ) {
 	m_fading_out = false;
 //	HideLoadingIcon();
-	
+	ga('send', 'pageview');
 	SetContent( content );
 	
 }
@@ -53,6 +53,7 @@ function FadeIn( content ) {
  */
 function SetContent( content ) {
 	Cancel(); // for when this is used directly.
+	
 	
 	$(window).scrollTop(0);
 	
