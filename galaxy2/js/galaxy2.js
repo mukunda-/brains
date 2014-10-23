@@ -164,12 +164,13 @@ function DrawRect( out, x, y, w, h, u, v, tw, th, cx, cy, r,g,b,a ) {
 
 function MeasureText( text ) {
 	var size = 0;
+	debugger;
 	for( var i = 0; i < text.length; i++ ) {
 		if( text[i] == " " ) {
 			size += 3;
 			continue;
 		}
-		size += glyph_width( text[i] - "a" ) +1;
+		size += glyph_width[ text[i] - "a" ] +1;
 	}
 	size -= 1;
 	return size;
@@ -194,7 +195,7 @@ function OnLoaded() {
 				64,32,0,0,128,64,
 				elements[i].location.x,
 				elements[i].location.y,
-				1.0,0.0,0.0,0.5
+				1.0,1.0,1.0,1.0
 			);
 			// lol.
 			test_words++;
