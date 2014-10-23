@@ -1,46 +1,23 @@
 
+(function() {
+
 var my_buffer = null;
 var my_shader = null;
 
-function initWebGL(canvas) {
-	var gl = null;
-
-	try {
-		// Try to grab the standard context. If it fails, fallback to experimental.
-		gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-	}
-	catch(e) {}
-
-	// If we don't have a GL context, give up now
-	if (!gl) {
-		alert("Unable to initialize WebGL. Your browser may not support it.");
-		gl = null;
-	}
-
-	return gl;
-}
-
+var m_source;
+  
 function ResizeScreen() {
 	HC_Resize( window.innerWidth, window.innerHeight );
 	
 }
 
-function start() {
-	HC_Init( "glcanvas" );
+function Start() {
+	if( !HC_Init( "glcanvas" ) ) return;
 	
-	var canvas = document.getElementById("glcanvas");
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	
-	hc_gl = initWebGL(canvas);      // Initialize the GL context
-
-	// Only continue if WebGL is available and working
-	if( !hc_gl ) return;
-	
-	hc_gl.clearColor(0.0, 0.0, 0.0, 1.0);                      // Set clear color to black, fully opaque
+	hc_gl.clearColor(0.0, 0.0, 0.0, 1.0);                         // Set clear color to black, fully opaque
 	hc_gl.enable(hc_gl.DEPTH_TEST);                               // Enable depth testing
 	hc_gl.depthFunc(hc_gl.LEQUAL);                                // Near things obscure far things
-	hc_gl.clear(hc_gl.COLOR_BUFFER_BIT|hc_gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
+	hc_gl.clear(hc_gl.COLOR_BUFFER_BIT|hc_gl.DEPTH_BUFFER_BIT);   // Clear the color as well as the depth buffer.
 	
 	
 	my_shader = new HC_Shader();
@@ -75,7 +52,20 @@ function DrawScene() {
 	hc_gl.drawArrays( hc_gl.TRIANGLE_STRIP, 0, 4 );
 }
 
-window.onresize = function() {
+$(window).resize( function() {
 	ResizeScreen();
 	DrawScene();
-}
+});
+
+$( function()	 {
+	Start();
+	$.get( "../site/tree.php", {} )
+		.done( function( data ) {
+			Source.Load( data );
+		})
+		.fail( function() {
+			alert( "An error occurred." );
+		});
+});
+
+})();

@@ -9,10 +9,10 @@ header( "Content-type: application/json" );
 
 require_once 'core.php';
 
-if( file_exists( 'word_tree' ) ) {
+if( file_exists( 'word_tree.json' ) ) {
 	
-	if( time() < filemtime( 'word_tree' ) + Config::$TREE_REFRESH_TIME ) {
-		readfile( 'word_tree' );
+	if( time() < filemtime( 'word_tree.json' ) + Config::$TREE_REFRESH_TIME ) {
+		readfile( 'word_tree.json' );
 		exit();
 	}
 }
@@ -71,7 +71,7 @@ class Result {
 $result = new Result( 'start' );
 
 $result = json_encode( $result );
-file_put_contents( 'word_tree', $result );
+file_put_contents( 'word_tree.json', $result );
 echo $result;
 
 ?>

@@ -10,16 +10,18 @@
 			<?php readfile( "shader/vertex.glsl" ); ?>
 		</script>
 
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="js/sylvester.js"></script>
 		<script src="js/hc.js"></script>
 		<script src="js/shader.js"></script>
 		<script src="js/buffer.js"></script>
+		<script src="js/source.js"></script>
 		<script src="js/galaxy2.js"></script>
 		<link rel="stylesheet" href="css/style.css" type="text/css">
 		<title>galaxy2</title>
 	</head>
 	
-	<body onload="start()">
+	<body>
 		<canvas id="glcanvas">
 		</canvas>
 	</body>

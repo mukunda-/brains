@@ -187,7 +187,7 @@ function RenderItem() {
 	
 	var length = m_source.links[item.id].length;
 	//var dbase = -140.0;
-	
+	//length = Math.min(3,length);
 	for( var i = 0; i < length; i++ ) {
 		var distance_range = 1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
 		
@@ -202,6 +202,7 @@ function RenderItem() {
 		var x2 = item.x + Math.cos( angle ) * distance;
 		var y2 = item.y + Math.sin( angle ) * distance;
 	
+		// todo: catch going back to previous id.
 		m_stack.push( {
 			from: item.id,
 			id: m_source.links[item.id][i].to,

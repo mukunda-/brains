@@ -12,13 +12,15 @@
 	
 	<p>The Wordex is a creative resource that is built from human thoughts. 
 	Since you're a human, you can contribute to the project! 
-	Every <i>thought</i> you type in helps to build the database!</p>
+	Every <i>thought</i> you type in helps to build the database.</p>
 	
 	<p>To help out more, you can vote on existing <i>links</i>. 
 	When you search for a thought, it might already have links associated with it. 
 	If you can see a relation between a link's thought and the current thought
-	you are on, you should give it an upvote. If you don't see a relation, then you should
-	downvote it. You also automatically put votes into the system by using it normally. </p>
+	you are on, you should give it an upvote. If you don't see a relation, if you find something 
+	offensive, or if you see a nonsense link, you should downvote it. Links with a low score sink 
+	to the bottom and may be removed later. You also put votes into the system just by using it normally;
+	if you type in the same thing as someone else, or click on a link, then an upvote is given.
 	
 	<p>Eventually, the Wordex will grow into a massive database of relations between
 	thoughts. It's kind of like a thesaurus, except with more than just synonyms. Actually, we aren't

@@ -68,8 +68,10 @@ try {
 		}
 	}
 	
-	ThoughtLink::ImportAnonymous( User::AccountID(), User::GetMip(), 
-								   User::GetAid() );
+	// maybe they don't want to import those thoughts?
+	// need to handle this differently. with their knowledge.
+//	ThoughtLink::ImportAnonymous( User::AccountID(), User::GetMip(), 
+//								   User::GetAid() );
 	
 	$response = new Response();
 	$response->data['username'] = User::GetUsername();
