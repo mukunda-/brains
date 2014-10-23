@@ -34,6 +34,10 @@ function GetElements() {
 	return m_elements;
 }
 
+function GetPhrase( id ) {
+	return m_source.phrases[id];
+}
+
 function GetCell( point, create ) {
 	x = point.x >> 8;
 	y = point.y >> 8;
@@ -190,5 +194,6 @@ this.GetCell = GetCell;
 this.Load = Load;
 
 this.GetElements = GetElements;
+this.GetPhrase = GetPhrase;
 	
 };

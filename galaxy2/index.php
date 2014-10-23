@@ -12,6 +12,7 @@
 		<script src="js/jquery.mousewheel.min.js"></script>
 		<script src="js/sylvester.js"></script>
 		<script src="js/hc.js"></script>
+		<script src="js/texture.js"></script>
 		<script src="js/shader.js"></script>
 		<script src="js/buffer.js"></script>
 		<script src="js/source.js"></script>

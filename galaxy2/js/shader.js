@@ -29,7 +29,7 @@ function HC_ShaderSource( source ) {
 	
 	if( !hc_gl.getShaderParameter( this.shader, hc_gl.COMPILE_STATUS ) ) {  
 		
-		console.log( "Shader compilation error: " 
+		console.log( "Error compiling shader \"" + source.id + "\":\n" 
 						+ hc_gl.getShaderInfoLog( this.shader ));  
 		throw "Shader compilation error";
 	}
@@ -109,6 +109,7 @@ function HC_ReadShaderScript( id ) {
 		throw "Shader script error.";
 	}
 	
+	out.id = id;
 	if( e.type == "x-shader/x-fragment" ) {
 		out.type = "fragment";
 	} else if( e.type == "x-shader/x-vertex" ) {
