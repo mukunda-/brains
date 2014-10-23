@@ -42,7 +42,7 @@ var glyph_width = [
 
 function SetTranslate() {
 	var u_translate = my_shader.GetUniform( "u_translate" );
-	hc_gl.uniform2f( u_translate, m_translate.x, m_translate.y );
+	hc_gl.uniform2f( u_translate, Math.floor(m_translate.x), Math.floor(m_translate.y) );
 }
 
 function SetZoom() {
@@ -66,6 +66,7 @@ function Start() {
 	m_texture_font = new HC_Texture( "texture/chicago.png", undefined, function() {
 		
 		hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_MAG_FILTER, hc_gl.NEAREST );
+		
 	});
 	
 	hc_gl.clearColor(0.0, 0.0, 0.0, 1.0);                         // Set clear color to black, fully opaque
@@ -73,7 +74,7 @@ function Start() {
 	//hc_gl.depthFunc(hc_gl.LEQUAL);                                // Near things obscure far things
 	hc_gl.clear(hc_gl.COLOR_BUFFER_BIT|hc_gl.DEPTH_BUFFER_BIT);   // Clear the color as well as the depth buffer.
 	hc_gl.enable( hc_gl.BLEND );
-    hc_gl.blendFunc(hc_gl.SRC_ALPHA, hc_gl.ONE);
+    hc_gl.blendFunc(hc_gl.SRC_ALPHA, hc_gl.GL_ONE_MINUS_SRC_ALPHA);
 	
 	my_shader = new HC_Shader();
 	my_shader.Attach( "shader-vs" );
@@ -146,31 +147,58 @@ function DrawRect( out, x, y, w, h, u, v, tw, th, cx, cy, r,g,b,a ) {
 	if(!tw) tw = w;
 	if(!th) th = h;
 	
-	u = u/128.0;
-	v = v/64.0;
-	tw = tw / 128.0;
-	th = th / 64.0; 
+	u = u/128.0;// + 0.5/128.0;
+	v = v/64.0;// + 0.5/64.0;
+	tw = tw / 128.0;// - 0.5/128.0;
+	th = th / 64.0;// - 0.5/64.0; 
 	
 	out.push( 
 		
-		x+w, y  , u+th, v   , cx, cy, r,g,b,a,
+		x+w, y  , u+tw, v   , cx, cy, r,g,b,a,
 		x  , y  , u   , v   , cx, cy, r,g,b,a,
 		x  , y-h, u   , v+th, cx, cy, r,g,b,a,
 		x  , y-h, u   , v+th, cx, cy, r,g,b,a,
-		x+w, y-h, u+th, v+th, cx, cy, r,g,b,a,
-		x+w, y  , u+th, v   , cx, cy, r,g,b,a
+		x+w, y-h, u+tw, v+th, cx, cy, r,g,b,a,
+		x+w, y  , u+tw, v   , cx, cy, r,g,b,a
 	);
 }
 
+function DrawText( out, x, y, text, cx, cy, r, g, b, a ) {
+	var a_code = "a".charCodeAt(0);
+	//y -= 3;
+	y += 1;
+	for( var i = 0; i < text.length; i++ ) {
+		var code = text.charCodeAt(i);
+		if( code == 32 ) {
+		  x += 3;
+		  continue;
+		}
+		code -= a_code;
+		if( code < 0 || code > 25 ) continue;
+		DrawRect( out, x, y, glyph_width[ code ], 12, 
+				  5 + (code&7)*16, 2 + (code>>3)*16, 0, 0, 
+				  cx, cy, r, g, b, a );
+		x += glyph_width[code] + 1;
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Measure the pixel width of a text string.
+ *
+ * @param string text Letters and spaces only.
+ * @return int Size.
+ */
 function MeasureText( text ) {
+	
 	var size = 0;
-	debugger;
+	var a_code = "a".charCodeAt(0);
+
 	for( var i = 0; i < text.length; i++ ) {
 		if( text[i] == " " ) {
 			size += 3;
 			continue;
 		}
-		size += glyph_width[ text[i] - "a" ] +1;
+		size += glyph_width[ text.charCodeAt(i) - a_code ] +1;
 	}
 	size -= 1;
 	return size;
@@ -184,18 +212,34 @@ function OnLoaded() {
 	for( var i = 0; i < 400; i++ ) {
 		if( elements[i].type == Source.E_WORD ) {
 		 
-			var x = elements[i].location.x;
-			var y = elements[i].location.x;
-			var text_width = MeasureText( Source.GetPhrase( elements[i].phrase ) );
+			var x = Math.floor(elements[i].location.x);
+			var y = Math.floor(elements[i].location.y);
+			var phrase = Source.GetPhrase( elements[i].phrase );
+			var text_width = MeasureText( phrase );
+			 
+			
+			var box_width = text_width;
+			var box_height = 12;
+			var box_x = Math.floor( x - box_width/2 );
+			var box_y = Math.floor( y + box_height/2 );
 			
 			DrawRect( 
 				vertices,
-				elements[i].location.x,
-				elements[i].location.y,
-				64,32,0,0,128,64,
-				elements[i].location.x,
-				elements[i].location.y,
+				box_x-2,
+				box_y-2,
+				box_width+4,box_height+4,40,56,1,1,
+				x,y,
 				1.0,1.0,1.0,1.0
+			);
+			
+			
+			DrawText(
+				vertices,
+				box_x,
+				y,
+				phrase,
+				x, y,
+				0.0,0.0,0.0,1.0
 			);
 			// lol.
 			test_words++;
