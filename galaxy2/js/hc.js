@@ -14,6 +14,7 @@ function HC_Init( canvas_id ) {
 	// If we don't have a GL context, give up now
 	if( !hc_gl ) {
 		alert("Unable to initialize WebGL. Your browser may not support it.");
+		console.log( "Failed to get WebGL context." );
 		hc_gl = null;
 		return false;
 	}

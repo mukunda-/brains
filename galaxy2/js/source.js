@@ -15,13 +15,23 @@ var m_elements = [];
 var MAX_SHADE_DIST = 500;
 
 var E_WORD = 1;
+this.E_WORD = 1;
 var E_LINE = 2;
+this.E_LINE = 2;
 
-function Load( source ) {
+var m_postload;
+
+function Load( source, onload ) {
 	// todo: double up links, remove that from tree.php
 	m_source = source;
 	m_stack.push( {from:0,id:m_source.start, progress:0, x:0, y:0, level:0, power: 100, angle: 0.0} );
 	setTimeout( DoProcess, 5 );
+	
+	m_postload = onload;
+}
+
+function GetElements() {
+	return m_elements;
 }
 
 function GetCell( point, create ) {
@@ -165,9 +175,9 @@ function ProcessItem() {
 function DoProcess() {
 	
 	var time = 0;
-	while( time < 4 ) {
+	while( time < 4000 ) {
 		if( m_stack.length == 0 ) {
-			
+			m_postload();
 			return; // finished!
 		}
 		time += ProcessItem();
@@ -178,5 +188,7 @@ function DoProcess() {
 
 this.GetCell = GetCell;
 this.Load = Load;
+
+this.GetElements = GetElements;
 	
 };

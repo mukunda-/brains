@@ -23,13 +23,14 @@ function HC_ShaderSource( source ) {
 	} else {
 		throw "Invalid shader type.";
 	}
-	
+
 	hc_gl.shaderSource( this.shader, source.code );
 	hc_gl.compileShader( this.shader );
 	
 	if( !hc_gl.getShaderParameter( this.shader, hc_gl.COMPILE_STATUS ) ) {  
+		
 		console.log( "Shader compilation error: " 
-						+ hc_gl.getShaderInfoLog(shader));  
+						+ hc_gl.getShaderInfoLog( this.shader ));  
 		throw "Shader compilation error";
 	}
 }

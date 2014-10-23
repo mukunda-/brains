@@ -21,10 +21,10 @@ HC_Buffer.prototype.Bind = function() {
  * Load vertex data.
  *
  * @param ? data Data to load.
- * @param ? method Rendering hint.
+ * @param ? usage Rendering hint.
  */
-HC_Buffer.prototype.Load = function( data, method ) {
+HC_Buffer.prototype.Load = function( data, usage ) {
 	this.Bind();
 	
-	hc_gl.bufferData( hc_gl.ARRAY_BUFFER, data, method );
+	hc_gl.bufferData( hc_gl.ARRAY_BUFFER, data, usage );
 }
