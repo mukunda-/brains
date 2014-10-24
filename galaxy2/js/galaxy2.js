@@ -2,8 +2,8 @@
 
 (function() {
 
-var my_buffer = null;
-var m_buffer_lines = null;
+//var my_buffer = null;
+//var m_buffer_lines = null;
 var my_shader = null;
 
 var test_words = 0;
@@ -43,22 +43,29 @@ var glyph_width = [
 ];
 
 var m_cells = {};
+var CELL_SIZE = 512;
+
+function GetCell2( cx,cy ) {
+	if( m_cells.hasOwnProperty( cx ) && m_cells[cx].hasOwnProperty( cy ) ) {
+		return m_cells[cx][cy];
+	} 
+	return null;
+}
 
 function GetCell( point, create ) {
-	x = point.x >> 8;
-	y = point.y >> 8;
+	x = point.x >> 9;
+	y = point.y >> 9;
 	
-	if( m_cells.hasOwnProperty( x ) && m_cells[x].hasOwnProperty( y ) ) {
-		return m_cells[x][y];
-	} 
-	if( !create ) return null;
+	var cell = GetCell2( x, y );
+	if( cell === null && !create ) return null;
 	
 	if( !m_cells.hasOwnProperty( x ) ) {
 		m_cells[x] = {};
 	}
 	
 	m_cells[x][y] = {  
-		buffer_words: new HC_Packer( "ssffffBBBB" )
+		buffer_words: new HC_Packer( "ssffffBBBB" ),
+		buffer_boxes: new HC_Packer( "ssffffBBBB" )
 		//buffer_lines: new HC_Packer()
 	};
 	return m_cells[x][y];
@@ -144,11 +151,12 @@ function Start() {
 	ResizeScreen();
 } 
 
+
 function DrawScene() {
 	hc_gl.clear( hc_gl.COLOR_BUFFER_BIT ); 
 	
 	m_texture_font.Bind();
-	my_buffer.Bind();
+	//my_buffer.Bind();
 	var a_position = my_shader.GetAttribute( "a_position" );
 	var a_texture  = my_shader.GetAttribute( "a_texture" );
 	var a_center   = my_shader.GetAttribute( "a_center" );
@@ -157,12 +165,39 @@ function DrawScene() {
 	var u_sampler  = my_shader.GetUniform( "u_sampler" );
 	hc_gl.uniform1i( u_sampler, 0 );
 	
-	hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 24, 0  );
-	hc_gl.vertexAttribPointer( a_texture,  2, hc_gl.FLOAT, false, 24, 4  );
-	hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 24, 12 );
-	hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 24, 20 );
+	var padding = CELL_SIZE / 2;
+	var scale = 1.0 / m_zoom;
+	var renderbox = {
+		left: (-m_translate.x - (hc_width/2) * scale -padding) >>9,
+		top: (-m_translate.y - (hc_height/2) * scale -padding) >>9,
+		right: (-m_translate.x + (hc_width/2) * scale + padding) >>9,
+		bottom: (-m_translate.y + (hc_height/2) * scale + padding) >>9
+	};
+		
+	function RenderWordBuffer( buffer ) {
+		buffer.Bind();
+		hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 24, 0  );
+		hc_gl.vertexAttribPointer( a_texture,  2, hc_gl.FLOAT, false, 24, 4  );
+		hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 24, 12 );
+		hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 24, 20 ); 
+		hc_gl.drawArrays( hc_gl.TRIANGLES, 0, buffer.u_size );
+	}
 	
-	hc_gl.drawArrays( hc_gl.TRIANGLES, 0, test_words*6);
+	for( var rx = renderbox.left; rx <= renderbox.right; rx++ ) {
+		for( var ry = renderbox.top; ry <= renderbox.bottom; ry++ ) {
+			var cell = GetCell2( rx, ry );//{x:rx, y:ry} );
+			if( cell === null ) continue;
+		
+			if( scale < 6.0 )  {
+				RenderWordBuffer( cell.buffer_words );
+			} else {
+				RenderWordBuffer( cell.buffer_boxes );
+			}
+			
+		}
+	}
+	
+	 
 }
 
 $(window).resize( function() {
@@ -273,16 +308,15 @@ function MeasureText( text ) {
 function OnLoaded() {
 	
 	var elements = Source.GetElements();
-	var vertices = new HC_Packer( "ssffffBBBB" );
+	//var vertices = new HC_Packer( "ssffffBBBB" );
 	//var lines = new HC_Packer( "ssffBBBB" );
 	
 	for( var i = 0; i < elements.length; i++ ) {
 		if( elements[i].type == Source.E_WORD ) {
-		
 			
-			var x = Math.floor(elements[i].location.x);
-			var y = Math.floor(elements[i].location.y);
-			var cell = GetCell( {x, y}, true );
+			var x = Math.round(elements[i].location.x);
+			var y = Math.round(elements[i].location.y);
+			var cell = GetCell( {x:x, y:y}, true );
 			
 			var phrase = Source.GetPhrase( elements[i].phrase );
 			var text_width = MeasureText( phrase );
@@ -300,7 +334,17 @@ function OnLoaded() {
 				x,y,
 				1.0,1.0,1.0,elements[i].opacity
 			);
-			test_words++;
+			
+			DrawRect( 
+				cell.buffer_boxes,
+				box_x-2,
+				box_y-2,
+				box_width+4,box_height+4,40,56,1,1,
+				x,y,
+				1.0,1.0,1.0,elements[i].opacity
+			);
+			
+			//test_words++;
 			
 			test_words += DrawText(
 				cell.buffer_words,
@@ -313,18 +357,23 @@ function OnLoaded() {
 			// lol.brea
 			
 		}
-	} 
-	 
+	}
+	  
 	for( var cx in m_cells ) { 
-		if( !m_cells.hasOwnKey( cx ) ) continue;
-		for( var cy = m_cells[cx] ) {
-			if( !m_cells[cx].hasOwnKey( cy ) ) continue;
-			
+		if( !m_cells.hasOwnProperty( cx ) ) continue;
+		for( var cy in m_cells[cx] ) {
+			if( !m_cells[cx].hasOwnProperty( cy ) ) continue;
+			var cell = m_cells[cx][cy];
+		  
 			var buffer = new HC_Buffer();
-			buffer.Load( m_cells[cx][cy].buffer_words, hc_gl.STATIC_DRAW );
+			buffer.Load( cell.buffer_words.Buffer(), hc_gl.STATIC_DRAW ); 
+			buffer.u_size = cell.buffer_words.total; 
+			cell.buffer_words = buffer;
 			
-			// replace packer with real buffer
-			m_cells[cx][cy].buffer_words = buffer;
+			buffer = new HC_Buffer();
+			buffer.Load( cell.buffer_boxes.Buffer(), hc_gl.STATIC_DRAW );
+			buffer.u_size = cell.buffer_boxes.total; 
+			cell.buffer_boxes = buffer;
 		}
 	}
 	
