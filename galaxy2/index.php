@@ -3,11 +3,21 @@
 	<head>
 	
 		<meta charset="UTF-8">
-		<script id="shader-fs" type="x-shader/x-fragment"><?php readfile( "shader/fragment.glsl" ); ?>
-		</script>
-		<script id="shader-vs" type="x-shader/x-vertex"><?php readfile( "shader/vertex.glsl" ); ?>
-		</script>
-
+		
+		<?php
+		
+			function IncludeShader( $id, $type, $file ) {
+				echo "<script id=\"$id\" type=\"x-shader/x-$type\">";
+				readfile( $file );
+				echo '</script>';
+			}
+			
+			IncludeShader( 'shader-fs', 'fragment', 'shader/fragment.glsl' );
+			IncludeShader( 'shader-vs', 'vertex', 'shader/vertex.glsl' );
+			IncludeShader( 'shader-lines-f', 'fragment', 'shader/lines.f.glsl' );
+			IncludeShader( 'shader-lines-v', 'vertex', 'shader/lines.v.glsl' );
+		?>
+	 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="js/jquery.mousewheel.min.js"></script>
 		<script src="js/sylvester.js"></script>

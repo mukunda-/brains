@@ -13,7 +13,7 @@ function HC_Init( canvas_id, options ) {
 		hc_gl = hc_canvas.getContext("webgl", options) || hc_canvas.getContext("experimental-webgl", options);
 	}
 	catch(e) {}
-
+	
 	// If we don't have a GL context, give up now
 	if( !hc_gl ) {
 		alert("Unable to initialize WebGL. Your browser may not support it.");
@@ -21,7 +21,7 @@ function HC_Init( canvas_id, options ) {
 		hc_gl = null;
 		return false;
 	}
-
+	
 	return true;
 }
 
@@ -34,3 +34,24 @@ function HC_Resize( width, height ) {
 	hc_height = height;
 }
 
+/** ---------------------------------------------------------------------------
+ * Enable a list of vertex attribute arrays.
+ *
+ * @param array list List of vertex attribute array indexes to enable.
+ */
+function HC_EnableVertexAttribArrays( list ) {
+	for( var i = 0; i < list.length; i++ ) {
+		hc_gl.enableVertexAttribArray( list[i] );
+	}
+}
+
+/** ---------------------------------------------------------------------------
+ * Disable a list of vertex attribute arrays.
+ *
+ * @param array list List of vertex attribute array indexes to disable.
+ */
+function HC_DisableVertexAttribArrays( list ) {
+	for( var i = 0; i < list.length; i++ ) {
+		hc_gl.disableVertexAttribArray( list[i] );
+	}
+}

@@ -11,10 +11,11 @@ require_once 'core.php';
 
 if( file_exists( 'word_tree.json' ) ) {
 	
-	if( time() < filemtime( 'word_tree.json' ) + Config::$TREE_REFRESH_TIME ) {
+	// DEBUG LOCAL MODE
+	//if( time() < filemtime( 'word_tree.json' ) + Config::$TREE_REFRESH_TIME ) {
 		readfile( 'word_tree.json' );
 		exit();
-	}
+	//}
 }
 
 class Link {
