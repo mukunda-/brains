@@ -57,7 +57,10 @@ function GetCell( point, create ) {
 		m_cells[x] = {};
 	}
 	
-	m_cells[x][y] = {  };
+	m_cells[x][y] = {  
+		buffer_words: new HC_Packer( "ssffffBBBB" )
+		//buffer_lines: new HC_Packer()
+	};
 	return m_cells[x][y];
 }
 
@@ -240,7 +243,7 @@ function DrawText( out, x, y, text, cx, cy, r, g, b, a ) {
 	return count;
 }
 
-function DrawLine( out, x,y,text,,r,g,b,a,
+//function DrawLine( out, x1,y1,x2,y2,thickness,r,g,b,a,
 
 /** ---------------------------------------------------------------------------
  * Measure the pixel width of a text string.
@@ -271,13 +274,16 @@ function OnLoaded() {
 	
 	var elements = Source.GetElements();
 	var vertices = new HC_Packer( "ssffffBBBB" );
-	var lines = new HC_Packer( "ssffBBBB" );
+	//var lines = new HC_Packer( "ssffBBBB" );
 	
 	for( var i = 0; i < elements.length; i++ ) {
 		if( elements[i].type == Source.E_WORD ) {
-		 
+		
+			
 			var x = Math.floor(elements[i].location.x);
 			var y = Math.floor(elements[i].location.y);
+			var cell = GetCell( {x, y}, true );
+			
 			var phrase = Source.GetPhrase( elements[i].phrase );
 			var text_width = MeasureText( phrase );
 			  
@@ -287,7 +293,7 @@ function OnLoaded() {
 			var box_y = Math.floor( y + box_height/2 );
 			
 			DrawRect( 
-				vertices,
+				cell.buffer_words,
 				box_x-2,
 				box_y-2,
 				box_width+4,box_height+4,40,56,1,1,
@@ -297,7 +303,7 @@ function OnLoaded() {
 			test_words++;
 			
 			test_words += DrawText(
-				vertices,
+				cell.buffer_words,
 				box_x,
 				y,
 				phrase,
@@ -309,9 +315,21 @@ function OnLoaded() {
 		}
 	} 
 	 
+	for( var cx in m_cells ) { 
+		if( !m_cells.hasOwnKey( cx ) ) continue;
+		for( var cy = m_cells[cx] ) {
+			if( !m_cells[cx].hasOwnKey( cy ) ) continue;
+			
+			var buffer = new HC_Buffer();
+			buffer.Load( m_cells[cx][cy].buffer_words, hc_gl.STATIC_DRAW );
+			
+			// replace packer with real buffer
+			m_cells[cx][cy].buffer_words = buffer;
+		}
+	}
 	
-	my_buffer = new HC_Buffer();
-	my_buffer.Load( vertices.Buffer(), hc_gl.STATIC_DRAW );
+	//my_buffer = new HC_Buffer();
+	//my_buffer.Load( vertices.Buffer(), hc_gl.STATIC_DRAW );
 	
 	
 	// start frame loop
