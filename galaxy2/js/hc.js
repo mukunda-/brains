@@ -1,13 +1,16 @@
 var hc_gl; // A global variable for the WebGL context
 var hc_canvas;// = document.getElementById("glcanvas");
 
-function HC_Init( canvas_id ) {	
+var hc_width;
+var hc_height;
+
+function HC_Init( canvas_id, options ) {	
 	hc_canvas = document.getElementById( canvas_id );
 	hc_gl = null;
 	
 	try {
 		// Try to grab the standard context. If it fails, fallback to experimental.
-		hc_gl = hc_canvas.getContext("webgl") || hc_canvas.getContext("experimental-webgl");
+		hc_gl = hc_canvas.getContext("webgl", options) || hc_canvas.getContext("experimental-webgl", options);
 	}
 	catch(e) {}
 
@@ -27,4 +30,7 @@ function HC_Resize( width, height ) {
 	hc_canvas.width = width;
 	hc_canvas.height = height;
 	hc_gl.viewport( 0, 0, width, height );
+	hc_width = width;
+	hc_height = height;
 }
+

@@ -14,6 +14,7 @@
 		<script src="js/hc.js"></script>
 		<script src="js/texture.js"></script>
 		<script src="js/shader.js"></script>
+		<script src="js/hc_packer.js"></script>
 		<script src="js/buffer.js"></script>
 		<script src="js/source.js"></script>
 		<script src="js/galaxy2.js"></script>

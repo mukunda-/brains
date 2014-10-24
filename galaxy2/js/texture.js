@@ -19,8 +19,8 @@ function HC_Texture( path, format, onload ) {
 HC_Texture.prototype.OnImageLoaded = function( image ) {
 	hc_gl.bindTexture( hc_gl.TEXTURE_2D, this.texture );
 	hc_gl.texImage2D( hc_gl.TEXTURE_2D, 0, this.format, this.format, hc_gl.UNSIGNED_BYTE, image );
-	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_MAG_FILTER, hc_gl.LINEAR );
-	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_MIN_FILTER, hc_gl.LINEAR_MIPMAP_LINEAR );
+//	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_MAG_FILTER, hc_gl.LINEAR );
+//	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_MIN_FILTER, hc_gl.LINEAR_MIPMAP_LINEAR );
 	
 	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_WRAP_S, hc_gl.CLAMP_TO_EDGE ); 
 	hc_gl.texParameteri( hc_gl.TEXTURE_2D, hc_gl.TEXTURE_WRAP_T, hc_gl.CLAMP_TO_EDGE ); 

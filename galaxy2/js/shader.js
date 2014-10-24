@@ -21,7 +21,7 @@ function HC_ShaderSource( source ) {
 	} else if( source.type == "vertex" ) {
 		this.shader = hc_gl.createShader( hc_gl.VERTEX_SHADER );
 	} else {
-		throw "Invalid shader type.";
+		throw new Error("Invalid shader type.");
 	}
 
 	hc_gl.shaderSource( this.shader, source.code );
@@ -31,7 +31,7 @@ function HC_ShaderSource( source ) {
 		
 		console.log( "Error compiling shader \"" + source.id + "\":\n" 
 						+ hc_gl.getShaderInfoLog( this.shader ));  
-		throw "Shader compilation error";
+		throw new Error("Shader compilation error");
 	}
 }
 
