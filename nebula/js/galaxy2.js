@@ -25,6 +25,11 @@ var m_dirty;
 
 var m_texture_font = null;
 
+var m_pinch = {
+	active:false,
+	last: 0
+};
+
 var m_drag = {
 	x:0,
 	y:0,
@@ -400,6 +405,10 @@ function MeasureText( text ) {
 	return size;
 }
 
+function Distance( x1, y1, x2, y2 ) {
+	return Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+}
+
 /** ---------------------------------------------------------------------------
  * Callback for when the database set has been loaded.
  */
@@ -500,54 +509,74 @@ function OnLoaded() {
 	m_next_tick = m_start_time;//
 	OnFrame();
 	
+	$("#statusbar").text(
+		is_touch_device() ? "Touch to navigate." :
+		"Use your mouse to navigate. Scroll to zoom." );
 	
 	$("#glcanvas").bind( "mousewheel", function( ev, delta ) {
-		
-		m_zooming -= delta * 0.05 * (2.0 + m_zoom_accel);
-		m_zoom_accel += 0.1; 
+		DoZoom( delta * 0.05, true );
 	}); 
 
 	$("#glcanvas").mousedown( function( ev ) {
-		
+		 
 		if( ev.which == 1 ) {
-			m_drag.active = true;
-			m_drag.start = { x: m_translate.x, y: m_translate.y };
-			 
-			m_drag.sx = ev.screenX;
-			m_drag.sy = ev.screenY;
-			m_drag.lx = ev.screenX;
-			m_drag.ly = ev.screenY;
-			m_drag.x = 0;
-			m_drag.y = 0;
-			m_drag.velocity = 0.0;
-			m_drag.vel.x = 0.0;
-			m_drag.vel.y = 0.0;
+			DragStart( ev.screenX, ev.screenY );
 		}
 	}); 
-
+	 
+	$("#glcanvas").bind( "touchstart", function( ev ) {
+		 
+		if( ev.originalEvent.touches.length == 1 ) {
+			DragStart( ev.originalEvent.touches[0].screenX, ev.originalEvent.touches[0].screenY );
+		}
+		/* else if( e.originalEvent.touches.length == 2 ) {
+			DragStop();
+			PinchStart( 
+				Distance( 
+					ev.originalEvent.touches[0].screenX, 
+					ev.originalEvent.touches[0].screenY,
+					ev.originalEvent.touches[1].screenX, 
+					ev.originalEvent.touches[1].screenY ) );
+			
+		}*/
+		ev.preventDefault();
+	});
+	
+	$("#glcanvas").bind( "touchmove", function( ev ) {
+		
+		//console.log( ev.originalEvent.touches.length );
+		if( ev.originalEvent.touches.length == 1 ) {
+			m_pinch.active = false;
+			DragMove( ev.originalEvent.touches[0].screenX, ev.originalEvent.touches[0].screenY );
+		} else if( ev.originalEvent.touches.length == 2 ) {
+			DragStop();
+			PinchDrag( 
+				Distance( 
+					ev.originalEvent.touches[0].screenX, 
+					ev.originalEvent.touches[0].screenY,
+					ev.originalEvent.touches[1].screenX, 
+					ev.originalEvent.touches[1].screenY ) );
+		}
+		//DragStart( .touches[0].pageX, ev.originalEvent.touches[0].pageY );
+		ev.stopPropagation();
+		ev.preventDefault();
+	});
+	
+	$("#glcanvas").bind( "touchend", function( ev ) {
+		DragStop();
+		ev.preventDefault();
+	});
+	
 	$("#glcanvas").mousemove( function( ev ) {
 		if( m_drag.active ) { 
-			m_drag.x = ev.screenX - m_drag.sx;
-			m_drag.y = ev.screenY - m_drag.sy;
-			var rx = ev.screenX - m_drag.lx;
-			var ry = ev.screenY - m_drag.ly;
-			m_drag.lx = ev.screenX;
-			m_drag.ly = ev.screenY;
-			
-			m_drag.vel.x += rx * 0.3;
-			m_drag.vel.y += ry * 0.3;
-			m_drag.vel.x = Math.clamp( m_drag.vel.x, -60, 60 );
-			m_drag.vel.y = Math.clamp( m_drag.vel.y, -60, 60 );
+			DragMove( ev.screenX, ev.screenY );
 			//m_drag.vel.power = 1.0;
 		}
 	});
 
 	$("#glcanvas").mouseup( function(ev ) { 
 		if( ev.which == 1 ) {
-			m_drag.active = false;
-			
-			m_flying.x = m_drag.vel.x / m_zoom;
-			m_flying.y = -m_drag.vel.y / m_zoom;
+			DragStop();
 		}
 	}); 
 	
@@ -560,7 +589,68 @@ function OnLoaded() {
 	});*/
 }
 
+function DoZoom( delta, accel ) {
+	if( accel ) {
+		m_zooming -= delta  * (2.0 + m_zoom_accel);
+		m_zoom_accel += 0.1; 
+	} else {
+		m_zooming -= delta ;// * (2.0 + m_zoom_accel);
+	}
+}
+/*
+function PinchStart( d ) {
 
+	m_pinch.last = d;
+}
+*/
+function PinchDrag( d ) {	
+	
+	if( !m_pinch.active ) {
+		m_pinch.last = d;
+		m_pinch.active = true;
+	}
+	var delta = d - m_pinch.last;
+	m_pinch.last = d;
+	DoZoom( delta * 0.005 );
+}
+
+function DragStart( x, y ) {
+	if( m_drag.active ) return;
+	m_drag.active = true;
+	m_drag.start = { x: m_translate.x, y: m_translate.y }; 
+	m_drag.sx = x;
+	m_drag.sy = y;
+	m_drag.lx = x;
+	m_drag.ly = y;
+	m_drag.x = 0;
+	m_drag.y = 0;
+	m_drag.velocity = 0.0;
+	m_drag.vel.x = 0.0;
+	m_drag.vel.y = 0.0;
+}
+
+function DragMove( x, y ) {
+	if( !m_drag.active ) return;
+	m_drag.x = x - m_drag.sx;
+	m_drag.y = y - m_drag.sy;
+	var rx = x - m_drag.lx;
+	var ry = y - m_drag.ly;
+	m_drag.lx = x;
+	m_drag.ly = y;
+	
+	m_drag.vel.x += rx * 0.3;
+	m_drag.vel.y += ry * 0.3;
+	m_drag.vel.x = Math.clamp( m_drag.vel.x, -60, 60 );
+	m_drag.vel.y = Math.clamp( m_drag.vel.y, -60, 60 );
+}
+
+function DragStop() {
+	if( !m_drag.active ) return;
+	m_drag.active = false;
+	
+	m_flying.x = m_drag.vel.x / m_zoom;
+	m_flying.y = -m_drag.vel.y / m_zoom;
+}
 
 function DoFrameUpdate() {
 	if( m_drag.active ) {
@@ -619,6 +709,10 @@ function OnFrame() {
 		setTimeout( OnFrame, m_next_tick - time );
 	}
 	
+}
+
+function is_touch_device() {
+  return !!('ontouchstart' in window);
 }
 
 })();

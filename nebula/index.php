@@ -11,6 +11,7 @@ if( file_exists( 'build.php' ) ) {
 	<head>
 	
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 		
 		<?php
 		
@@ -58,9 +59,9 @@ if( file_exists( 'build.php' ) ) {
 			the word nebula | powered by <a href="http://wordex.link">the wordex</a>
 		</div>
 		<div id="loading"><div><div>loading...</div></div></div>
-		<!-- todo...
-		<div class="info control">
-			Search: <input id="control_search"> <div id="search_result">
-		</div> -->
+		
+		<div class="info control" id="statusbar">
+			
+		</div>
 	</body>
 </html>

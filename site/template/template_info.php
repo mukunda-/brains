@@ -30,7 +30,7 @@
 	
 	<p>This only works if a lot of people contribute, so you should tell your friends to put in a few words too!</p>
 	
-	<p>Want to explore the Wordex core? Visit the <i><a href="nebula/">Word Nebula</a></i>.</p>
+	<p>Want to explore the Wordex core? Visit the <i><a href="nebula/">Word Nebula</a><sup>(BETA)</sup></i>.</p>
 	
 	<h3>"A crowdsourced brainstorm"!</h3>
 	
