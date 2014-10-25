@@ -99,6 +99,7 @@ $db->RunQuery( "
 		rank	 TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rank achieved, 0=normal, 1=good, 2=strong, 3=perfect',
 		UNIQUE KEY( thought1, thought2 ),
 		INDEX USING BTREE( thought2 ),
+		INDEX USING BTREE( score ),
 		FOREIGN KEY( thought1 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY( thought2 ) REFERENCES Thoughts( id ) ON DELETE CASCADE ON UPDATE CASCADE
 	)

@@ -469,7 +469,7 @@ final class ThoughtLink {
 				ON Links.id = AV.link 
 				AND AV.account = $accountid
 				LEFT JOIN Thoughts T2 ON T2.id=Links.thought2
-				WHERE Links.thought1 = $thought->id)
+				WHERE Links.thought1 = $thought->id ORDER BY score DESC LIMIT 100)
 				UNION ALL
 				(SELECT Links.thought1 AS dest, T1.phrase AS dest_phrase,
 						goods, bads, Links.time AS time, Links.creator AS creator, vote
@@ -478,7 +478,7 @@ final class ThoughtLink {
 				ON Links.id = AV.link
 				AND AV.account = $accountid
 				LEFT JOIN Thoughts T1 ON T1.id=Links.thought1
-				WHERE Links.thought2 = $thought->id)" 
+				WHERE Links.thought2 = $thought->id ORDER BY score DESC LIMIT 100)" 
 			);
 		} else {
 			$aid = User::GetAid();
@@ -492,7 +492,7 @@ final class ThoughtLink {
 				AND RV.aid = $aid AND RV.mip = $mip
 				LEFT JOIN Thoughts T2 
 				ON T2.id=Links.thought2
-				WHERE Links.thought1 = $thought->id)
+				WHERE Links.thought1 = $thought->id ORDER BY score DESC LIMIT 100)
 				UNION ALL
 				(SELECT Links.id AS id, Links.thought1 AS dest, T1.phrase AS dest_phrase,
 						goods, bads, Links.time AS time, Links.creator AS creator, vote
@@ -502,7 +502,7 @@ final class ThoughtLink {
 				AND RV.aid = $aid AND RV.mip = $mip
 				LEFT JOIN Thoughts T1
 				ON T1.id=Links.thought1
-				WHERE Links.thought2 = $thought->id)" 
+				WHERE Links.thought2 = $thought->id ORDER BY score DESC LIMIT 100)" 
 			);
 		}
 		$list = [];

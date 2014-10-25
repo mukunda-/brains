@@ -14,3 +14,4 @@ admin/private
 deploy/
 site/build
 site/word_tree.json
+site/nebula/

@@ -17,8 +17,8 @@
 	<p>To help out more, you can vote on existing <i>links</i>. 
 	When you search for a thought, it might already have links associated with it. 
 	If you can see a relation between a link's thought and the current thought
-	you are on, you should give it an upvote. If you don't see a relation, if you find something 
-	offensive, or if you see a nonsense link, you should downvote it. Links with a low score sink 
+	you are on, you should give it an upvote. If you don't see a relation, or if you just dislike a link, 
+	you should downvote it. Links with a low score sink 
 	to the bottom and may be removed later. You also put votes into the system just by using it normally;
 	if you type in the same thing as someone else, or click on a link, then an upvote is given.
 	
@@ -29,6 +29,8 @@
 	and <i>crib</i> should form a <i>strong link</i>.</p>
 	
 	<p>This only works if a lot of people contribute, so you should tell your friends to put in a few words too!</p>
+	
+	<p>Want to explore the Wordex core? Visit the <i><a href="nebula/">Word Nebula</a></i>.</p>
 	
 	<h3>"A crowdsourced brainstorm"!</h3>
 	

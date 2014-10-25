@@ -274,7 +274,7 @@ $(window).resize( function() {
 $( function() {
 
 	Start();
-	$.get( "../site/tree.php", {} )
+	$.get( "../tree.php", {} )
 		.done( function( data ) {
 		
 			Source.Load( data, OnLoaded );
