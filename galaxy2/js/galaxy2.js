@@ -1,9 +1,7 @@
 (function(){Math.clamp=function(a,b,c){return Math.max(b,Math.min(c,a));}})();
 
 (function() {
-
-//var my_buffer = null;
-//var m_buffer_lines = null;
+ 
 var my_shader = null; 
 var line_shader = null;
 
@@ -273,14 +271,16 @@ $(window).resize( function() {
 	DrawScene();
 });
 
-$( function()	 {
+$( function() {
+
 	Start();
 	$.get( "../site/tree.php", {} )
 		.done( function( data ) {
 			Source.Load( data, OnLoaded );
 		})
 		.fail( function() {
-			alert( "An error occurred." );
+			$("#loading>div>div").text( "failed to retrieve data from server." );
+			
 		});
 });
 
@@ -550,6 +550,7 @@ function OnLoaded() {
 		}
 	}); 
 	
+	$("#loading").remove();
 	/*
 	$("#control_search").keypress( function(e) {
 		if( e.which == 13 ) {

@@ -24,6 +24,40 @@ var m_postload;
 function Load( source, onload ) {
 	// todo: double up links, remove that from tree.php
 	m_source = source;
+	
+	// add reversed links
+	var backlinks = {};
+
+	for( var from in m_source.links ) {
+		if( !m_source.links.hasOwnProperty( from ) ) continue;
+		
+		for( var i = 0; i < m_source.links[from].length; i++ ) {
+			var to = m_source.links[from][i].to;
+			
+			if( !backlinks.hasOwnProperty( to ) ) {
+				backlinks[to] = [];
+			}
+			backlinks[to].push({
+				"to": from,
+				"score": m_source.links[from][i].score
+			});
+		}
+		
+	}
+	
+	for( var i in backlinks ) {
+		if( !backlinks.hasOwnProperty( i ) ) continue;
+		
+		if( !m_source.links.hasOwnProperty( i ) ) {
+			m_source.links[i] = [];
+		}
+		
+		m_source.links[i] = m_source.links[i].concat( backlinks[i] );
+	}
+	// i hope that worked
+	
+	backlinks = null;
+	
 	m_stack.push( {
 		from: 0,
 		id: m_source.start, 
@@ -217,7 +251,7 @@ function ProcessItem() {
 function DoProcess() {
 	
 	var time = 0;
-	while( time < 4000 ) {
+	while( time < 50 ) {// 4000 ) {
 		if( m_stack.length == 0 ) {
 			m_postload();
 			return; // finished!

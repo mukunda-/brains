@@ -10,6 +10,7 @@ site/private/recaptchakeys.php
 site/private/sql_login_init.php
 site/private/recaptcha_keys_init.php
 site/.htaccess
+admin/private
 deploy/
 site/build
 site/word_tree.json

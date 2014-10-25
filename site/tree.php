@@ -11,11 +11,10 @@ require_once 'core.php';
 
 if( file_exists( 'word_tree.json' ) ) {
 	
-	// DEBUG LOCAL MODE
-	//if( time() < filemtime( 'word_tree.json' ) + Config::$TREE_REFRESH_TIME ) {
+	if( time() < filemtime( 'word_tree.json' ) + Config::$TREE_REFRESH_TIME ) {
 		readfile( 'word_tree.json' );
 		exit();
-	//}
+	}
 }
 
 class Link {
@@ -58,11 +57,11 @@ class Result {
 				$this->links[$row[0]] = [];
 			}
 			$this->links[$row[0]][] = new Link( $row[1], $row[2] );
-			
+			/*
 			if( !isset( $this->links[$row[1]] ) ) {
 				$this->links[$row[1]] = [];
 			}
-			$this->links[$row[1]][] = new Link( $row[0], $row[2] );
+			$this->links[$row[1]][] = new Link( $row[0], $row[2] );*/
 		}
 		
 		$this->time = time();

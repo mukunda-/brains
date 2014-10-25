@@ -21,7 +21,6 @@
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="js/jquery.mousewheel.min.js"></script>
-		<script src="js/sylvester.js"></script>
 		<script src="js/hc.js"></script>
 		<script src="js/texture.js"></script>
 		<script src="js/shader.js"></script>
@@ -41,6 +40,7 @@
 		<div class="info topleft">
 			the word nebula | powered by <a href="http://wordex.link">the wordex</a>
 		</div>
+		<div id="loading"><div><div>loading...</div></div></div>
 		<!-- todo...
 		<div class="info control">
 			Search: <input id="control_search"> <div id="search_result">
