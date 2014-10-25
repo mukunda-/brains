@@ -32,9 +32,10 @@ function GetDocumentRoot() {
 
 function PrintHead() {
 	?>
-
+	<!DOCTYPE html>
 	<html>
 		<head>
+		<meta charset="UTF-8">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<title>ADMINISTRATOR'S PANEL</title>
 		</head>
