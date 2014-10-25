@@ -4,6 +4,7 @@ namespace Brains;
 
 
 header( "Content-type: application/json" );
+header( "Cache-Control: max-age=900" );
 
 //Build the tree of all words
 
