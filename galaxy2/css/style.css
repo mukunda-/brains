@@ -1,11 +1,52 @@
 body {
 	margin: 0px;
 	background-color: #000;
+	font-family: open sans;
+	font-size: 13px;
+	cursor: default;
+	font-weight: 300;
+}
+
+input {
+	font-family: open sans;
 }
 
 #glcanvas {
 	position: fixed;
 	left: 0px;
 	top: 0px;
-	pointer-events: none;
+	cursor: default;
+
+}
+
+.info {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	background-color: rgba( 255,255,255, 0.2);
+	color:#fff;
+	padding: 2px 8px;
+}
+
+.info.topleft {
+	
+	border-bottom-right-radius: 4px;
+}
+
+.info a {
+	color: #ddf;
+} 
+
+.info.control {
+	position: fixed;
+	left: auto;
+	top: auto;
+	bottom: 0px;
+	padding: 2px 16px 2px 4px;
+	border-top-right-radius: 4px;
+}
+
+.info.control input {
+	color: #000;
+	font-weight: 400;
 }

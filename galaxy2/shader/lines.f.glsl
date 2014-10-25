@@ -1,21 +1,14 @@
 varying lowp float f_side;
 varying lowp vec4 f_color;
-
-//uniform lowp float u_pixwidth;
-
-//       width of pixel
-//         |-----|
-// ---------._               -
-//            `              |
-//             \             | alpha
-//              |            |
-//              `----------- -
-// |-----------------------|
-//           |side|
+ 
+// todo: HQ version.
 //           
 void main(void) {
+	
 	lowp float a = abs(f_side);
 	
+// todo: HQ version.
+//  
 	lowp float w = 0.1;
 	
 	a = a - (0.5-w);

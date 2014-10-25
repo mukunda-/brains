@@ -35,7 +35,7 @@ void main(void) {
 	vec2 center = (a_center + u_translate);
 	
 	center = center * u_screen_scale;
-	float a = sin(length(center)*3.14/4.0);
+	float a = 1.0-cos(length(center)*3.14/3.0);
 	center *= 1.0 + a*a;
 	
 	center += a_position/256.0 * u_line_scale;//;

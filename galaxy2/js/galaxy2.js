@@ -101,7 +101,7 @@ function Start() {
 		
 	});
 	
-	hc_gl.clearColor(0.0, 0.0, 0.0, 1.0);                         // Set clear color to black, fully opaque
+	hc_gl.clearColor(0.01, 0.01, 0.03, 1.0);                         // Set clear color to black, fully opaque
 	hc_gl.disable(hc_gl.DEPTH_TEST);      
 	
 //	hc_gl.clear(hc_gl.COLOR_BUFFER_BIT|hc_gl.DEPTH_BUFFER_BIT);   // Clear the color as well as the depth buffer.
@@ -498,58 +498,67 @@ function OnLoaded() {
 	// start frame loop
 	m_next_tick = m_start_time;//
 	OnFrame();
+	
+	
+	$("#glcanvas").bind( "mousewheel", function( ev, delta ) {
+		
+		m_zooming -= delta * 0.05 * (2.0 + m_zoom_accel);
+		m_zoom_accel += 0.1; 
+	}); 
+
+	$("#glcanvas").mousedown( function( ev ) {
+		
+		if( ev.which == 1 ) {
+			m_drag.active = true;
+			m_drag.start = { x: m_translate.x, y: m_translate.y };
+			 
+			m_drag.sx = ev.screenX;
+			m_drag.sy = ev.screenY;
+			m_drag.lx = ev.screenX;
+			m_drag.ly = ev.screenY;
+			m_drag.x = 0;
+			m_drag.y = 0;
+			m_drag.velocity = 0.0;
+			m_drag.vel.x = 0.0;
+			m_drag.vel.y = 0.0;
+		}
+	}); 
+
+	$("#glcanvas").mousemove( function( ev ) {
+		if( m_drag.active ) { 
+			m_drag.x = ev.screenX - m_drag.sx;
+			m_drag.y = ev.screenY - m_drag.sy;
+			var rx = ev.screenX - m_drag.lx;
+			var ry = ev.screenY - m_drag.ly;
+			m_drag.lx = ev.screenX;
+			m_drag.ly = ev.screenY;
+			
+			m_drag.vel.x += rx * 0.3;
+			m_drag.vel.y += ry * 0.3;
+			m_drag.vel.x = Math.clamp( m_drag.vel.x, -60, 60 );
+			m_drag.vel.y = Math.clamp( m_drag.vel.y, -60, 60 );
+			//m_drag.vel.power = 1.0;
+		}
+	});
+
+	$("#glcanvas").mouseup( function(ev ) { 
+		if( ev.which == 1 ) {
+			m_drag.active = false;
+			
+			m_flying.x = m_drag.vel.x / m_zoom;
+			m_flying.y = -m_drag.vel.y / m_zoom;
+		}
+	}); 
+	
+	/*
+	$("#control_search").keypress( function(e) {
+		if( e.which == 13 ) {
+			
+		}
+	});*/
 }
 
 
-$(window).bind( "mousewheel", function( ev, delta ) {
-	
-	m_zooming -= delta * 0.05 * (2.0 + m_zoom_accel);
-	m_zoom_accel += 0.1; 
-}); 
-
-$(window).mousedown( function( ev ) {
-
-	if( ev.which == 1 ) {
-		m_drag.active = true;
-		m_drag.start = { x: m_translate.x, y: m_translate.y };
-		 
-		m_drag.sx = ev.screenX;
-		m_drag.sy = ev.screenY;
-		m_drag.lx = ev.screenX;
-		m_drag.ly = ev.screenY;
-		m_drag.x = 0;
-		m_drag.y = 0;
-		m_drag.velocity = 0.0;
-		m_drag.vel.x = 0.0;
-		m_drag.vel.y = 0.0;
-	}
-}); 
-
-$(window).mousemove( function( ev ) {
-	if( m_drag.active ) { 
-		m_drag.x = ev.screenX - m_drag.sx;
-		m_drag.y = ev.screenY - m_drag.sy;
-		var rx = ev.screenX - m_drag.lx;
-		var ry = ev.screenY - m_drag.ly;
-		m_drag.lx = ev.screenX;
-		m_drag.ly = ev.screenY;
-		
-		m_drag.vel.x += rx * 0.3;
-		m_drag.vel.y += ry * 0.3;
-		m_drag.vel.x = Math.clamp( m_drag.vel.x, -60, 60 );
-		m_drag.vel.y = Math.clamp( m_drag.vel.y, -60, 60 );
-		//m_drag.vel.power = 1.0;
-	}
-});
-
-$(window).mouseup( function(ev ) { 
-	if( ev.which == 1 ) {
-		m_drag.active = false;
-		
-		m_flying.x = m_drag.vel.x / m_zoom;
-		m_flying.y = -m_drag.vel.y / m_zoom;
-	}
-}); 
 
 function DoFrameUpdate() {
 	if( m_drag.active ) {

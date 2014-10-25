@@ -188,7 +188,7 @@ function ProcessItem() {
 		var distance_range = 1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
 		
 		var angle_range = 0.1+Math.min( 1.0, length / 10.0 ) * 2.0 +  Math.max(1.0-(item.level / 3.0),0.0) * 6.0; 
-		var angle = item.angle + RndRange(-angle_range,angle_range) - 0.05;
+		var angle = item.angle + RndRange(-angle_range,angle_range) - 0.02;
 		  
 		var distance = RndRange( 70.0 , 100.0 )* distance_range;// + dbase;
 	 
