@@ -1,3 +1,7 @@
+/*! [[HC]] 
+ * Copyright 2014 mukunda
+ */
+ 
 (function() {
 
 function CC( str ) {
@@ -29,14 +33,22 @@ SIZES[FLOAT] = 4; SIZES[DOUBLE] = 8;
 
 var ALLOC_SIZE = 64;
 
-// normal example of usage:
-//   var buffer = HC_Packer( "ff bbbb" );
-//   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
-//   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
-//   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
-//   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
-//   buffer.Flush();
-//   gl_operation( x, y, buffer.buffer, z );
+/****************************************************
+ normal example of usage:
+ 
+   // create buffer, float x2 and unsigned byte x4
+   var buffer = HC_Packer( "ff BBBB" );
+   
+   // insert data
+   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
+   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
+   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] );
+   buffer.Push( [ 1.0, 1.0, 255,255,255,255 ] ); 
+   
+   // get resulting buffer with Buffer()
+   gl_operation( a, b, buffer.Buffer(), c );
+   
+*****************************************************/
 
 /** ---------------------------------------------------------------------------
  * [class] Data packer/serializer
@@ -75,7 +87,7 @@ HC_Packer = function( format ) {
 	this.cell_size = ComputeSize( p_format );
 	this.buffer = new ArrayBuffer(0);
 	this.total = 0;
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Push data into the buffer.
@@ -135,7 +147,7 @@ HC_Packer.prototype.Push = function( values ) {
 		start += this.format.length;
 	}
 	return this.total;
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Return the data buffer.
@@ -143,7 +155,7 @@ HC_Packer.prototype.Push = function( values ) {
 HC_Packer.prototype.Buffer = function() {
 	this.Flush();
 	return this.buffer;
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Create a writing buffer.
@@ -154,7 +166,7 @@ HC_Packer.prototype.CreateWriteBuffer = function() {
 	this.write_buffer = new ArrayBuffer( this.cell_size * ALLOC_SIZE );
 	this.write_index = 0;
 	this.buffer_view = new DataView( this.write_buffer );
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Push the write buffer into the main buffer, and delete the write buffer.
@@ -172,7 +184,7 @@ HC_Packer.prototype.Flush = function() {
 	this.buffer = bucket.buffer;
 	this.write_buffer = null;
 	this.write_index = 0;
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Compute the size per format cell.

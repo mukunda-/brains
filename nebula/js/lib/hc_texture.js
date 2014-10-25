@@ -1,4 +1,7 @@
-
+/*! [[HC]] 
+ * Copyright 2014 mukunda
+ */
+ 
 /** ---------------------------------------------------------------------------
  * [class] Create a texture from a file.
  *
@@ -28,8 +31,11 @@ HC_Texture.prototype.OnImageLoaded = function( image ) {
 	hc_gl.generateMipmap( hc_gl.TEXTURE_2D );
 	this.onload();
 	hc_gl.bindTexture( hc_gl.TEXTURE_2D, null );
-}
+};
 
+/** ---------------------------------------------------------------------------
+ * Bind this texture to the active texture unit.
+ */
 HC_Texture.prototype.Bind = function() {
 	hc_gl.bindTexture( hc_gl.TEXTURE_2D, this.texture );
-}
+};

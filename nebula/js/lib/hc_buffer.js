@@ -4,6 +4,8 @@
  
 /** ---------------------------------------------------------------------------
  * [class] Vertex Buffer
+ *
+ * Controls a single GL vertex buffer.
  */
 function HC_Buffer() {
 	this.buffer = hc_gl.createBuffer();
@@ -15,16 +17,18 @@ function HC_Buffer() {
  */
 HC_Buffer.prototype.Bind = function() {
 	hc_gl.bindBuffer( hc_gl.ARRAY_BUFFER, this.buffer );
-}
+};
+
 
 /** ---------------------------------------------------------------------------
  * Load vertex data.
  *
- * @param ? data Data to load.
- * @param ? usage Rendering hint.
+ * @param ArrayBuffer/x data Data to load.
+ * @param GLenum usage Rendering hint.
  */
 HC_Buffer.prototype.Load = function( data, usage ) {
+
 	this.Bind();
 	
 	hc_gl.bufferData( hc_gl.ARRAY_BUFFER, data, usage );
-}
+};

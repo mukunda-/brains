@@ -1,3 +1,11 @@
+<?php
+
+if( file_exists( 'build.php' ) ) {
+	include_once 'build.php';
+}
+
+?>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -20,14 +28,8 @@
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400' rel='stylesheet' type='text/css'>
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="js/jquery.mousewheel.min.js"></script>
-		<script src="js/hc.js"></script>
-		<script src="js/texture.js"></script>
-		<script src="js/shader.js"></script>
-		<script src="js/hc_packer.js"></script>
-		<script src="js/buffer.js"></script>
-		<script src="js/source.js"></script>
-		<script src="js/galaxy2.js"></script>
+		<script src="build/scripts.js"></script>
+		
 		<link rel="stylesheet" href="css/style.css" type="text/css">
 		<title>The Word Nebula</title>
 	</head>

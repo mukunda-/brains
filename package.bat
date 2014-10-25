@@ -10,4 +10,6 @@ del deploy\build\scripts.js
 del deploy\build\style.css
 del deploy\build\style.css.map
 
+xcopy nebula deploy\nebula /s /e /y
+
 pause

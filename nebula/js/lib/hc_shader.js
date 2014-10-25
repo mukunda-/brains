@@ -54,7 +54,7 @@ HC_Shader.prototype.Attach = function( source ) {
 		source = new HC_ShaderSource( source );
 	}
 	hc_gl.attachShader( this.program, source.shader );
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Link the program.
@@ -65,14 +65,14 @@ HC_Shader.prototype.Link = function() {
 		console.log( "Unable to link shader." );  
 		throw "Shader link error.";
 	}
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Use the program.
  */
 HC_Shader.prototype.Use = function() {
 	hc_gl.useProgram( this.program );
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Wrapper for getAttribLocation
@@ -82,7 +82,7 @@ HC_Shader.prototype.Use = function() {
  */
 HC_Shader.prototype.GetAttribute = function( name ) {
 	return hc_gl.getAttribLocation( this.program, name );
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Wrapper for getUniformLocation
@@ -92,7 +92,7 @@ HC_Shader.prototype.GetAttribute = function( name ) {
  */
 HC_Shader.prototype.GetUniform = function( name ) {
 	return hc_gl.getUniformLocation( this.program, name );
-}
+};
 
 /** ---------------------------------------------------------------------------
  * Read a shader script from the DOM.
