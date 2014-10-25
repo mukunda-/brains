@@ -9,7 +9,7 @@ var line_shader = null;
 
 var m_source;
 
-var m_zoom = 1.0; // 1.0 = 1 pixel = 1 unit.
+var m_zoom = 0.05; // 1.0 = 1 pixel = 1 unit.
 var m_translate = { x: 0.0, y: 0.0 };
 
 var m_zooming = 0.0;
@@ -20,6 +20,8 @@ var MAXWORDZOOM = 1.0;
 var MAXZOOM = 5.0;
 var MINZOOM = 0.01;
 
+var fade_in_time;
+var m_start_time;
 var m_next_tick;
 var m_dirty;
 
@@ -36,9 +38,9 @@ var m_drag = {
 };
 
 var glyph_width = [
-	6,6,5,6,6,5,6,6,
-	2,5,6,2,10,6,6,6,
-	6,5,5,4,6,6,10,6,
+	6,6,5,6, 6,5, 6,6,
+	2,5,6,2,10,6, 6,6,
+	6,5,5,4, 6,6,10,6,
 	6,6
 ];
 
@@ -65,20 +67,14 @@ function GetCell( point, create ) {
 	}
 	
 	m_cells[x][y] = {  
-		buffer_words: new HC_Packer( "ssffffBBBB" ),
-		buffer_boxes: new HC_Packer( "ssffffBBBB" ),
-		buffer_lines: new HC_Packer( "ssfffBBBB" )
+		buffer_words: new HC_Packer( "ssfffffBBBB" ),
+		buffer_boxes: new HC_Packer( "ssfffffBBBB" ),
+		buffer_lines: new HC_Packer( "ssffffBBBB" )
 		//buffer_lines: new HC_Packer()
 	};
 	return m_cells[x][y];
 }
-
-function SetTranslate() {
-	
-	
-}
  
-  
 function ResizeScreen() {
 	var w = window.innerWidth & ~1;
 	var h = window.innerHeight & ~1;
@@ -127,16 +123,13 @@ function Start() {
 	line_shader.Link();
 	line_shader.Use();
 	
-	my_shader.Use();
-//	hc_gl.enableVertexAttribArray( lines_shader.GetAttribute( "
-	m_dirty = true;
-	//my_buffer = new HC_Buffer();
-	//my_buffer.Load( new Float32Array(vertices), hc_gl.STATIC_DRAW );
-	
+	my_shader.Use(); 
+	m_dirty = true; 
 	ResizeScreen();
 } 
 
-function UpdateWordShaderUniforms() {
+function UpdateWordShaderUniforms( time ) {
+	hc_gl.uniform1f( my_shader.GetUniform( "u_time" ), time );
 	
 	hc_gl.uniform2f( my_shader.GetUniform( "u_translate" ), 
 		m_translate.x,
@@ -146,7 +139,7 @@ function UpdateWordShaderUniforms() {
 	hc_gl.uniform2f( my_shader.GetUniform( "u_screen_scale" ), 
 					 m_zoom / (hc_width/2), m_zoom / (hc_height/2) );
 	var word_zoom = Math.min( m_zoom, MAXWORDZOOM );
-
+	
 	hc_gl.uniform2f( my_shader.GetUniform( "u_word_scale" ), 
 					 word_zoom / (hc_width/2), word_zoom / (hc_height/2) );
 	
@@ -156,7 +149,9 @@ function UpdateWordShaderUniforms() {
 					 hc_width, hc_height );
 }
 
-function UpdateLineShaderUniforms() {
+function UpdateLineShaderUniforms( time ) {
+	hc_gl.uniform1f( line_shader.GetUniform( "u_time" ), time );
+	
 	hc_gl.uniform2f( line_shader.GetUniform( "u_translate" ),
 		m_translate.x,
 		m_translate.y
@@ -166,11 +161,10 @@ function UpdateLineShaderUniforms() {
 					 m_zoom / (hc_width/2), m_zoom / (hc_height/2) );
 	
 	var line_zoom = Math.min( m_zoom, MAXWORDZOOM );
-	line_zoom *= 0.2;
-	//line_zoom = 1.0;
+	 
 	hc_gl.uniform2f( line_shader.GetUniform( "u_line_scale" ), 
 					 line_zoom / (hc_width/2), line_zoom / (hc_height/2) );
-			 
+	
 }
 
 /** ---------------------------------------------------------------------------
@@ -193,6 +187,8 @@ function ForRenderBox( renderbox, func ) {
 function DrawScene() {
 	hc_gl.clear( hc_gl.COLOR_BUFFER_BIT ); 
 	
+	var current_time = (new Date().getTime()) - m_start_time;
+	
 	var padding = 500;
 	var scale = 1.0 / m_zoom;
 	var renderbox = {
@@ -206,27 +202,29 @@ function DrawScene() {
 	// line phase
 	//
 	line_shader.Use();
-	UpdateLineShaderUniforms();
+	UpdateLineShaderUniforms( current_time );
 	var a_position = line_shader.GetAttribute( "a_position" );
 	var a_center   = line_shader.GetAttribute( "a_center" );
 	var a_side     = line_shader.GetAttribute( "a_side" );
+	var a_time     = line_shader.GetAttribute( "a_time" );
 	var a_color    = line_shader.GetAttribute( "a_color" );
 	 
 	HC_EnableVertexAttribArrays( 
-		[a_position, a_center, a_side, a_color] );
+		[a_position, a_center, a_side, a_time, a_color] );
 	
 	ForRenderBox( renderbox, function( cell ) {
 		var buffer = cell.buffer_lines;
 		buffer.Bind();
-		hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 20, 0  );
-		hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 20, 4  );
-		hc_gl.vertexAttribPointer( a_side,     1, hc_gl.FLOAT, false, 20, 12 );
-		hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 20, 16 );
+		hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 24, 0  );
+		hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 24, 4  );
+		hc_gl.vertexAttribPointer( a_side,     1, hc_gl.FLOAT, false, 24, 12 );
+		hc_gl.vertexAttribPointer( a_time,     1, hc_gl.FLOAT, false, 24, 16 );
+		hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 24, 20 );
 		hc_gl.drawArrays( hc_gl.TRIANGLES, 0, buffer.u_size );
 	});
 		
 	HC_DisableVertexAttribArrays( 
-		[a_position, a_center, a_side, a_color] );
+		[a_position, a_center, a_side, a_time, a_color] );
 	
 	m_texture_font.Bind();
 	
@@ -234,22 +232,24 @@ function DrawScene() {
 	// word/box phase
 	//
 	my_shader.Use();
-	UpdateWordShaderUniforms();
+	UpdateWordShaderUniforms( current_time );
 	var a_position = my_shader.GetAttribute( "a_position" );
 	var a_texture  = my_shader.GetAttribute( "a_texture" );
 	var a_center   = my_shader.GetAttribute( "a_center" );
+	var a_time     = my_shader.GetAttribute( "a_time" );
 	var a_color    = my_shader.GetAttribute( "a_color" );
 	
 	HC_EnableVertexAttribArrays( 
-		[a_position, a_texture, a_center, a_color] );
+		[a_position, a_texture, a_center, a_time, a_color] );
 	
 	
 	function RenderWordBuffer( buffer ) {
 		buffer.Bind();
-		hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 24, 0  );
-		hc_gl.vertexAttribPointer( a_texture,  2, hc_gl.FLOAT, false, 24, 4  );
-		hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 24, 12 );
-		hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 24, 20 ); 
+		hc_gl.vertexAttribPointer( a_position, 2, hc_gl.SHORT, false, 28, 0  );
+		hc_gl.vertexAttribPointer( a_texture,  2, hc_gl.FLOAT, false, 28, 4  );
+		hc_gl.vertexAttribPointer( a_center,   2, hc_gl.FLOAT, false, 28, 12 );
+		hc_gl.vertexAttribPointer( a_time,     1, hc_gl.FLOAT, false, 28, 20 );
+		hc_gl.vertexAttribPointer( a_color,    4, hc_gl.UNSIGNED_BYTE, true, 28, 24 ); 
 		hc_gl.drawArrays( hc_gl.TRIANGLES, 0, buffer.u_size );
 	}
 	
@@ -264,7 +264,7 @@ function DrawScene() {
 	}
 	 
 	HC_DisableVertexAttribArrays(
-		[a_position, a_texture, a_center, a_color] );
+		[a_position, a_texture, a_center, a_time, a_color] );
 	
 }
 
@@ -275,7 +275,7 @@ $(window).resize( function() {
 
 $( function()	 {
 	Start();
-	$.get( "../tree.php", {} )
+	$.get( "../site/tree.php", {} )
 		.done( function( data ) {
 			Source.Load( data, OnLoaded );
 		})
@@ -295,7 +295,7 @@ $( function()	 {
  * @param float cx,cy Center of element.
  * @param float r,g,b,a Color.
  */
-function DrawRect( out, x, y, w, h, u, v, tw, th, cx, cy, r,g,b,a ) {
+function DrawRect( out, x, y, w, h, u, v, tw, th, cx, cy, r,g,b,a, time ) {
 	
 	if(!tw) tw = w;
 	if(!th) th = h;
@@ -315,16 +315,16 @@ function DrawRect( out, x, y, w, h, u, v, tw, th, cx, cy, r,g,b,a ) {
 	  
 	out.Push( [
 		
-		x+w, y  , u+tw, v   , cx, cy, r,g,b,a,
-		x  , y  , u   , v   , cx, cy, r,g,b,a,
-		x  , y-h, u   , v+th, cx, cy, r,g,b,a,
-		x  , y-h, u   , v+th, cx, cy, r,g,b,a,
-		x+w, y-h, u+tw, v+th, cx, cy, r,g,b,a,
-		x+w, y  , u+tw, v   , cx, cy, r,g,b,a
+		x+w, y  , u+tw, v   , cx, cy, time, r,g,b,a,
+		x  , y  , u   , v   , cx, cy, time, r,g,b,a,
+		x  , y-h, u   , v+th, cx, cy, time, r,g,b,a,
+		x  , y-h, u   , v+th, cx, cy, time, r,g,b,a,
+		x+w, y-h, u+tw, v+th, cx, cy, time, r,g,b,a,
+		x+w, y  , u+tw, v   , cx, cy, time, r,g,b,a
 	]);
 }
 
-function DrawText( out, x, y, text, cx, cy, r, g, b, a ) {
+function DrawText( out, x, y, text, cx, cy, r, g, b, a, time ) {
 	var a_code = "a".charCodeAt(0);
 	//y -= 3;
 	y += 1;
@@ -339,14 +339,14 @@ function DrawText( out, x, y, text, cx, cy, r, g, b, a ) {
 		if( code < 0 || code > 25 ) continue;
 		DrawRect( out, x, y, glyph_width[ code ], 12, 
 				  5 + (code&7)*16, 2 + (code>>3)*16, 0, 0, 
-				  cx, cy, r, g, b, a );
+				  cx, cy, r, g, b, a, time );
 		x += glyph_width[code] + 1;
 		count++;
 	}
 	return count;
 }
 
-function DrawLine( out, x1,y1,x2,y2,thickness,r,g,b,a ) {
+function DrawLine( out, x1,y1,x2,y2,thickness,r,g,b,a, time ) {
 	var delta = [ x2-x1, y2-y1 ];
 	var length = Math.sqrt( delta[0]*delta[0] + delta[1]*delta[1] );
 	delta[0] /= length;
@@ -368,12 +368,12 @@ function DrawLine( out, x1,y1,x2,y2,thickness,r,g,b,a ) {
 	a = Math.round(a * 255.0);
 	
 	out.Push( [
-		 delta[0],  delta[1], x1, y1,  1.0, r,g,b,a,
-		-delta[0], -delta[1], x1, y1, -1.0, r,g,b,a,
-		-delta[0], -delta[1], x2, y2, -1.0, r,g,b,a,
-		-delta[0], -delta[1], x2, y2, -1.0, r,g,b,a,
-		 delta[0],  delta[1], x2, y2,  1.0, r,g,b,a,
-		 delta[0],  delta[1], x1, y1,  1.0, r,g,b,a,
+		 delta[0],  delta[1], x1, y1,  1.0, time, r,g,b,a,
+		-delta[0], -delta[1], x1, y1, -1.0, time, r,g,b,a,
+		-delta[0], -delta[1], x2, y2, -1.0, time, r,g,b,a,
+		-delta[0], -delta[1], x2, y2, -1.0, time, r,g,b,a,
+		 delta[0],  delta[1], x2, y2,  1.0, time, r,g,b,a,
+		 delta[0],  delta[1], x1, y1,  1.0, time, r,g,b,a,
 	]);
 }
 
@@ -405,8 +405,10 @@ function MeasureText( text ) {
 function OnLoaded() {
 	
 	var elements = Source.GetElements();
+	var fade_time = 1.0;
 	//var vertices = new HC_Packer( "ssffffBBBB" );
 	//var lines = new HC_Packer( "ssffBBBB" );
+	fade_in_time = elements.length * fade_time + 1000;
 	
 	for( var i = 0; i < elements.length; i++ ) {
 		if( elements[i].type == Source.E_WORD ) {
@@ -429,7 +431,7 @@ function OnLoaded() {
 				box_y-2,
 				box_width+4,box_height+4,40,56,1,1,
 				x,y,
-				1.0,1.0,1.0,elements[i].opacity
+				1.0,1.0,1.0,elements[i].opacity, i*fade_time
 			);
 			
 			DrawRect( 
@@ -438,7 +440,7 @@ function OnLoaded() {
 				box_y-2,
 				box_width+4,box_height+4,40,56,1,1,
 				x,y,
-				1.0,1.0,1.0,elements[i].opacity
+				1.0,1.0,1.0,elements[i].opacity, i*fade_time
 			);
 			
 			DrawText(
@@ -447,7 +449,7 @@ function OnLoaded() {
 				y,
 				phrase,
 				x, y,
-				0.0,0.0,0.0,elements[i].opacity
+				0.0,0.0,0.0,elements[i].opacity, i*fade_time
 			);
 			// lol
 		} else if( elements[i].type == Source.E_LINE ) {
@@ -457,7 +459,12 @@ function OnLoaded() {
 			var x2 = Math.round( elements[i].to.x );
 			var y2 = Math.round( elements[i].to.y );
 			var cell = GetCell( {x:x2, y:y2}, true );
-			DrawLine( cell.buffer_lines, x1, y1, x2, y2, 5.0, 1.0, 1.0, 1.0, 1.0 );
+			
+			DrawLine( cell.buffer_lines, x1, y1, x2, y2, 1.5, 
+				elements[i].color.r, 
+				elements[i].color.g, 
+				elements[i].color.b, 
+				elements[i].opacity, i*fade_time   );
 			
 		}
 	}
@@ -487,8 +494,9 @@ function OnLoaded() {
 		}
 	}
 	 
+	m_start_time = (new Date().getTime());
 	// start frame loop
-	m_next_tick = (new Date().getTime());
+	m_next_tick = m_start_time;//
 	OnFrame();
 }
 
@@ -556,6 +564,7 @@ function DoFrameUpdate() {
 		if( Math.abs(m_zooming) < 0.0001 
 			&& Math.abs(m_flying.x) < 0.0001 
 			&& Math.abs(m_flying.y) < 0.0001
+			&& m_next_tick > m_start_time + fade_in_time
 			&& !m_dirty ) {
 			return;
 		}
