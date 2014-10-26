@@ -15,3 +15,5 @@ deploy/
 site/build
 site/word_tree.json
 site/nebula/
+nebula/build
+nebula/logs
