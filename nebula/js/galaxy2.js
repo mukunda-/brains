@@ -528,17 +528,7 @@ function OnLoaded() {
 		 
 		if( ev.originalEvent.touches.length == 1 ) {
 			DragStart( ev.originalEvent.touches[0].screenX, ev.originalEvent.touches[0].screenY );
-		}
-		/* else if( e.originalEvent.touches.length == 2 ) {
-			DragStop();
-			PinchStart( 
-				Distance( 
-					ev.originalEvent.touches[0].screenX, 
-					ev.originalEvent.touches[0].screenY,
-					ev.originalEvent.touches[1].screenX, 
-					ev.originalEvent.touches[1].screenY ) );
-			
-		}*/
+		} 
 		ev.preventDefault();
 	});
 	
@@ -597,12 +587,7 @@ function DoZoom( delta, accel ) {
 		m_zooming -= delta ;// * (2.0 + m_zoom_accel);
 	}
 }
-/*
-function PinchStart( d ) {
-
-	m_pinch.last = d;
-}
-*/
+ 
 function PinchDrag( d ) {	
 	
 	if( !m_pinch.active ) {
