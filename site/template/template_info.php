@@ -17,10 +17,10 @@
 
   <p>
     Over time, the Wordex will grow into a massive reference of relations between
-    thoughts. It's kind of like a thesaurus, except we aren't only looking for synonyms.
+    thoughts. It's like a thesaurus, except we aren't only looking for direct synonyms or antonyms.
     For example, <i>baby</i> and <i>crib</i> 
     are definitely not the same thing, but cribs are for babies, so ideally <i>baby</i>
-    and <i>crib</i> should form a <i>strong link</i>.
+    and <i>crib</i> should form a <i>strong link</i> here.
   </p>
 
   <p>
