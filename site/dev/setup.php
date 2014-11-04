@@ -80,11 +80,18 @@ $db->RunQuery( "
 		id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		creator INT UNSIGNED          COMMENT 'Account of creator. 0 = anonymous',
 		time    INT UNSIGNED NOT NULL COMMENT 'Unixtime of creation.',
-		phrase  VARCHAR(31) NOT NULL UNIQUE
+		phrase  VARCHAR(31) NOT NULL UNIQUE,
+		bad		INT DEFAULT 0 COMMENT 'How offensive a thought is.'
 	) 
 	ENGINE = InnoDB
 	COMMENT = 'Mapping of thoughts and their IDs.'
 ");
+
+// "bad" map:
+//  0 - not bad
+//  1 - minorly offensive or vulgar language or excessively violent
+//  2 - pornographic
+//  3 - racist
 
 $db->RunQuery( "
 	CREATE TABLE IF NOT EXISTS Links (
