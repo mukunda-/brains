@@ -32,14 +32,15 @@ function Load( source, onload ) {
 		if( !m_source.links.hasOwnProperty( from ) ) continue;
 		
 		for( var i = 0; i < m_source.links[from].length; i++ ) {
-			var to = m_source.links[from][i].to;
+			var to = m_source.links[from][i].t;
 			
 			if( !backlinks.hasOwnProperty( to ) ) {
 				backlinks[to] = [];
 			}
 			backlinks[to].push({
-				"to": from,
-				"score": m_source.links[from][i].score
+				"t": from,
+				"s": m_source.links[from][i].s,
+				"b": m_source.links[from][i].b
 			});
 		}
 		
@@ -218,7 +219,9 @@ function ProcessItem() {
 	//var dbase = -140.0;
 	
 	for( var i = 0; i < length; i++ ) {
-		if( m_source.links[item.id][i].to == item.from ) continue;
+		if( m_source.links[item.id][i].t == item.from ) continue;
+		if( m_source.links[item.id][i].b != 0 ) continue;
+		
 		var distance_range = 1.0 + Math.max(1.0-(item.level / 10.0),0.0) * 2.0  + 1.0;// Math.max( Math.min( 1.0, length / 5.0 * 1.0 ), 0.2 ) * 3.0;+
 		
 		var angle_range = 0.1+Math.min( 1.0, length / 10.0 ) * 2.0 +  Math.max(1.0-(item.level / 3.0),0.0) * 6.0; 
@@ -231,8 +234,8 @@ function ProcessItem() {
 	
 		m_stack.push( {
 			from: item.id,
-			id: m_source.links[item.id][i].to,
-			power: m_source.links[item.id][i].score,
+			id: m_source.links[item.id][i].t,
+			power: m_source.links[item.id][i].s,
 			progress: 0,
 			level: item.level+1,
 			x: x2,

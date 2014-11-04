@@ -17,3 +17,5 @@ site/word_tree.json
 site/nebula/
 nebula/build
 nebula/logs
+admin/classes
+admin/private

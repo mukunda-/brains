@@ -19,12 +19,14 @@ if( file_exists( 'word_tree.json' ) ) {
 }
 
 class Link {
-	public $to;
-	public $score;
+	public $t;
+	public $s;
+	public $b;
 	
-	public function __construct( $to, $score ) {
-		$this->to = (int)$to;
-		$this->score = (int)$score;
+	public function __construct( $to, $score, $bad ) {
+		$this->t = (int)$to;
+		$this->s = (int)$score;
+		$this->b = (int)$bad;
 	}
 }
 
@@ -40,11 +42,14 @@ class Result {
 		$this->start = $this->start->id;
 		
 		$db = \SQLW::Get();
+		
+		$bads = [];
 
-		$result = $db->RunQuery( "SELECT id, phrase FROM Thoughts" );
+		$result = $db->RunQuery( "SELECT id, phrase, bad FROM Thoughts" );
 		while( $row = $result->fetch_row() ) {
 			$row[0] = (int)$row[0];
 			$this->phrases[ $row[0] ] = $row[1];
+			$bads[ $row[0] ] = $row[2];
 		}
 		
 		$result = $db->RunQuery( "SELECT thought1, thought2, score FROM Links" );
@@ -54,15 +59,12 @@ class Result {
 			$row[1] = (int)$row[1];
 			$row[2] = (int)$row[2];
 			
+			$bad = max( $bads[$row[0]], $bads[$row[1]] );
+			
 			if( !isset( $this->links[$row[0]] ) ) {
 				$this->links[$row[0]] = [];
 			}
-			$this->links[$row[0]][] = new Link( $row[1], $row[2] );
-			/*
-			if( !isset( $this->links[$row[1]] ) ) {
-				$this->links[$row[1]] = [];
-			}
-			$this->links[$row[1]][] = new Link( $row[0], $row[2] );*/
+			$this->links[$row[0]][] = new Link( $row[1], $row[2], $bad ); 
 		}
 		
 		$this->time = time();

@@ -1,6 +1,8 @@
 <?php
 
 namespace Brains;
+
+if( !file_exists( "logs" ) ) mkdir( "logs", 0700 );
  
 date_default_timezone_set( 'America/Chicago' );
 

@@ -154,7 +154,7 @@ function Load( info ) {
 	
 	m_ag.AddAjax( ajax )
 		.done( function(data) { 
-			
+			alert(data);
 			if( data == "" ) {
 				call_failure();
 				return;

@@ -417,6 +417,7 @@ function ShowInfoPage() {
 		url: "stats.php",
 		data: {},
 		process: function( response ) {
+			
 			if( response === null || response.status != "okay." ) {
 				
 				return false;

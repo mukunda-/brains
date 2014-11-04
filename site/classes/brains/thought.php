@@ -12,16 +12,18 @@ final class Thought {
 	public $time;
 	public $phrase;
 	public $created = false; // if this was just now created.
+	public $bad;
 	const MAXLEN = 20;
 	
 	public function __construct( $id, $phrase, 
 								 $creator = null, $time = null,
-								 $created = false ) {
+								 $bad = null, $created = false ) {
 		$this->id = $id;
 		$this->phrase = $phrase;
 		$this->creator = $creator;
 		$this->time = $time;
 		$this->created = $created;
+		$this->bad = $bad;
 	}
 	
 	/** -----------------------------------------------------------------------
@@ -42,7 +44,7 @@ final class Thought {
 		}
 		
 		$phrase = str_replace( '-', ' ', $phrase );
-		$phrase = trim(preg_replace( '/[ ]+/', ' ', $phrase ));
+		$phrase = trim( preg_replace( '/[ ]+/', ' ', $phrase ) );
 		
 		$len = strlen( $phrase );
 		if( $len == 0 || $len > self::MAXLEN ) return FALSE;
@@ -68,12 +70,12 @@ final class Thought {
 		$phrase_sql = $db->real_escape_string( $phrase );
 		
 		$result = $db->RunQuery( 
-			"SELECT id,creator,time FROM Thoughts 
+			"SELECT id,creator,time,bad FROM Thoughts 
 			WHERE phrase='$phrase_sql'" );
 			
 		if( $result->num_rows != 0 ) {
 			$row = $result->fetch_row();
-			return new self( (int)$row[0], $phrase, (int)$row[1], (int)$row[2] );
+			return new self( (int)$row[0], $phrase, (int)$row[1], (int)$row[2], (int)$row[3] );
 		}
 		
 		// thought doesn't exist, create it.
@@ -81,26 +83,11 @@ final class Thought {
 		
 		$time = time();
 		$creator = User::AccountID();
-		
-		//try {
+		 
 		$db->RunQuery(
 			"INSERT INTO Thoughts ( creator, `time`, phrase )
-			VALUES ( $creator, $time, '$phrase_sql')" );
-			/*
-		} catch( \SQLException $e ) {
-			if( $e->code == SQLW::ER_DUP_KEY ) {
-				// someone else created the thought before us somehow..
-				$result = $db->RunQuery( 
-					"SELECT id,creator,time FROM Thoughts WHERE phrase='$phrase_sql'" );
-				
-				$row = $result->fetch_row();
-				if( $row === NULL ) throw new Exception( '"something messed up."' );
-				return new self( $row[0], $phrase, $row[1], $row[2] );
-							
-			}
-			throw $e;
-		}*/
-		
+			VALUES ( $creator, $time, '$phrase_sql' )" );
+	 
 		if( $creator && User::AccountID() == $creator ) {
 			Logger::Info( Logger::FormatUser( User::GetUsername(), $creator ) . " created a new thought: \"$phrase\"" );
 		} else {
@@ -108,7 +95,7 @@ final class Thought {
 		}
 		
 		// success.
-		return new self( $db->insert_id, $phrase, $creator, $time, true );
+		return new self( $db->insert_id, $phrase, $creator, $time, 0, true );
 	}
 	
 	/** ---------------------------------------------------------------------------
@@ -143,6 +130,30 @@ final class Thought {
 			return TRUE;
 		}
 		return FALSE;
+	}
+	
+	/** -----------------------------------------------------------------------
+	 * Set the badness of a thought.
+	 *
+	 * @param int $badness
+	 *             0 = not bad
+	 *             1 = minorly offensive
+	 *             2 = pornographic
+	 *             3 = racist
+	 */
+	public function SetBadness( $badness ) {
+		$badness = intval( $badness );
+		if( $badness < 0 || $badness > 3 ) {
+			throw new InvalidArgumentException( "Bad bad." );
+		}
+		
+		if( $this->bad == $badness ) return;
+		$this->bad = $badness;
+		
+		$db = \SQLW::Get();
+		$db->RunQuery( "UPDATE Thoughts SET bad=$badness WHERE id=$this->id" );
+	
+		Logger::Info( "Set badness of thought \"$this->phrase\": $badness" );
 	}
 }
 

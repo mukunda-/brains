@@ -585,6 +585,7 @@ final class ThoughtLink {
 			$result = $db->RunQuery( 
 				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
 				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
+						T1.bad AS bad1, T2.bad AS bad2,
 						goods, bads, Links.time AS time, 
 						Links.creator AS creator, vote
 				FROM Links
@@ -600,6 +601,7 @@ final class ThoughtLink {
 			$result = $db->RunQuery( 
 				"SELECT Links.id AS id, thought1 AS source, thought2 AS dest, 
 				        T1.phrase AS source_phrase, T2.phrase AS dest_phrase,
+						T1.bad AS bad1, T2.bad AS bad2,
 						goods, bads, Links.time AS time, 
 						Links.creator AS creator, vote
 				FROM Links
@@ -617,6 +619,10 @@ final class ThoughtLink {
 		while( $row = $result->fetch_assoc() ) {
 			$vote = $row['vote'];
 			if( !is_null($vote) ) $vote = $vote ? TRUE:FALSE;
+			
+			// filter out "bad" thoughts from the recent list.
+			$bad = max( $row['bad1'], $row['bad2'] );
+			if( $bad != 0 ) continue;
 			
 			$source = new Thought( $row['source'], $row['source_phrase'] );
 			$dest = new Thought( $row['dest'], $row['dest_phrase'] );
